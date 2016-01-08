@@ -1,6 +1,8 @@
 var path = require("path");
+var pkg = require('../package.json');
 
 var config = {};
+config.packageJSON = pkg;
 config.rootDirectory = path.resolve("./");
 config.dataLayerDirectory = path.join(config.rootDirectory, "datalayer");
 config.pathToTypeDefinitions = path.join(config.dataLayerDirectory, "typedefinitions");

@@ -9,7 +9,7 @@ module.exports = function () {
     
     // own stuff
     var genFunctions = require("./functions/generateSourcesFunctions");
-    var config = require("./config");
+    var config = require("../config");
 
     var logPath = "logs/generator.log";
 
@@ -311,7 +311,7 @@ module.exports = function () {
 
 
     function generatorLog() {
-        var content = new Date().toLocaleString() + "     ";
+        var content = ""; //new Date().toLocaleString() + "     ";
         for (var i = 0; i < arguments.length; i++) {
             if (typeof arguments[i] === 'object')
                 content += JSON.stringify(arguments[i]);
