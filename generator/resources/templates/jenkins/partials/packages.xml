@@ -1,0 +1,6 @@
+<% 
+if (deployment.smallstack.version === "develop" || deployment.smallstack.version === "master") { 
+%>grunt ci:packages --smallstack.mode local --smallstack.path ../smallstack --deploy.env <%=deployment.name%> --stack <% }
+ 
+if (deployment.smallstack.version !== "develop" && deployment.smallstack.version !== "master") { 
+%>grunt ci:packages --smallstack.mode downloadedZip --smallstack.zip /var/lib/jenkins/smallstack/smallstack-<%=deployment.smallstack.version%>.zip --deploy.env <%=deployment.name%> --stack <% } %>

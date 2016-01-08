@@ -1,0 +1,9 @@
+{
+	"pageContainerCss": "container",
+	"listTableCss": "striped",
+	"tableRow": "row",
+	"tableCol": "col",
+	"btnClass": "btn",
+	"fullsizeTableCol": "s12",
+	"inputFieldClasses": "input-field"
+}

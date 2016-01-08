@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='UTF-8'?>
+  <project>
+    <actions/>
+    <description>Deploys project <%=projectName%></description>
+    <keepDependencies>false</keepDependencies>
+    <properties>
+      <jenkins.plugins.slack.SlackNotifier_-SlackJobProperty plugin="slack@1.8">
+        <teamDomain></teamDomain>
+        <token></token>
+        <room></room>
+        <startNotification>false</startNotification>
+        <notifySuccess>true</notifySuccess>
+        <notifyAborted>false</notifyAborted>
+        <notifyNotBuilt>false</notifyNotBuilt>
+        <notifyUnstable>true</notifyUnstable>
+        <notifyFailure>false</notifyFailure>
+        <notifyBackToNormal>true</notifyBackToNormal>
+        <notifyRepeatedFailure>true</notifyRepeatedFailure>
+        <includeTestSummary>false</includeTestSummary>
+        <showCommitList>false</showCommitList>
+        <includeCustomMessage>true</includeCustomMessage>
+        <customMessage>New version of <%=projectName%> just got deployed!</customMessage>
+      </jenkins.plugins.slack.SlackNotifier_-SlackJobProperty>
+      <jenkins.model.BuildDiscarderProperty>
+        <strategy class="hudson.tasks.LogRotator">
+          <daysToKeep>30</daysToKeep>
+          <numToKeep>30</numToKeep>
+          <artifactDaysToKeep>30</artifactDaysToKeep>
+          <artifactNumToKeep>30</artifactNumToKeep>
+        </strategy>
+      </jenkins.model.BuildDiscarderProperty>      
+    </properties>
+    <%=scm%>
+    <canRoam>true</canRoam>
+    <disabled>false</disabled>
+    <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+    <blockBuildWhenUpstreamBuilding>true</blockBuildWhenUpstreamBuilding>
+    <authToken><%=triggerHash%></authToken>
+    <triggers>
+      <% if (deployment.autoDeploy === true) {%>
+      <jenkins.triggers.ReverseBuildTrigger>
+        <spec></spec>
+        <upstreamProjects>project-<%=projectName%>-<%=deployment.repository.branch%>-build</upstreamProjects>
+        <threshold>
+          <name>SUCCESS</name>
+          <ordinal>0</ordinal>
+          <color>BLUE</color>
+          <completeBuild>true</completeBuild>
+        </threshold>
+      </jenkins.triggers.ReverseBuildTrigger>
+      <% }%>
+    </triggers>
+    <concurrentBuild>false</concurrentBuild>
+    <builders>
+      <hudson.tasks.Shell>
+        <command>cd <%=projectName%>
+npm install 
+<%=packagesPartial%>
+grunt ci:deploy --deploy.env <%=deployment.name%> --stack</command>
+      </hudson.tasks.Shell>
+    </builders>
+    <publishers>
+      <jenkins.plugins.slack.SlackNotifier plugin="slack@1.8">
+        <teamDomain>smallstack</teamDomain>
+        <authToken>wefweaffefaffawefwaf</authToken>
+        <buildServerUrl>http://jenkins.smallstack.io/</buildServerUrl>
+        <room>project-<%=projectName%></room>
+      </jenkins.plugins.slack.SlackNotifier>
+    </publishers>
+    <buildWrappers>
+      <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.28">
+        <deleteDirs>true</deleteDirs>
+        <cleanupParameter></cleanupParameter>
+        <externalDelete></externalDelete>
+      </hudson.plugins.ws__cleanup.PreBuildCleanup>
+      <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.2">
+        <colorMapName>xterm</colorMapName>
+      </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+      <jenkins.plugins.nodejs.tools.NpmPackagesBuildWrapper plugin="nodejs@0.2.1">
+        <nodeJSInstallationName>node-0.10.40</nodeJSInstallationName>
+      </jenkins.plugins.nodejs.tools.NpmPackagesBuildWrapper>
+    </buildWrappers>
+  </project>

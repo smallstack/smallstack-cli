@@ -1,0 +1,15 @@
+{
+  "name": "smallstack",
+  "version": "0.0.1",
+  "description": "Command Line Interface for Smallstack Projects",
+  "bin": "smallstack.js",
+  "dependencies": {
+    "capitalize": "^1.0.0",
+    "commander": "^2.9.0",
+    "find": "^0.2.4",
+    "fs-extra": "^0.26.4",
+    "lodash": "^3.10.1",
+    "pluralize": "^1.2.1",
+    "underscore": "^1.8.3"
+  }
+}
