@@ -3,9 +3,9 @@
  */
 /// <reference path="<%= relativePathToTypeDefinitionsGen %>/underscore/underscore.d.ts" />
 /// <reference path="<%= relativePathToTypeDefinitionsGen %>/smallstack.d.ts" />
-/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.pathToSmallstackFiles) %>/interfaces/QueryObject.ts" />
-/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.pathToSmallstackFiles) %>/interfaces/QueryOptions.ts" />
-/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.pathToSmallstackFiles) %>/interfaces/Utils.ts" />
+/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.smallstackDirectory) %>/interfaces/QueryObject.ts" />
+/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.smallstackDirectory) %>/interfaces/QueryOptions.ts" />
+/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.smallstackDirectory) %>/interfaces/Utils.ts" />
 
 /// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, servicesDirectory + "/" + serviceClassName) %>.ts" /><%
 _.forEach(config.model.schema, function(schema) {
@@ -128,7 +128,7 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 		%>return model;
 	}
 	
-	public toDocument() {
+	public toDocument():any {
 		var doc = {};
 		<% _.forEach(config.model.schema, function(schema) {
 	 		%>doc["<%=functions.getModelPropertyName(schema) %>"] = this["<%=functions.getModelPropertyName(schema) %>"]; 

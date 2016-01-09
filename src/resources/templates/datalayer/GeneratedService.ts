@@ -2,22 +2,25 @@
  * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY RE-COMPILE
  */
 
-/// <reference path="<%= relativePathFromGeneratedServiceToGeneratedDefinitionsFile %>" />
 /// <reference path="<%= relativePathToTypeDefinitionsGen %>/underscore/underscore.d.ts" />
-/// <reference path="<%= relativePathFromGeneratedServiceToPackages %>/smallstack-collections/QueryOptions.ts" />
+/// <reference path="<%= relativePathToTypeDefinitionsGen %>/meteor/meteor.d.ts" />
+/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.smallstackDirectory) %>/interfaces/QueryOptions.ts" />
+/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.smallstackDirectory) %>/interfaces/CollectionService.ts" />
+/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.smallstackDirectory) %>/interfaces/RolesService.ts" />
+/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.smallstackDirectory) %>/interfaces/DataBridge.ts" />
 /// <reference path="<%= relativePathFromServiceToModel %>" />
 
 
 class <%= generatedServiceClassName %> {
 	
-    private subscriptionManager: any;
     private rolesService: any;
-    private collectionService: any;
+    private collectionService: CollectionService;
+    private dataBridge:DataBridge;
     
 	constructor() {
-        this.subscriptionManager = smallstack.ioc.get("subscriptionManager");
         this.rolesService = smallstack.ioc.get<RolesService>("rolesService");
         this.collectionService = smallstack.ioc.get<CollectionService>("collectionService");
+        this.dataBridge = smallstack.ioc.get<DataBridge>("dataBridge");
         this.getCollection()["smallstackService"] = this;
         
         // create default roles
@@ -32,7 +35,7 @@ class <%= generatedServiceClassName %> {
 	
 		
 	public getCollection(): Mongo.Collection<<%=modelClassName%>> {
-		return smallstack.collections["<%= collectionName %>"];
+        return this.collectionService.getCollectionByName("<%= collectionName %>");
 	}
     
     // generated service methods for queries
@@ -68,12 +71,12 @@ class <%= generatedServiceClassName %> {
 					};
                     subscriptionOptions += "},";
 				}
-                 parsedSelector = parsedSelector.replace(/\"_currentLoggedInUser_\"/g,"Meteor.userId()");
+                 parsedSelector = parsedSelector.replace(/\"$currentUserId\"/g,"UserService.getCurrentUserId()");
 			}
             
             // one or many?
             var sorting = query.sorting !== undefined ? JSON.stringify(query.sorting) : "{}";
-            var mongoQuery = "smallstack.collections[\"" + collectionName + "\"].find(" + parsedSelector + ", selectorOptions)";
+            var mongoQuery = "self.getCollection().find(" + parsedSelector + ", selectorOptions)";
             // if (query.returnOne === true)
             //     mongoQuery = "smallstack.collections[\"" + collectionName + "\"].findOne(" + parsedSelector + ")";
             
@@ -86,47 +89,38 @@ class <%= generatedServiceClassName %> {
         var cursor = <%= mongoQuery %>;
         return {
             cursor : cursor,
-            subscribe : function($scope: any) {
-                return $scope.$meteorSubscribe("<%=query.name%>", parameters, selectorOptions);
+            subscribe : function() {
+                return self.dataBridge.subscribe("<%=query.name%>", parameters, selectorOptions);
             },
-            val : function(index) {
-                if (index === undefined)
-                    return cursor.fetch();
-                else 
-                    return cursor.fetch()[index];
-            },
-            expand: function($scope: any, foreignKeys:string[], callback?: () => void) {
-                self.collectionService.subscribeForeignKeys($scope, self.getCollection()["smallstackCollection"], cursor, foreignKeys, callback);
+            expand: function(foreignKeys:string[], callback?: () => void) {
+                self.collectionService.subscribeForeignKeys(self.getCollection()["smallstackCollection"], cursor, foreignKeys, callback);
             }
         }
 	}		
     
     public get<%= _.capitalize(query.name) %>Count(parameters : {<%=parameters%>}): number {
-        return (<any>Counts).get("count-<%=query.name%>");
+        return this.dataBridge.getCountForQuery("<%=query.name%>", parameters);
 	}	
 	<% }) %>
 
 	<% 
 	_.forEach(config.service.securedmethods, function(method){%>
-	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(method.parameters, true)%>callback?: (error: Meteor.Error, result: any) => void) {
+	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(method.parameters, true)%>callback?: (error: Error, result: any) => void) {
 <%=functions.getChecksForParameters(method.parameters, others)%>    
         Meteor.call("<%=collectionName%>-<%=method.name%>", <%=functions.arrayToCommaSeparatedString(method.parameters, false, true, true)%>callback);
 	}					
 	<%});%>
 	
 	// Model Operations
-    public save<%=modelClassName%>(model:<%=modelClassName%>, callback?: (error: Meteor.Error, savedId:string) => void): string {
-		//check(model, smallstack.schemas["<%=collectionName%>"]);
-        return smallstack.collections["<%=collectionName%>"].insert(model.toDocument(), callback);
+    public save<%=modelClassName%>(model:<%=modelClassName%>, callback?: (error: Error, savedId:string) => void): string {
+        return this.getCollection().insert(model.toDocument(), callback);
 	}
 
-	public update<%=modelClassName%>(model:<%=modelClassName%>, callback?: (error: Meteor.Error, numberOfUpdatedDocuments:number) => void):number {
-		//check(model, smallstack.schemas["<%=collectionName%>"]);
-        return smallstack.collections["<%=collectionName%>"].update(model.id, <%=functions.getMongoUpdateJson(others[collectionName].config.model.schema) %>, callback);
+	public update<%=modelClassName%>(model:<%=modelClassName%>, callback?: (error: Error, numberOfUpdatedDocuments:number) => void):number {
+        return this.getCollection().update(model.id, <%=functions.getMongoUpdateJson(others[collectionName].config.model.schema) %>, callback);
 	}
 	
-	public delete<%=modelClassName%>(model:<%=modelClassName%>, callback?: (error: Meteor.Error, numberOfRemovedDocuments:number) => void):number {
-		//check(model, smallstack.schemas["<%=collectionName%>"]);
-		return smallstack.collections["<%=collectionName%>"].remove(model.id, callback);
+	public delete<%=modelClassName%>(model:<%=modelClassName%>, callback?: (error: Error, numberOfRemovedDocuments:number) => void):number {
+		return this.getCollection().remove(model.id, callback);
 	}
 }

@@ -1,0 +1,56 @@
+{
+    "collection": {
+        "name": "leaves"
+    },
+    "service": {
+        "name": "LeafService",
+        "queries": [
+            {
+                "name": "leavesForTreeId",
+                "selector": {
+                    "treeId": ":treeId:string"
+                }
+            }
+        ],
+        "securedMethods": [
+            {
+                "name": "growLeaf",
+                "parameters": [
+                    "treeId:string",
+                    "color:string"
+                ],
+                "visibility": "server"
+            }
+        ]
+    },
+    "model": {
+        "name": "Leaf",
+        "schema": [
+            {
+                "name": "color",
+                "type": "string",
+                "allowedValues": [
+                    "red",
+                    "green",
+                    "yellow"
+                ]
+            },
+            {
+                "name": "condition",
+                "type": "string",
+                "allowedValues": [
+                    "fresh",
+                    "whithered",
+                    "dead"
+                ],
+                "defaultValue": "fresh",
+                "optional": true
+            },
+            {
+                "name": "tree",
+                "type": "foreign",
+                "collection": "trees"
+            }
+        ]
+    }
+}

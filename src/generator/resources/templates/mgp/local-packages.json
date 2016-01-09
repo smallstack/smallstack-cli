@@ -1,7 +1,0 @@
-{
-    <% for (var i = 0; i < packages.length; i++) { %>
-    "<%= packages[i] %>": {
-        "path": "<%= path %>/<%= packages[i] %>"
-    }<% if(i !== (packages.length - 1)) { %>,<% } %>
-    <% } %>
-}

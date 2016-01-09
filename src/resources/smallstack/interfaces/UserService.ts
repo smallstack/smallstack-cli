@@ -1,0 +1,3 @@
+interface UserService {
+    getCurrentUserId(): string;
+}
