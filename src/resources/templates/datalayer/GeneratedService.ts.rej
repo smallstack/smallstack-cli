@@ -1,0 +1,11 @@
+diff a/src/resources/templates/datalayer/GeneratedService.ts b/src/resources/templates/datalayer/GeneratedService.ts	(rejected hunks)
+@@ -15,9 +15,6 @@
+ class <%= generatedServiceClassName %><<%=genericTypeName%>> {
+     
+ 	constructor() {        
+-    static instance(): <%= serviceClassName %> {
+-        return smallstack.ioc.get<<%= serviceClassName %>>("<%= functions.lowerCaseFirst(serviceClassName) %>");
+-    }
+ 
+ 	}
+     

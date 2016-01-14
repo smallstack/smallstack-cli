@@ -208,7 +208,7 @@ functions.getChecksForParameters = function getChecksForParameters(array, others
                 type = "String";
             }
 
-            out += "\t\tUtils.check(" + name + ", " + type + ", \"" + name + "\", callback);\n";
+            out += "\t\tsmallstack.ioc.get<Utils>(\"utils\").check(" + name + ", " + type + ", \"" + name + "\", callback);\n";
         }
     }
     return out;

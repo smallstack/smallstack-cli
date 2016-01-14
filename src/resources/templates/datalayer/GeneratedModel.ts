@@ -7,6 +7,7 @@
 /// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.smallstackDirectory) %>/interfaces/QueryOptions.ts" />
 /// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.smallstackDirectory) %>/interfaces/Utils.ts" />
 
+
 /// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, servicesDirectory + "/" + serviceClassName) %>.ts" /><%
 _.forEach(config.model.schema, function(schema) {
     if (schema.type === "foreign" || schema.type === "foreign[]") {
@@ -61,7 +62,6 @@ function getSubTypes(schema) {
 
 %>
 
-/// <reference path="<%= relativePathFromGeneratedModelToModel %>" />
 
 
 class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {%> extends <%=config.model.extends%><%}%><% if (config.model.implements !== undefined) {%> implements <%=config.model.implements%><%}%> {
@@ -117,7 +117,7 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 	}
 	
 	public static fromDocument(doc: any) {
-		var model = new <%= modelClassName %>();
+		var model:any = {};
 		if (doc._id !== undefined) {
 			model._isStored = true; 
 			model.id = doc._id;		

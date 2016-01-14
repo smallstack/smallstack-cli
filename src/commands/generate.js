@@ -208,15 +208,15 @@ module.exports = function () {
         // }
 
         // process services
-        if (data.config.service.skipGeneration === true)
-            generatorLog("  | - skipping generating service since service.skipGeneration === true");
-        else {
-            generatorLog("  | - generating service");
-            processTemplate(config.datalayerTemplatesPath + "/GeneratedService.ts", data.servicesGeneratedDirectory + "/" + data.generatedServiceClassName + ".ts", data);
-            var serviceImpl = data.servicesDirectory + "/" + data.serviceClassName + ".ts";
-            if (!fs.existsSync(serviceImpl))
-                processTemplate(config.datalayerTemplatesPath + "/Service.ts", serviceImpl, data);
-        }
+        // if (data.config.service.skipGeneration === true)
+        //     generatorLog("  | - skipping generating service since service.skipGeneration === true");
+        // else {
+        //     generatorLog("  | - generating service");
+        //     processTemplate(config.datalayerTemplatesPath + "/GeneratedService.ts", data.servicesGeneratedDirectory + "/" + data.generatedServiceClassName + ".ts", data);
+        //     var serviceImpl = data.servicesDirectory + "/" + data.serviceClassName + ".ts";
+        //     if (!fs.existsSync(serviceImpl))
+        //         processTemplate(config.datalayerTemplatesPath + "/Service.ts", serviceImpl, data);
+        // }
 
         // process models
         if (data.config.model.skipGeneration === true)
@@ -276,24 +276,24 @@ module.exports = function () {
         //         }
         //     });
 
-        //     _.each(_.keys(roots), function (root) {
+        _.each(_.keys(roots), function (root) {
 
-        //         // generate services file
-        //         console.log("generating service instances file ...");
-        //         processTemplate(config.datalayerTemplatesPath + "/generated-services-instances.ts", root + "/generated-services-instances.ts", {
-        //             services: roots[root].services,
-        //             functions: genFunctions,
-        //             relativePathFromGenServicesToApp: path.relative(root, config.appDirectory).replace(/\\/g, "/")
-        //         });
+            // generate services file
+            // console.log("generating service instances file ...");
+            // processTemplate(config.datalayerTemplatesPath + "/generated-services-instances.ts", root + "/generated-services-instances.ts", {
+            //     services: roots[root].services,
+            //     functions: genFunctions,
+            //     relativePathFromGenServicesToApp: path.relative(root, config.meteorDirectory).replace(/\\/g, "/")
+            // });
             
             
-        //         // generate .gitignore
-        //         console.log("generating .gitignore file ...");
-        //         processTemplate(config.datalayerTemplatesPath + "/generated-folder.gitignore", root + "/.gitignore", {
-        //             services: roots[root].services,
-        //             functions: genFunctions
-        //         });
-        //     });
+            //         // generate .gitignore
+            //         console.log("generating .gitignore file ...");
+            //         processTemplate(config.datalayerTemplatesPath + "/generated-folder.gitignore", root + "/.gitignore", {
+            //             services: roots[root].services,
+            //             functions: genFunctions
+            //         });
+        });
 
         //     // generate definitions file
         //     console.log("generating global definitions.d.ts file ...");

@@ -2,7 +2,10 @@
 
 interface QueryObject<T> {
     subscribe(): { then: ((subscriptionHandle: any) => void) };
-    cursor: Mongo.Cursor<T>;
+    getSelector(): any;
+    setSelector(selector: any): void;
+    getOptions(): any;
+    setOptions(options: any): void;
     expand(foreignKeys: string[]): void;
 }
 

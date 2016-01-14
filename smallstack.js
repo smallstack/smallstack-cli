@@ -35,7 +35,7 @@ if (!process.argv.slice(2).length) {
 }
 
 // check if project is available
-if (!fs.existsSync("smallstack.json") && (process.argv[2] === undefined || !_.contains(["create", "--help", "-h", "-v", "--version"], process.argv[2].toLowerCase()))) {
+if (!config.projectFound()) {
     console.log("No smallstack project found! Why don't you create one : ");
     console.log(" ");
     console.log("      smallstack create <name>");

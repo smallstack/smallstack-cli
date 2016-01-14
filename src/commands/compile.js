@@ -8,30 +8,78 @@ module.exports = function (watch) {
     var exec = require('child_process').exec;
 
     require("../functions/copySmallstackFiles")();
+    var config = require("../config");
 
     var directory = "smallstack";
+    var outFile = "smallstack/smallstack.js"
+    var supersonicTargetFile = config.supersonicDirectory + "/www/scripts/smallstack.js";
+    var meteorTargetFile = config.meteorDirectory + "/shared/lib/smallstack.js";
+    
+    // the start 
+    compileTypescriptFiles();
 
-    var allTSFiles = "";
-    _.each(find.fileSync(/\.ts$/, directory), function (file) {
-        if (file.indexOf(".d.ts") === -1)
-            allTSFiles += "\"" + file + "\" ";
-    });
 
-    var command = "tsc " + allTSFiles.toString() + " --outFile smallstack/smallstack.js"; // --sourcemap --declaration --sourceRoot ./ 
-    console.log("Command : ", command);
-    var process = exec(command, {
-        //cwd: directory
-    });
-    process.stdout.on('data', function (data) {
-        console.log(' |-- ' + data);
-    });
-    process.stderr.on('data', function (data) {
-        console.error(' |-- ' + data);
-        throw new Error("Aborting since meteor application could not be created!");
-    });
-    process.on('close', function (code) {
-        console.log(' |-- Done!');
-    });
+    function compileTypescriptFiles() {
+
+        var allTSFiles = "";
+        _.each(find.fileSync(/\.ts$/, directory), function (file) {
+            if (file.indexOf(".d.ts") === -1)
+                allTSFiles += "\"" + file + "\" ";
+        });
+
+        var command = "tsc " + allTSFiles.toString() + " --module amd --outFile " + outFile; // --sourcemap --declaration --sourceRoot ./ 
+        console.log("Command : ", command);
+        var process = exec(command, {
+            //cwd: directory
+        });
+        process.stdout.on('data', function (data) {
+            console.log(' |-- ' + data);
+        });
+        process.stderr.on('data', function (data) {
+            console.error(' |-- ' + data);
+            throw new Error("Aborting since meteor application could not be created!");
+        });
+        process.on('close', function (code) {
+            console.log(' |-- Done!');
+            copySingeJavascriptFile();
+        });
+    }
+
+    function copySingeJavascriptFile() {
+        if (config.supersonicProjectAvailable()) {
+            fs.copySync(outFile, supersonicTargetFile);
+            removeGlobalScope(supersonicTargetFile);
+            console.log("Created : " + supersonicTargetFile);
+        }
+
+        if (config.meteorProjectAvailable()) {
+            fs.copySync(outFile, meteorTargetFile);
+            removeGlobalScope(meteorTargetFile);
+            console.log("Created : " + meteorTargetFile);
+        }
+    }
+
+    function removeGlobalScope(javascriptFilePath) {
+        var content = fs.readFileSync(javascriptFilePath).toString();
+        var returnContent = "";
+        var splitArray = content.split("\n");
+        for (var i = 0; i < splitArray.length; i++) {
+            if (returnContent.length > 0)
+                returnContent += "\n";
+            if (splitArray[i].indexOf("var ") === 0)
+                returnContent += splitArray[i].substr(4);
+            else if (splitArray[i].indexOf("///") === 0)
+                returnContent += "";
+            else
+                returnContent += splitArray[i];
+        }
+        fs.writeFileSync(javascriptFilePath, returnContent);
+    }
+    
+    
+    
+    
+    
 
     // grunt.registerTask("compile:auto", ["compile", "watch"]);
 
