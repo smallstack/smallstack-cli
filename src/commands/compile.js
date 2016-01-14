@@ -1,8 +1,9 @@
-module.exports = function (watch) {
+module.exports = function (type, watch) {
     if (watch === undefined)
         watch = false;
 
     var fs = require("fs-extra");
+    var path = require("path");
     var _ = require("underscore");
     var find = require("find");
     var exec = require('child_process').exec;
@@ -10,16 +11,22 @@ module.exports = function (watch) {
     require("../functions/copySmallstackFiles")();
     var config = require("../config");
 
-    var directory = "smallstack";
-    var outFile = "smallstack/smallstack.js"
     var supersonicTargetFile = config.supersonicDirectory + "/www/scripts/smallstack.js";
     var meteorTargetFile = config.meteorDirectory + "/shared/lib/smallstack.js";
     
-    // the start 
-    compileTypescriptFiles();
+    // smallstack data layer
+    if (type === "smallstack" || type === undefined) {
+        var smallstackOutFile = "smallstack/smallstack.js";
+        compileTypescriptFiles(config.smallstackDirectory, smallstackOutFile, copySingleJavascriptFile);
+    }
 
+    // supersonic files
+    if (type === "supersonic" || type === undefined)
+        compileTypescriptFiles(config.supersonicDirectory);
 
-    function compileTypescriptFiles() {
+    function compileTypescriptFiles(directory, outFile, doneFn) {
+        if (directory === undefined || !fs.existsSync(directory))
+            throw new Error("Cannot compile non-existing directory : " + path.resolve(directory));
 
         var allTSFiles = "";
         _.each(find.fileSync(/\.ts$/, directory), function (file) {
@@ -27,10 +34,20 @@ module.exports = function (watch) {
                 allTSFiles += "\"" + file + "\" ";
         });
 
-        var command = "tsc " + allTSFiles.toString() + " --module amd --outFile " + outFile; // --sourcemap --declaration --sourceRoot ./ 
+        if (allTSFiles === "") {
+            console.log("No typescript files found in directory : ", path.resolve(directory));
+            if (typeof doneFn === 'function')
+                doneFn();
+            return;
+        }
+
+        var command = "tsc " + allTSFiles.toString();
+        if (outFile !== undefined)
+            command += "--outFile " + outFile;
+
         console.log("Command : ", command);
         var process = exec(command, {
-            //cwd: directory
+            cwd: directory
         });
         process.stdout.on('data', function (data) {
             console.log(' |-- ' + data);
@@ -41,19 +58,20 @@ module.exports = function (watch) {
         });
         process.on('close', function (code) {
             console.log(' |-- Done!');
-            copySingeJavascriptFile();
+            if (typeof doneFn === 'function')
+                doneFn();
         });
     }
 
-    function copySingeJavascriptFile() {
+    function copySingleJavascriptFile() {
         if (config.supersonicProjectAvailable()) {
-            fs.copySync(outFile, supersonicTargetFile);
+            fs.copySync(smallstackOutFile, supersonicTargetFile);
             removeGlobalScope(supersonicTargetFile);
             console.log("Created : " + supersonicTargetFile);
         }
 
         if (config.meteorProjectAvailable()) {
-            fs.copySync(outFile, meteorTargetFile);
+            fs.copySync(smallstackOutFile, meteorTargetFile);
             removeGlobalScope(meteorTargetFile);
             console.log("Created : " + meteorTargetFile);
         }

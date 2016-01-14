@@ -23,8 +23,8 @@ commander.usage("command [options]");
 
 commander.command("create <name>").action(create);
 commander.command("generate").action(generate);
-commander.command("compile").action(compile);
-commander.command("supersonic create").action(supersonicCreate);
+commander.command("compile [smallstack|meteor|supersonic]").action(compile);
+commander.command("supersonic").action(supersonicCreate);
 commander.command("showconfig").action(showConfig);
 
 

@@ -1,5 +1,4 @@
-module.exports = function () {
-
+module.exports = function (arg1, arg2) {
     var config = require("../config");
     var exec = require('child_process').exec;
 
