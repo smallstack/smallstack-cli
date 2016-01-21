@@ -45,6 +45,8 @@ module.exports = function (type, watch) {
         if (outFile !== undefined)
             command += "--outFile " + outFile;
 
+        command += " --watch";
+
         console.log("Command : ", command);
         var process = exec(command, {
             cwd: directory
