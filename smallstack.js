@@ -35,12 +35,14 @@ if (!process.argv.slice(2).length) {
 }
 
 // check if project is available
-if (!config.projectFound()) {
-    console.log("No smallstack project found! Why don't you create one : ");
+if (!config.projectFound() && !config.calledWithCreateProjectCommand()) {
+    console.log("No smallstack project found! If you want to create one:");
     console.log(" ");
     console.log("      smallstack create <name>");
     process.exit(0);
 }
-
+else {
+    showConfig();
+}
 
 commander.parse(process.argv);

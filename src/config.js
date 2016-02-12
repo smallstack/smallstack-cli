@@ -1,4 +1,5 @@
 var path = require("path");
+var _ = require("underscore");
 var fs = require("fs-extra");
 var cliPackageJson = require(__dirname + "/../package.json");
 var config = {};
@@ -25,16 +26,20 @@ config.projectFound = function (directory) {
     }
 }
 
-config.calledWithNonProjectCommands = function () {
-    return process.argv[2] === undefined || !_.contains(["create", "--help", "-h", "-v", "--version"], process.argv[2].toLowerCase());
+// config.calledWithNonProjectCommands = function () {
+//     return process.argv[2] === undefined || !_.contains(["create", "--help", "-h", "-v", "--version"], process.argv[2].toLowerCase());
+// }
+
+config.calledWithCreateProjectCommand = function () {
+    return process.argv[2] === "create" && process.argv[2] !== undefined;
 }
 
 config.supersonicProjectAvailable = function () {
-    return fs.existsSync(path.join(config.getRootDirectory(), config.supersonicDirectory));
+    return fs.existsSync(config.supersonicDirectory);
 }
 
 config.meteorProjectAvailable = function () {
-    return fs.existsSync(path.join(config.getRootDirectory(), config.meteorDirectory));
+    return fs.existsSync(config.meteorDirectory);
 }
 
 
@@ -70,7 +75,7 @@ try {
     config.pathToGeneratedDefinitionsFile = path.join(config.pathToGeneratedDefinitions, "generated.d.ts");
 }
 catch (e) {
-    console.error(e);
+    // console.error(e);
 }
 
 module.exports = config;
