@@ -2,112 +2,56 @@ module.exports = function (type, watch) {
     if (watch === undefined)
         watch = false;
 
+    require("../functions/copySmallstackFiles")();
+
     var fs = require("fs-extra");
     var path = require("path");
-    var _ = require("underscore");
-    var find = require("find");
-    var exec = require('child_process').exec;
-
-    require("../functions/copySmallstackFiles")();
     var config = require("../config");
+    var compiler = require("../functions/compiler");
 
     var supersonicTargetFile = config.supersonicDirectory + "/www/scripts/smallstack.js";
     var meteorTargetFile = config.meteorDirectory + "/shared/lib/smallstack.js";
+    var smallstackOutFile = "smallstack/smallstack.js";
+    
     
     // smallstack data layer
     if (type === "smallstack" || type === undefined) {
-        var smallstackOutFile = "smallstack/smallstack.js";
-        compileTypescriptFiles(config.smallstackDirectory, smallstackOutFile, copySingleJavascriptFile);
+        console.log("compiling smallstack");
+        compiler.compileTypescriptFiles(config.smallstackDirectory, { outFile: smallstackOutFile, consolePrefix: "[smallstack]" }, copySingleJavascriptFile);
     }
 
     // supersonic files
-    if (type === "supersonic" || type === undefined)
-        compileTypescriptFiles(config.supersonicDirectory);
-
-    function compileTypescriptFiles(directory, outFile, doneFn) {
-        if (directory === undefined || !fs.existsSync(directory))
-            throw new Error("Cannot compile non-existing directory : " + path.resolve(directory));
-
-        var allTSFiles = "";
-        _.each(find.fileSync(/\.ts$/, directory), function (file) {
-            if (file.indexOf(".d.ts") === -1)
-                allTSFiles += "\"" + file + "\" ";
-        });
-
-        if (allTSFiles === "") {
-            console.log("No typescript files found in directory : ", path.resolve(directory));
-            if (typeof doneFn === 'function')
-                doneFn();
-            return;
-        }
-
-        var command = "tsc " + allTSFiles.toString();
-        if (outFile !== undefined)
-            command += "--outFile " + outFile;
-
-        command += " --watch";
-
-        console.log("Command : ", command);
-        var process = exec(command, {
-            cwd: directory
-        });
-        process.stdout.on('data', function (data) {
-            console.log(' |-- ' + data);
-        });
-        process.stderr.on('data', function (data) {
-            console.error(' |-- ' + data);
-            throw new Error("Aborting since meteor application could not be created!");
-        });
-        process.on('close', function (code) {
-            console.log(' |-- Done!');
-            if (typeof doneFn === 'function')
-                doneFn();
-        });
+    if ((type === "supersonic" || type === undefined) && config.supersonicProjectAvailable()) {
+        console.log("compiling supersonic");
+        compiler.compileTypescriptFiles(config.supersonicDirectory, { consolePrefix: "[supersonic]" });
     }
+
+    // meteor files
+    if ((type === "meteor" || type === undefined) && config.meteorProjectAvailable()) {
+        console.log("compiling meteor");
+        compiler.compileTypescriptFiles(config.meteorDirectory, { outDir: path.join(config.meteorDirectory, "built"), consolePrefix: "[meteor]    " });
+    }
+
 
     function copySingleJavascriptFile() {
         if (config.supersonicProjectAvailable()) {
             fs.copySync(smallstackOutFile, supersonicTargetFile);
-            removeGlobalScope(supersonicTargetFile);
+            compiler.removeGlobalScope(supersonicTargetFile);
             console.log("Created : " + supersonicTargetFile);
         }
 
         if (config.meteorProjectAvailable()) {
             fs.copySync(smallstackOutFile, meteorTargetFile);
-            removeGlobalScope(meteorTargetFile);
+            compiler.removeGlobalScope(meteorTargetFile);
             console.log("Created : " + meteorTargetFile);
         }
     }
 
-    function removeGlobalScope(javascriptFilePath) {
-        var content = fs.readFileSync(javascriptFilePath).toString();
-        var returnContent = "";
-        var splitArray = content.split("\n");
-        for (var i = 0; i < splitArray.length; i++) {
-            if (returnContent.length > 0)
-                returnContent += "\n";
-            if (splitArray[i].indexOf("var ") === 0)
-                returnContent += splitArray[i].substr(4);
-            else if (splitArray[i].indexOf("///") === 0)
-                returnContent += "";
-            else
-                returnContent += splitArray[i];
-        }
-        fs.writeFileSync(javascriptFilePath, returnContent);
-    }
+  
     
     
     
     
-    
-
-    // grunt.registerTask("compile:auto", ["compile", "watch"]);
-
-    // grunt.registerTask("compile", ["cleanBuiltDirectory", "persistVersion", "ts:packages", "ts:project", "typescriptToMeteorFix"]);
-    // grunt.registerTask("compile:project", ["cleanBuiltDirectory", "persistVersion", "ts:project", "typescriptToMeteorFix"]);
-    // grunt.registerTask("compile:packages", ["cleanBuiltDirectory", "persistVersion", "ts:packages", "typescriptToMeteorFix"]);
-
-
 
     // // CUSTOM TASKS
     // grunt.registerTask("cleanBuiltDirectory", function () {
