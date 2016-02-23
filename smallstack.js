@@ -13,6 +13,7 @@ var create = require("./src/commands/create");
 var supersonicCreate = require("./src/commands/supersonicCreate");
 var showConfig = require("./src/commands/showConfig");
 var compile = require("./src/commands/compile");
+var packageUpdater = require("./src/commands/packageUpdater");
 
 // show a nice logo
 logo();
@@ -26,11 +27,13 @@ commander.command("generate").action(generate);
 commander.command("compile [smallstack|meteor|supersonic]").action(compile);
 commander.command("supersonic").action(supersonicCreate);
 commander.command("showconfig").action(showConfig);
+commander.command("packages").action(packageUpdater).option("--mode [mode]").option("--path [path]");
 
 
 // no command given?
 if (!process.argv.slice(2).length) {
     commander.outputHelp();
+    console.error("No valid command given!");
     process.exit(0);
 }
 
