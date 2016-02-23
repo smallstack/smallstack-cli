@@ -32,7 +32,7 @@ module.exports = function (commander) {
             name: "smallstack.path",
             type: 'input',
             message: 'relative path from project root to local smallstack directory :',
-            default: "../../smallstack",
+            default: "../smallstack",
             when: function (answers) {
                 return answers["smallstack.mode"] === "local" && smallstackPath === undefined;
             }
