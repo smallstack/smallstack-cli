@@ -15,7 +15,7 @@ module.exports = function (type, watch) {
     
     
     // smallstack data layer
-    if (type === "smallstack" || type === undefined) {
+    if (type === "smallstack" || type === undefined && config.smallstackDirectoryAvailable()) {
         console.log("compiling smallstack");
         compiler.compileTypescriptFiles(config.smallstackDirectory, { outFile: smallstackOutFile, consolePrefix: "[smallstack]" }, copySingleJavascriptFile);
     }

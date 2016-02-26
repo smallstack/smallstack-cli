@@ -1,14 +1,15 @@
 /**
- * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED BY "smallstack generate"
+ * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY RE-COMPILE
  */
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/underscore/underscore.d.ts" />
+
 /// <reference path="<%= relativePathToTypeDefinitionsGen %>/smallstack.d.ts" />
-/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.smallstackDirectory) %>/interfaces/QueryObject.ts" />
-/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.smallstackDirectory) %>/interfaces/QueryOptions.ts" />
-/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, general.smallstackDirectory) %>/interfaces/Utils.ts" />
+/// <reference path="<%= relativePathToTypeDefinitionsGen %>/meteor/meteor.d.ts" />
+/// <reference path="<%= relativePathToTypeDefinitionsGen %>/underscore/underscore.d.ts" />
+/// <reference path="<%= relativePathFromGeneratedModelToPackages %>/smallstack-collections/QueryObject.ts" />
+/// <reference path="<%= relativePathFromGeneratedModelToPackages %>/smallstack-collections/QueryOptions.ts" />
 
-
-/// <reference path="<%= functions.relativePath(modelsGeneratedDirectory, servicesDirectory + "/" + serviceClassName) %>.ts" /><%
+/// <reference path="<%= relativePathFromGeneratedModelToModel %>" />
+<%
 _.forEach(config.model.schema, function(schema) {
     if (schema.type === "foreign" || schema.type === "foreign[]") {
         if (schema.collection === undefined)
@@ -59,9 +60,7 @@ function getSubTypes(schema) {
 
 
 
-
 %>
-
 
 
 class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {%> extends <%=config.model.extends%><%}%><% if (config.model.implements !== undefined) {%> implements <%=config.model.implements%><%}%> {
@@ -117,7 +116,7 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 	}
 	
 	public static fromDocument(doc: any) {
-		var model:any = {};
+		var model = new <%= modelClassName %>();
 		if (doc._id !== undefined) {
 			model._isStored = true; 
 			model.id = doc._id;		
@@ -128,7 +127,7 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 		%>return model;
 	}
 	
-	public toDocument():any {
+	public toDocument() {
 		var doc = {};
 		<% _.forEach(config.model.schema, function(schema) {
 	 		%>doc["<%=functions.getModelPropertyName(schema) %>"] = this["<%=functions.getModelPropertyName(schema) %>"]; 
@@ -172,7 +171,31 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 	public hasSubDocuments(): boolean {
 		return this._hasSubDocuments; 
 	}
-
+	
+	/**
+	 * Deletes all sub documents recursively
+	 */
+	public deleteSubDocuments(): void {
+		<% if (foreignKeysFound) {
+		 _.forEach(config.model.schema, function(schema) {
+		if (schema.type === "foreign[]") {%>
+		smallstack.collections["<%=schema.collection%>"].find({"_id" : { "$in" : this["<%=functions.getModelPropertyName(schema)%>"]}}).forEach(function(model){
+			if (model.hasSubdocuments()) {
+				model.deleteSubDocuments();
+			}
+			smallstack.collections["<%=schema.collection%>"].remove(model.id);
+		});		
+		<%}	else if (schema.type === "foreign") {%>
+		smallstack.collections["<%=schema.collection%>"].find({"_id" : this["<%=functions.getModelPropertyName(schema)%>"]}).forEach(function(model){
+			if (model.hasSubdocuments()) {
+				model.deleteSubDocuments();
+			}
+			smallstack.collections["<%=schema.collection%>"].remove(model.id);
+		});		
+		<%}		
+	})}%>
+	}
+	
 	/**
 	 * Returns true if model is stored in database
 	 */
@@ -181,11 +204,29 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 	}
 	
 	
-	public delete(callback?:(error: Error, numberOfRemovedDocuments:number) => void): number {
+	public delete(callback?:(error: Meteor.Error, numberOfRemovedDocuments:number) => void): number {
+		if (callback === undefined && Meteor.isClient)  {
+			var that = this;
+			callback = function(error: Meteor.Error, numberOfRemovedDocuments:number) {
+				if (error)
+					NotificationService.instance().getStandardErrorPopup(error, "Could not delete <%=config.model.name%> with ID '" + that.id + "'!");
+				else
+					NotificationService.instance().notification.success("Successfully removed <%=config.model.name%> with ID '" + that.id + "'!");
+			}
+		}
 		return <%=functions.getServiceName(config)%>.instance().delete<%=config.model.name%>(<any> this, callback);
 	}
 	
-	public update(callback?:(error: Error, numberOfSavedDocuments:number) => void): number {
+	public update(callback?:(error: Meteor.Error, numberOfSavedDocuments:number) => void): number {
+		if (callback === undefined && Meteor.isClient)  {
+			var that = this;
+			callback = function(error: Meteor.Error, numberOfSavedDocuments:number) {
+				if (error)
+					NotificationService.instance().getStandardErrorPopup(error, "Could not update <%=config.model.name%> with ID '" + that.id + "'!");
+				else
+					NotificationService.instance().notification.success("Successfully updated <%=config.model.name%> with ID '" + that.id + "'!");
+			}
+		}
 		return <%=functions.getServiceName(config)%>.instance().update<%=config.model.name%>(<any> this, callback);
 	}
 	

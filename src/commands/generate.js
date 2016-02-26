@@ -1,11 +1,12 @@
+// third party
+var fs = require("fs-extra");
+var path = require("path");
+var glob = require("glob");
+var _ = require("underscore");
+var lodash = require("lodash");
+
 module.exports = function () {
 
-    // third party
-    var path = require("path");
-    var find = require("find");
-    var _ = require("underscore");
-    var lodash = require("lodash");
-    var fs = require("fs-extra");
     
     // own stuff
     var genFunctions = require("../functions/generateSourcesFunctions");
@@ -30,10 +31,13 @@ module.exports = function () {
         
     // display some information
     console.log(generatorLog("Root Directory :       ", config.rootDirectory));
-    console.log(generatorLog("Smallstack Directory : ", config.smallstackDirectory));
+    console.log(generatorLog("Meteor Directory : ", config.meteorDirectory));
     console.log("\n");
 
-    var allSmallstackFiles = find.fileSync(/\.smallstack\.json$/, config.smallstackDirectory);
+    var allSmallstackFiles = glob.sync("**/*.smallstack.json", {
+        cwd: config.meteorDirectory,
+        follow: true
+    });
     if (allSmallstackFiles.length === 0) {
         console.log(generatorLog("Aborting! No *.smallstack.json files found!"));
     }
@@ -42,6 +46,7 @@ module.exports = function () {
 
 
     _.each(allSmallstackFiles, function (smallstackFile) {
+        smallstackFile = path.resolve(config.meteorDirectory, smallstackFile);
         console.log(generatorLog("preparing : " + smallstackFile));
             
         // read in data          
@@ -60,6 +65,7 @@ module.exports = function () {
 
         // generate files and directories            
         var rootDirectory = path.dirname("" + smallstackFile);
+        console.log("root directory : ", rootDirectory);
         if (roots[rootDirectory] === undefined) {
             roots[rootDirectory] = {};
             roots[rootDirectory].services = [];
@@ -197,26 +203,26 @@ module.exports = function () {
             });
 
         // process collections
-        // if (data.config.collection.skipGeneration === true)
-        //     generatorLog("  | - skipping generating collection since collection.skipGeneration === true");
-        // else {
-        //     generatorLog("  | - generating collection");
-        //     processTemplate(config.datalayerTemplatesPath + "/GeneratedCollection.ts", data.collectionsGeneratedDirectory + "/" + data.generatedCollectionClassName + ".ts", data);
-        //     var collectionImpl = data.collectionsDirectory + "/" + data.collectionClassName + ".ts";
-        //     if (!fs.existsSync(collectionImpl))
-        //         processTemplate(config.datalayerTemplatesPath + "/Collection.ts", collectionImpl, data);
-        // }
+        if (data.config.collection.skipGeneration === true)
+            generatorLog("  | - skipping generating collection since collection.skipGeneration === true");
+        else {
+            generatorLog("  | - generating collection");
+            processTemplate(config.datalayerTemplatesPath + "/GeneratedCollection.ts", data.collectionsGeneratedDirectory + "/" + data.generatedCollectionClassName + ".ts", data);
+            var collectionImpl = data.collectionsDirectory + "/" + data.collectionClassName + ".ts";
+            if (!fs.existsSync(collectionImpl))
+                processTemplate(config.datalayerTemplatesPath + "/Collection.ts", collectionImpl, data);
+        }
 
         // process services
-        // if (data.config.service.skipGeneration === true)
-        //     generatorLog("  | - skipping generating service since service.skipGeneration === true");
-        // else {
-        //     generatorLog("  | - generating service");
-        //     processTemplate(config.datalayerTemplatesPath + "/GeneratedService.ts", data.servicesGeneratedDirectory + "/" + data.generatedServiceClassName + ".ts", data);
-        //     var serviceImpl = data.servicesDirectory + "/" + data.serviceClassName + ".ts";
-        //     if (!fs.existsSync(serviceImpl))
-        //         processTemplate(config.datalayerTemplatesPath + "/Service.ts", serviceImpl, data);
-        // }
+        if (data.config.service.skipGeneration === true)
+            generatorLog("  | - skipping generating service since service.skipGeneration === true");
+        else {
+            generatorLog("  | - generating service");
+            processTemplate(config.datalayerTemplatesPath + "/GeneratedService.ts", data.servicesGeneratedDirectory + "/" + data.generatedServiceClassName + ".ts", data);
+            var serviceImpl = data.servicesDirectory + "/" + data.serviceClassName + ".ts";
+            if (!fs.existsSync(serviceImpl))
+                processTemplate(config.datalayerTemplatesPath + "/Service.ts", serviceImpl, data);
+        }
 
         // process models
         if (data.config.model.skipGeneration === true)
@@ -229,124 +235,123 @@ module.exports = function () {
                 processTemplate(config.datalayerTemplatesPath + "/Model.ts", modelImpl, data);
         }
 
-        //         // process secured methods
-        //         if (data.config.service && data.config.service.securedmethods && data.config.service.securedmethods.skipGeneration === true)
-        //             generatorLog("  | - skipping generating secured methods since service.securedmethods.skipGeneration === true");
-        //         else {
-        //             generatorLog("  | - generating secured methods");
-        //             _.each(data.methods, function (method) {
+        // process secured methods
+        if (data.config.service && data.config.service.securedmethods && data.config.service.securedmethods.skipGeneration === true)
+            generatorLog("  | - skipping generating secured methods since service.securedmethods.skipGeneration === true");
+        else {
+            generatorLog("  | - generating secured methods");
+            _.each(data.methods, function (method) {
 
-        //                 var methodClientFile = method.clientMethodsPath + "/" + method.methodName + ".ts";
-        //                 var methodSharedFile = method.sharedMethodsPath + "/" + method.methodName + ".ts";
-        //                 var methodServerFile = method.serverMethodsPath + "/" + method.methodName + ".ts";
+                var methodClientFile = method.clientMethodsPath + "/" + method.methodName + ".ts";
+                var methodSharedFile = method.sharedMethodsPath + "/" + method.methodName + ".ts";
+                var methodServerFile = method.serverMethodsPath + "/" + method.methodName + ".ts";
 
-        //                 switch (method.methodVisibility) {
-        //                     case "shared":
-        //                         if (!fs.existsSync(methodSharedFile))
-        //                             processTemplate(config.datalayerTemplatesPath + "/SecureMethodShared.ts", methodSharedFile, method);
-        //                         else generatorLog("Skipping generation of file since it exists already : ", methodSharedFile);
-        //                         if (fs.existsSync(methodClientFile))
-        //                             throw new Error("Using visibility=shared, so this file should not exist : " + methodClientFile);
-        //                         if (fs.existsSync(methodServerFile))
-        //                             throw new Error("Using visibility=shared, so this file should not exist : " + methodServerFile);
-        //                         break;
-        //                     case "separate":
-        //                         if (!fs.existsSync(methodClientFile))
-        //                             processTemplate(config.datalayerTemplatesPath + "/SecureMethodClient.ts", methodClientFile, method);
-        //                         else generatorLog("Skipping generation of file since it exists already : ", methodClientFile);
-        //                         if (!fs.existsSync(methodServerFile))
-        //                             processTemplate(config.datalayerTemplatesPath + "/SecureMethodServer.ts", methodServerFile, method);
-        //                         else generatorLog("Skipping generation of file since it exists already : ", methodServerFile);
-        //                         if (fs.existsSync(methodSharedFile))
-        //                             throw new Error("Using visibility=separate, so this file should not exist : " + methodSharedFile);
-        //                         break;
-        //                     case "server":
-        //                         if (!fs.existsSync(methodServerFile))
-        //                             processTemplate(config.datalayerTemplatesPath + "/SecureMethodServer.ts", methodServerFile, method);
-        //                         else generatorLog("Skipping generation of file since it exists already : ", methodServerFile);
-        //                         if (fs.existsSync(methodClientFile))
-        //                             throw new Error("Using visibility=server, so this file should not exist : " + methodClientFile);
-        //                         if (fs.existsSync(methodSharedFile))
-        //                             throw new Error("Using visibility=server, so this file should not exist : " + methodSharedFile);
-        //                         break;
-        //                     default:
-        //                         throw new Error("Still no method.visibility given for method : ", method.methodName);
-        //                 }
-        //             });
-        //         }
-        //     });
-
-        _.each(_.keys(roots), function (root) {
-
-            // generate services file
-            // console.log("generating service instances file ...");
-            // processTemplate(config.datalayerTemplatesPath + "/generated-services-instances.ts", root + "/generated-services-instances.ts", {
-            //     services: roots[root].services,
-            //     functions: genFunctions,
-            //     relativePathFromGenServicesToApp: path.relative(root, config.meteorDirectory).replace(/\\/g, "/")
-            // });
-            
-            
-            //         // generate .gitignore
-            //         console.log("generating .gitignore file ...");
-            //         processTemplate(config.datalayerTemplatesPath + "/generated-folder.gitignore", root + "/.gitignore", {
-            //             services: roots[root].services,
-            //             functions: genFunctions
-            //         });
-        });
-
-        //     // generate definitions file
-        //     console.log("generating global definitions.d.ts file ...");
-        //     processTemplate(config.datalayerTemplatesPath + "/definitions.d.ts", config.pathToGeneratedDefinitionsFile, {
-        //         roots: roots,
-        //         relativePathFromDefToPackages: path.relative(config.pathToGeneratedDefinitions, config.packagesDirectory).replace(/\\/g, "/"),
-        //         functions: genFunctions,
-        //         pathToGeneratedDefinitions: config.pathToGeneratedDefinitions
-        //     });
-
+                switch (method.methodVisibility) {
+                    case "shared":
+                        if (!fs.existsSync(methodSharedFile))
+                            processTemplate(config.datalayerTemplatesPath + "/SecureMethodShared.ts", methodSharedFile, method);
+                        else generatorLog("Skipping generation of file since it exists already : ", methodSharedFile);
+                        if (fs.existsSync(methodClientFile))
+                            throw new Error("Using visibility=shared, so this file should not exist : " + methodClientFile);
+                        if (fs.existsSync(methodServerFile))
+                            throw new Error("Using visibility=shared, so this file should not exist : " + methodServerFile);
+                        break;
+                    case "separate":
+                        if (!fs.existsSync(methodClientFile))
+                            processTemplate(config.datalayerTemplatesPath + "/SecureMethodClient.ts", methodClientFile, method);
+                        else generatorLog("Skipping generation of file since it exists already : ", methodClientFile);
+                        if (!fs.existsSync(methodServerFile))
+                            processTemplate(config.datalayerTemplatesPath + "/SecureMethodServer.ts", methodServerFile, method);
+                        else generatorLog("Skipping generation of file since it exists already : ", methodServerFile);
+                        if (fs.existsSync(methodSharedFile))
+                            throw new Error("Using visibility=separate, so this file should not exist : " + methodSharedFile);
+                        break;
+                    case "server":
+                        if (!fs.existsSync(methodServerFile))
+                            processTemplate(config.datalayerTemplatesPath + "/SecureMethodServer.ts", methodServerFile, method);
+                        else generatorLog("Skipping generation of file since it exists already : ", methodServerFile);
+                        if (fs.existsSync(methodClientFile))
+                            throw new Error("Using visibility=server, so this file should not exist : " + methodClientFile);
+                        if (fs.existsSync(methodSharedFile))
+                            throw new Error("Using visibility=server, so this file should not exist : " + methodSharedFile);
+                        break;
+                    default:
+                        throw new Error("Still no method.visibility given for method : ", method.methodName);
+                }
+            });
+        }
     });
 
+    _.each(_.keys(roots), function (root) {
 
+        // generate services file
+        console.log("generating service instances file ...");
+        processTemplate(config.datalayerTemplatesPath + "/generated-services-instances.ts", root + "/generated-services-instances.ts", {
+            services: roots[root].services,
+            functions: genFunctions,
+            relativePathFromGenServicesToApp: path.relative(root, config.meteorDirectory).replace(/\\/g, "/")
+        });
+            
+            
+        // generate .gitignore
+        console.log("generating .gitignore file ...");
+        processTemplate(config.datalayerTemplatesPath + "/generated-folder.gitignore", root + "/.gitignore", {
+            services: roots[root].services,
+            functions: genFunctions
+        });
+    });
 
-    function generatorLog() {
-        var content = ""; //new Date().toLocaleString() + "     ";
-        for (var i = 0; i < arguments.length; i++) {
-            if (typeof arguments[i] === 'object')
-                content += JSON.stringify(arguments[i]);
-            else
-                content += arguments[i];
-        }
-        // var fileContent = content;
-        // if (grunt.file.exists(logPath))
-        //     fileContent = grunt.file.read(logPath) + "\n" + fileContent;
-        // grunt.file.write(logPath, fileContent, {
-        //     encoding: "UTF-8"
-        // });
-        return content;
-    }
-
-
-
-    function processTemplate(from, to, replacers) {
-        try {
-            var template = fs.readFileSync(from);
-            var content = lodash.template(template);
-            fs.createFileSync(to);
-            fs.writeFileSync(to, content(replacers));
-        }
-        catch (e) {
-            console.log(e);
-            throw new Error("Exception while processing template : \n\tfrom  : " + from + "\n\tto    : " + to + "\n\terror : " + e);
-        }
-    }
-
-    function capitalize(str) {
-        return str.charAt(0).toUpperCase() + str.substring(1);
-    }
-
-    function checkJson(variable, errorMessage) {
-        if (variable === undefined || variable === null)
-            errors.push(errorMessage);
-    }
+    // generate definitions file
+    console.log("generating global definitions.d.ts file ...");
+    processTemplate(config.datalayerTemplatesPath + "/definitions.d.ts", config.pathToGeneratedDefinitionsFile, {
+        roots: roots,
+        relativePathFromDefToPackages: path.relative(config.pathToGeneratedDefinitions, config.packagesDirectory).replace(/\\/g, "/"),
+        functions: genFunctions,
+        pathToGeneratedDefinitions: config.pathToGeneratedDefinitions
+    });
 
 }
+
+
+
+function generatorLog() {
+    var content = ""; //new Date().toLocaleString() + "     ";
+    for (var i = 0; i < arguments.length; i++) {
+        if (typeof arguments[i] === 'object')
+            console.log(JSON.stringify(arguments[i]));
+        else
+            console.log(arguments[i]);
+    }
+    // var fileContent = content;
+    // if (grunt.file.exists(logPath))
+    //     fileContent = grunt.file.read(logPath) + "\n" + fileContent;
+    // grunt.file.write(logPath, fileContent, {
+    //     encoding: "UTF-8"
+    // });
+    return content;
+}
+
+
+
+function processTemplate(from, to, replacers) {
+    try {
+        var template = fs.readFileSync(from);
+        var content = lodash.template(template);
+        fs.createFileSync(to);
+        fs.writeFileSync(to, content(replacers));
+    }
+    catch (e) {
+        console.log(e);
+        throw new Error("Exception while processing template : \n\tfrom  : " + from + "\n\tto    : " + to + "\n\terror : " + e);
+    }
+}
+
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.substring(1);
+}
+
+function checkJson(variable, errorMessage) {
+    if (variable === undefined || variable === null)
+        errors.push(errorMessage);
+}
+

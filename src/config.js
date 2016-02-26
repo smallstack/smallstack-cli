@@ -42,6 +42,10 @@ config.meteorProjectAvailable = function () {
     return fs.existsSync(config.meteorDirectory);
 }
 
+config.smallstackDirectoryAvailable = function() {
+    return fs.existsSync(config.smallstackDirectory);    
+}
+
 
 config.getRootDirectory = function () {
 
