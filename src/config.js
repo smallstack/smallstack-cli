@@ -70,7 +70,6 @@ config.cli = cliPackageJson;
 try {
     config.rootDirectory = config.getRootDirectory();
     config.smallstackDirectory = path.join(config.rootDirectory, "smallstack");
-    config.pathToTypeDefinitions = path.join(config.smallstackDirectory, "typedefinitions");
     if (fs.existsSync(path.join(config.rootDirectory, "app"))) {
         console.warn("Warning: Folder called 'app' found. Please consider renaming it to 'meteor' if you don't need the old grunt tasks anymore!");
         config.meteorDirectory = path.join(config.rootDirectory, "app");
@@ -78,6 +77,7 @@ try {
     else
         config.meteorDirectory = path.join(config.rootDirectory, "meteor");
 
+    config.pathToTypeDefinitions = path.join(config.meteorDirectory, "packages/smallstack-core/typedefinitions");
     config.supersonicDirectory = path.join(config.rootDirectory, "supersonic");
     config.packagesDirectory = path.join(config.meteorDirectory, "packages");
     config.datalayerTemplatesPath = path.join(__dirname, "resources/templates/datalayer");

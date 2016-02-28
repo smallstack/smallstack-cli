@@ -10,9 +10,7 @@
 
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-analytics/AnalyticsService.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-collections/CollectionService.ts" />
-/// <reference path="<%=relativePathFromDefToPackages%>/smallstack-configuration/ConfigurationService.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-cookies/CookieService.ts" />
-/// <reference path="<%=relativePathFromDefToPackages%>/smallstack-i18n/I18nService.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-ioc/ioc.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-navigation/NavigationEntry.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-navigation/NavigationService.ts" />
