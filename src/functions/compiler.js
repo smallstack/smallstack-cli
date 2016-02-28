@@ -10,6 +10,7 @@ var compiler = {
 
     compileTypescriptFiles: function (directory, options, doneFn) {
         options = options || {};
+        options.excludes = options.excludes || [];
         options.consolePrefix = options.consolePrefix || "";
 
         if (directory === undefined || !fs.existsSync(directory))
@@ -34,7 +35,7 @@ var compiler = {
         if (options.outDir !== undefined)
             command += "--outDir " + options.outDir;
 
-        command += " --watch";
+        // command += " --watch";
 
         //console.log("Command : ", command);
         var process = exec(command, {
