@@ -15,16 +15,18 @@ var showConfig = require("./src/commands/showConfig");
 var compile = require("./src/commands/compile");
 var packageUpdater = require("./src/commands/packageUpdater");
 var cleaner = require("./src/commands/cleaner");
+var jenkins = require("./src/commands/jenkins");
 
 // show a nice logo
 logo();
 
 // parse command line options
 commander.version(config.cli.version);
-commander.usage("command [options]");
+commander.usage("command [more commands] [options]");
 
 commander.command("create <name>").action(create);
 commander.command("clean").action(cleaner);
+commander.command("jenkins").action(jenkins);
 commander.command("generate").action(generate);
 commander.command("compile [smallstack|meteor|supersonic]").action(compile);
 commander.command("supersonic").action(supersonicCreate);

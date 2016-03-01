@@ -82,7 +82,9 @@ try {
     config.pathToTypeDefinitions = path.join(config.meteorDirectory, "packages/smallstack-core/typedefinitions");
     config.supersonicDirectory = path.join(config.rootDirectory, "supersonic");
     config.packagesDirectory = path.join(config.meteorDirectory, "packages");
-    config.datalayerTemplatesPath = path.join(__dirname, "resources/templates/datalayer");
+    config.cliResourcesPath = path.join(__dirname, "resources");
+    config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
+    config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
     config.pathToGeneratedDefinitions = config.meteorDirectory + "/typedefinitions";
     config.pathToGeneratedDefinitionsFile = path.join(config.pathToGeneratedDefinitions, "generated.d.ts");
 }
