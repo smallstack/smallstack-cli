@@ -4,12 +4,8 @@ var fs = require("fs-extra");
 var cliPackageJson = require(__dirname + "/../package.json");
 var config = {};
 
-if (fs.existsSync(process.cwd() + "/smallstack.json")) {
-    config = require(process.cwd() + "/smallstack.json");
-}
-
 if (fs.existsSync(process.cwd() + "/package.json")) {
-    config.pkg = require(process.cwd() + "/package.json");
+    config = require(process.cwd() + "/package.json");
 }
 
 
@@ -20,7 +16,12 @@ config.projectFound = function (directory) {
     try {
         if (directory === undefined)
             directory = config.getRootDirectory();
-        return fs.existsSync(path.join(directory, "smallstack.json"));
+        var packageJSONPath = path.join(directory, "package.json");
+        if (!fs.existsSync(packageJSONPath))
+            return false
+        var packageJSONContent = require(packageJSONPath);
+        if (packageJSONContent["smallstack"] !== undefined)
+            return true;
     } catch (e) {
         return false;
     }
@@ -42,8 +43,8 @@ config.meteorProjectAvailable = function () {
     return fs.existsSync(config.meteorDirectory);
 }
 
-config.smallstackDirectoryAvailable = function() {
-    return fs.existsSync(config.smallstackDirectory);    
+config.smallstackDirectoryAvailable = function () {
+    return fs.existsSync(config.smallstackDirectory);
 }
 
 
