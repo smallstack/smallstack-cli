@@ -11,6 +11,7 @@ module.exports = function (type, watch) {
     var path = require("path");
     var config = require("../config");
     var compiler = require("../functions/compiler");
+    var notifier = require("../functions/notifier");
 
     var supersonicTargetFile = config.supersonicDirectory + "/www/scripts/smallstack.js";
     var meteorTargetFile = config.meteorDirectory + "/shared/lib/smallstack.js";
@@ -71,6 +72,9 @@ module.exports = function (type, watch) {
             console.log("Created : " + meteorTargetFile);
         }
     }
+    
+
+    notifier("Compilation completed!");
 
  
 
