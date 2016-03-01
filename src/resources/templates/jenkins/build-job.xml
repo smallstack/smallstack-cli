@@ -52,7 +52,7 @@
         <command>cd <%=projectName%>
 npm install
 <%=packagesPartial%>
-smallstack compile --stack</command>
+smallstack compile</command>
       </hudson.tasks.Shell>
     </builders>
     <publishers>
