@@ -1,6 +1,5 @@
-/// <reference path="QueryObject.ts" />
 
-interface DataBridge<T> {
+interface DataBridge {
     // collections
     subscribe(name: string, parameters: any, options: any): { then: ((subscriptionHandle: any) => void) };
     getCountForQuery(queryName: string, parameters: any, callback: (error: Error, count: number) => void): void;

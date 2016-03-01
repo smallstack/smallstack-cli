@@ -10,10 +10,10 @@
 
 class <%= serviceClassName %> {
 	
-    private dataBridge:DataBridge<<%=modelClassName%>>;
+    private dataBridge:DataBridge;
     
 	constructor() {
-      this.dataBridge = IOC.instance().get<DataBridge<<%=modelClassName%>>>("dataBridge");
+      this.dataBridge = IOC.instance().get<DataBridge>("dataBridge");
 	}
     
     static instance(): <%= serviceClassName %> {

@@ -15,14 +15,14 @@ module.exports = function (type, watch) {
 
     var supersonicTargetFile = config.supersonicDirectory + "/www/scripts/smallstack.js";
     var meteorTargetFile = config.meteorDirectory + "/shared/lib/smallstack.js";
-    var smallstackOutFile = "smallstack/smallstack.js";
+    var smallstackOutFile = "bundle.js";
     
     
     // smallstack data layer
-    // if (type === "smallstack" || type === undefined && config.smallstackDirectoryAvailable()) {
-    //     console.log("compiling smallstack");
-    //     compiler.compileTypescriptFiles(config.smallstackDirectory, { outFile: smallstackOutFile, consolePrefix: "[smallstack]" }, copySingleJavascriptFile);
-    // }
+    if (type === "smallstack" || type === undefined && config.smallstackDirectoryAvailable()) {
+        console.log("compiling smallstack");
+        compiler.compileTypescriptFiles(config.smallstackDirectory, { outFile: smallstackOutFile, consolePrefix: "[smallstack]" });
+    }
 
     // supersonic files
     if ((type === "supersonic" || type === undefined) && config.supersonicProjectAvailable()) {
