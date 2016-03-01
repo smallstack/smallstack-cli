@@ -224,6 +224,14 @@ module.exports = function () {
                 processTemplate(config.datalayerTemplatesPath + "/Service.ts", serviceImpl, data);
         }
 
+        // process ddp services
+        if (data.config.service.skipDDPGeneration === true)
+            generatorLog("  | - skipping generating ddp service since service.skipDDPGeneration === true");
+        else {
+            generatorLog("  | - generating ddp service");
+            processTemplate(config.datalayerTemplatesPath + "/DDPService.ts", config.smallstackDirectory + "/ddp-connector/services/" + data.serviceClassName + ".ts", data);
+        }
+
         // process models
         if (data.config.model.skipGeneration === true)
             generatorLog("  | - skipping generating model since model.skipGeneration === true");
@@ -233,6 +241,14 @@ module.exports = function () {
             var modelImpl = data.modelsDirectory + "/" + data.modelClassName + ".ts";
             if (!fs.existsSync(modelImpl))
                 processTemplate(config.datalayerTemplatesPath + "/Model.ts", modelImpl, data);
+        }
+
+        // process ddp models
+        if (data.config.model.skipDDPGeneration === true)
+            generatorLog("  | - skipping generating model since model.skipDDPGeneration === true");
+        else {
+            generatorLog("  | - generating ddp model");
+            processTemplate(config.datalayerTemplatesPath + "/DDPModel.ts", config.smallstackDirectory + "/ddp-connector/models/" + data.modelClassName + ".ts", data);
         }
 
         // process secured methods

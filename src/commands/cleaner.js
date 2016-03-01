@@ -11,6 +11,11 @@ module.exports = function () {
     console.log("Cleaning meteor built folder : ", meteorBuiltPath);
     fs.removeSync(meteorBuiltPath);
 
+    // delete smallstackFolder
+    var smallstackPath = config.smallstackDirectory;
+    console.log("Cleaning smallstack folder : ", smallstackPath);
+    fs.removeSync(smallstackPath);
+
     // delete tmp folder
     console.log("Cleaning tmp folder : ", config.tmpDirectory);
     fs.removeSync(config.tmpDirectory);
