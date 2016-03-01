@@ -52,7 +52,7 @@
         <command>cd <%=projectName%>
 npm install
 <%=packagesPartial%>
-grunt ci:build --deploy.env <%=deployment.name%> --stack</command>
+smallstack compile --stack</command>
       </hudson.tasks.Shell>
     </builders>
     <publishers>

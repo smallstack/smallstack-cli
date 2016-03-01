@@ -22,7 +22,7 @@ module.exports = function (commander) {
             message: 'smallstack location :',
             choices: [
                 { name: "locally checked out version (e.g. develop, master or a feature branch)", value: "local" },
-                { name: "downloaded zip file (placed in " + smallstackZipFilePath + ")", value: "downloadedZip" }
+                { name: "downloaded zip file (placed in " + smallstackZipFilePath + ")", value: "zip" }
             ],
             when: function () {
                 return !smallstackMode;
@@ -45,7 +45,7 @@ module.exports = function (commander) {
                 return glob.sync(smallstackZipFilePath + "/smallstack-*.zip");
             },
             when: function (answers) {
-                return answers["smallstack.mode"] === "downloadedZip";
+                return answers["smallstack.mode"] === "zip" && smallstackPath === undefined;
             }
         }
     ]
