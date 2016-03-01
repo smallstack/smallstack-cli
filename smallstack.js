@@ -16,6 +16,7 @@ var compile = require("./src/commands/compile");
 var packageUpdater = require("./src/commands/packageUpdater");
 var cleaner = require("./src/commands/cleaner");
 var jenkins = require("./src/commands/jenkins");
+var deploy = require("./src/commands/deploy");
 
 // show a nice logo
 logo();
@@ -26,7 +27,8 @@ commander.usage("command [more commands] [options]");
 
 commander.command("create <name>").action(create);
 commander.command("clean").action(cleaner);
-commander.command("jenkins").action(jenkins);
+commander.command("jenkins").action(jenkins).option("--environment [env]");
+commander.command("deploy").action(deploy).option("--apacheConfig").option("--environment [env]");
 commander.command("generate").action(generate);
 commander.command("compile [smallstack|meteor|supersonic]").action(compile);
 commander.command("supersonic").action(supersonicCreate);
