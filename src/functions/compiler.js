@@ -43,18 +43,18 @@ var compiler = {
         });
         process.stdout.on('data', function (data) {
             _.each(data.split("\n"), function (line) {
-                console.log(' |-- ' + options.consolePrefix + " INFO " + line);
+                console.log(' |-- ' + options.consolePrefix + " " + line);
             });
         });
         process.stderr.on('data', function (data) {
             _.each(data.split("\n"), function (line) {
-                console.error(' |-- ' + options.consolePrefix + " ERROR " + line);
+                console.error(' |-- ' + options.consolePrefix + " " + line);
             });
         });
         process.on('close', function (code) {
             console.log(' |-- Done with return code : ', code);
             if (code !== 0)
-                throw new Error("Process did not return 0! Please have a look at the log for errors!");
+                throw new Error("Process did not return 0! Please have a look at the logs, there must be an error!");
             if (typeof doneFn === 'function')
                 doneFn();
         });

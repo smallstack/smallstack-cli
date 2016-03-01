@@ -3,6 +3,7 @@ module.exports = function (type, watch) {
         watch = false;
 
     require("../functions/copySmallstackFiles")();
+    var compileVersion = require("../functions/compile.version");
 
     var fs = require("fs-extra");
     var _ = require("underscore");
@@ -55,6 +56,7 @@ module.exports = function (type, watch) {
         });
     }
 
+    compileVersion();
 
     function copySingleJavascriptFile() {
         if (config.supersonicProjectAvailable()) {
@@ -70,51 +72,7 @@ module.exports = function (type, watch) {
         }
     }
 
-  
-    
-    
-    
-
-    // grunt.registerTask("typescriptToMeteorFix", function () {
-    //     console.log("Deleting obsolete files...");
-    //     fs.removeSync("tmp/built/app/packages");
-    //     fs.removeSync("tmp/built/packages/server");
-    //     fs.removeSync("tmp/built/packages/shared");
-    //     fs.removeSync("tmp/built/packages/client");
-
-    //     console.log("Fixing typescript files...");
-    //     var processFunction = function (content) {
-    //         var returnContent = "";
-    //         var splitArray = content.split("\n");
-    //         for (var i = 0; i < splitArray.length; i++) {
-    //             if (returnContent.length > 0)
-    //                 returnContent += "\n";
-    //             if (splitArray[i].indexOf("var ") === 0)
-    //                 returnContent += splitArray[i].substr(4);
-    //             else if (splitArray[i].indexOf("///") === 0)
-    //                 returnContent += "";
-    //             else
-    //                 returnContent += splitArray[i];
-    //         }
-    //         return returnContent;
-    //     };
-    //     grunt.util.recurse(grunt.file.expand(["tmp/built/**/*.js"]), function (file) {
-    //         grunt.file.copy(file, file, {
-    //             process: processFunction
-    //         });
-    //     });
-        
-    //     // move files
-    //     if (grunt.file.exists("tmp/built/app")) {
-    //         fs.removeSync("app/built");
-    //         fs.copySync("tmp/built/app", "app/built", { clobber: true });
-    //     }
-    //     if (grunt.file.exists("tmp/built/packages")) {
-    //         fs.copySync("tmp/built/packages", "app", { clobber: true });
-    //     }
-
-    //     fs.removeSync("tmp/built");
-    // });
+ 
 
 
 }
