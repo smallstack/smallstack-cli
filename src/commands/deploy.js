@@ -14,7 +14,7 @@ module.exports = function (commander) {
             name: "environment",
             message: "Which environment",
             choices: _.keys(deployments),
-            when: commander.environment === undefined
+            when: commander.environment === undefined && commander.apacheConfig === true
         }
     ];
 
@@ -25,17 +25,17 @@ module.exports = function (commander) {
 
         if (commander.apacheConfig === true) {
             deploymentFunctions.apacheConfig(deploymentFunctions.getDeployment(environment));
+            return;
+        }
+
+        if (commander.createDefaults === true) {
+            deploymentFunctions.createDefaults();
+            return;
         }
 
     });
     
-    
 
-    // // imports
-    // var functions = require("../functions/generateSourcesFunctions");
-
-    // grunt.registerTask("deploy", ["deploy:init", "deploy:prepare", "deploy:mobilePrepare", "deploy:deploy"]);
-    // grunt.registerTask("deploy:apache-conf", ["deploy:init", "deploy:prepare", "deploy:apacheConfInternal"]);
     // grunt.registerTask("deploy:createDefaults", ["deploy:init", "deploy:createDefaultDeploymentFile"]);
 
     // grunt.registerTask("deploy:mobilePrepare", function () {
@@ -50,42 +50,7 @@ module.exports = function (commander) {
     //     }
     // });
 
-    // grunt.registerTask("deploy:createDefaultDeploymentFile", function () {
 
-    //     if (grunt.file.exists(grunt.config.get("deploy.deploymentsFile"))) {
-    //         grunt.file.copy(grunt.config.get("deploy.deploymentsFile"), path.join(grunt.config.get("deploy.deploymentsPath"), grunt.config.get("deploy.deploymentsFileName") + "_backup_" + grunt.template.today("yyyy-mm-dd-HH-MM-ss") + grunt.config.get("deploy.deploymentsFileEnding")));
-    //     }
-
-    //     var standardDeployment = {
-    //         "dev": {
-    //             "type": "rootserver",
-    //             "url": "http://" + grunt.config.get("project.name") + ".dev.projects.smallstack.io",
-    //             "rootServerPath": "/var/www/apps/" + grunt.config.get("project.name") + "/dev",
-    //             "repository": {
-    //                 "url": "https://bitbucket.org/smallstack/project-" + grunt.config.get("project.name") + ".git",
-    //                 "branch": "develop"
-    //             },
-    //             "smallstack": {
-    //                 "version": "develop"
-    //             },
-    //             "autoDeploy": true
-    //         },
-    //         "prod": {
-    //             "type": "rootserver",
-    //             "url": "http://" + grunt.config.get("project.name") + ".prod.projects.smallstack.io",
-    //             "rootServerPath": "/var/www/apps/" + grunt.config.get("project.name") + "/prod",
-    //             "repository": {
-    //                 "url": "https://bitbucket.org/smallstack/project-" + grunt.config.get("project.name") + ".git",
-    //                 "branch": "master"
-    //             },
-    //             "smallstack": {
-    //                 "version": "develop"
-    //             },
-    //             "dailyBackup": true
-    //         }
-    //     }
-    //     grunt.file.write(grunt.config.get("deploy.deploymentsFile"), JSON.stringify(standardDeployment, null, 4));
-    // });
 
 
 

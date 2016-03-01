@@ -28,7 +28,7 @@ commander.usage("command [more commands] [options]");
 commander.command("create <name>").action(create);
 commander.command("clean").action(cleaner);
 commander.command("jenkins").action(jenkins).option("--environment [env]");
-commander.command("deploy").action(deploy).option("--apacheConfig").option("--environment [env]");
+commander.command("deploy").action(deploy).option("--apache-config").option("--create-defaults").option("--environment [env]");
 commander.command("generate").action(generate);
 commander.command("compile [smallstack|meteor|supersonic]").action(compile);
 commander.command("supersonic").action(supersonicCreate);
@@ -52,6 +52,7 @@ if (!config.projectFound() && !config.calledWithCreateProjectCommand()) {
 }
 else {
     showConfig();
+    console.log("\n");
 }
 
 commander.parse(process.argv);
