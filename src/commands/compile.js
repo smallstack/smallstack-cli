@@ -13,15 +13,15 @@ module.exports = function (type, watch) {
     var compiler = require("../functions/compiler");
     var notifier = require("../functions/notifier");
 
-    var supersonicTargetFile = config.supersonicDirectory + "/www/scripts/smallstack.js";
-    var meteorTargetFile = config.meteorDirectory + "/shared/lib/smallstack.js";
-    var smallstackOutFile = "bundle.js";
+    // var supersonicTargetFile = config.supersonicDirectory + "/www/scripts/smallstack.js";
+    // var meteorTargetFile = config.meteorDirectory + "/shared/lib/smallstack.js";
     
     
     // smallstack data layer
     if (type === "smallstack" || type === undefined && config.smallstackDirectoryAvailable()) {
         console.log("compiling smallstack");
-        compiler.compileTypescriptFiles(config.smallstackDirectory, { outFile: smallstackOutFile, consolePrefix: "[smallstack]" });
+        // compiler.compileTypescriptFiles(config.smallstackDirectory, { outFile: "bundle.js", consolePrefix: "[smallstack]" });
+        compiler.compileTypescriptFiles(path.join(config.smallstackDirectory, "ddp-connector"), { outFile: "../ddp-connector.js", consolePrefix: "[ddp-connector]" });
     }
 
     // supersonic files
@@ -59,24 +59,24 @@ module.exports = function (type, watch) {
 
     compileVersion();
 
-    function copySingleJavascriptFile() {
-        if (config.supersonicProjectAvailable()) {
-            fs.copySync(smallstackOutFile, supersonicTargetFile);
-            compiler.removeGlobalScope(supersonicTargetFile);
-            console.log("Created : " + supersonicTargetFile);
-        }
+    // function copySingleJavascriptFile() {
+    //     if (config.supersonicProjectAvailable()) {
+    //         fs.copySync(smallstackOutFile, supersonicTargetFile);
+    //         compiler.removeGlobalScope(supersonicTargetFile);
+    //         console.log("Created : " + supersonicTargetFile);
+    //     }
 
-        if (config.meteorProjectAvailable()) {
-            fs.copySync(smallstackOutFile, meteorTargetFile);
-            compiler.removeGlobalScope(meteorTargetFile);
-            console.log("Created : " + meteorTargetFile);
-        }
-    }
-    
+    //     if (config.meteorProjectAvailable()) {
+    //         fs.copySync(smallstackOutFile, meteorTargetFile);
+    //         compiler.removeGlobalScope(meteorTargetFile);
+    //         console.log("Created : " + meteorTargetFile);
+    //     }
+    // }
+
 
     notifier("Compilation completed!");
 
- 
+
 
 
 }

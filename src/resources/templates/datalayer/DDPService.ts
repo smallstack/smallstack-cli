@@ -69,9 +69,12 @@ class <%= serviceClassName %> {
         if (options && options.entriesPerPage) selectorOptions.limit = options.entriesPerPage;
         var cursor = <%= mongoQuery %>;
         
-        this.dataBridge.subscribe("<%=query.name%>", parameters, selectorOptions).then(function(subscriptionHandle:any) {
-            callback(undefined, cursor.fetch());       
-        });
+        this.dataBridge.subscribe("<%=query.name%>", parameters, selectorOptions, function(error:Error, subscribed:boolean) {
+            if (subscribed)
+                callback(undefined, cursor.fetch());
+            else
+                callback(error, undefined);       
+        }); 
     }	
     
     public get<%= _.capitalize(query.name) %>Count(parameters : {<%=parameters%>}, callback:(error: Error, count: number) => void): void {
