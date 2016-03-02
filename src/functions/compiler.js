@@ -1,10 +1,10 @@
 var fs = require("fs-extra");
 var path = require("path");
 var _ = require("underscore");
-var find = require("find");
-var exec = require('child_process').exec;
+var glob = require("glob");
 var config = require("../config");
-
+var tsc = require('typescript-compiler');
+var exec = require("./exec");
 
 var compiler = {
 
@@ -15,48 +15,43 @@ var compiler = {
 
         if (directory === undefined || !fs.existsSync(directory))
             throw new Error("Cannot compile non-existing directory : " + path.resolve(directory));
-
-        var allTSFiles = "";
-        _.each(find.fileSync(/\.ts$/, directory), function (file) {
-            if (file.indexOf(".d.ts") === -1)
-                allTSFiles += "\"" + file + "\" ";
+        
+        var allTSFiles = glob.sync("**/*.ts", {
+            cwd: directory,
+            nodir: true,
+            follow: true
         });
 
-        if (allTSFiles === "") {
+        var filtered = "";
+        _.each(allTSFiles, function (file) {
+            if (file.indexOf(".d.ts") === -1)
+                filtered += path.join(directory, file) + "\n";
+        });
+
+        if (!filtered.length) {
             console.log("No typescript files found in directory : ", path.resolve(directory));
             if (typeof doneFn === 'function')
                 doneFn();
             return;
         }
+        
+        var commandFile = config.tmpDirectory + "/tscfiles.txt";
+        fs.ensureDirSync(config.tmpDirectory);
+        fs.writeFileSync(commandFile, filtered);
 
-        var command = "tsc " + allTSFiles.toString();
+        var command = "tsc @" + commandFile;
         if (options.outFile !== undefined)
-            command += "--outFile " + options.outFile;
+            command += " --outFile " + options.outFile;
         if (options.outDir !== undefined)
-            command += "--outDir " + options.outDir;
-
+            command += " --outDir " + options.outDir;
         // command += " --watch";
 
-        //console.log("Command : ", command);
-        var process = exec(command, {
-            cwd: directory
-        });
-        process.stdout.on('data', function (data) {
-            _.each(data.split("\n"), function (line) {
-                console.log(' |-- ' + options.consolePrefix + " " + line);
-            });
-        });
-        process.stderr.on('data', function (data) {
-            _.each(data.split("\n"), function (line) {
-                console.error(' |-- ' + options.consolePrefix + " " + line);
-            });
-        });
-        process.on('close', function (code) {
-            console.log(' |-- Done with return code : ', code);
-            if (code !== 0)
-                throw new Error("Process did not return 0! Please have a look at the logs, there must be an error!");
-            if (typeof doneFn === 'function')
-                doneFn();
+
+        console.log("Command : ", command);
+        
+        exec(command, {
+            cwd: directory,
+            finished: doneFn
         });
     },
 
