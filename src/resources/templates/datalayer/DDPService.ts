@@ -2,6 +2,7 @@
  * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY CODE GENERATION
  */
 
+/// <reference path="../../typings/main.d.ts" />
 /// <reference path="../../interfaces/DataBridge.ts" />
 /// <reference path="../../interfaces/QueryOptions.ts" />
 
@@ -57,7 +58,8 @@ class <%= serviceClassName %> {
             
             // one or many?
             var sorting = query.sorting !== undefined ? JSON.stringify(query.sorting) : "{}";
-            var mongoQuery = "this.dataBridge.getCollectionByName(\"" + collectionName + "\").find(" + parsedSelector + ", selectorOptions)";
+            // old : var mongoQuery = "this.dataBridge.getCollectionByName(\"" + collectionName + "\").find(" + parsedSelector + ", selectorOptions)";
+            var mongoQuery = "self.dataBridge.getCollectionByName(\"" + collectionName + "\").reactiveQuery(" + parsedSelector + ").result";
             // if (query.returnOne === true)
             //     mongoQuery = "smallstack.collections[\"" + collectionName + "\"].findOne(" + parsedSelector + ")";
             
@@ -67,13 +69,24 @@ class <%= serviceClassName %> {
         var selectorOptions:any = {sort : <%=sorting%>};        
         if (options && options.currentPage && options.entriesPerPage) selectorOptions.skip = ((options.currentPage - 1) * options.entriesPerPage);
         if (options && options.entriesPerPage) selectorOptions.limit = options.entriesPerPage;
-        var cursor = <%= mongoQuery %>;
         
+        console.debug("Subscribing to : <%=query.name%>");
         this.dataBridge.subscribe("<%=query.name%>", parameters, selectorOptions, function(error:Error, subscribed:boolean) {
-            if (subscribed)
-                callback(undefined, cursor.fetch());
-            else
-                callback(error, undefined);       
+            if (subscribed) {
+                console.debug("Successfully subscribed!");
+                var results = <%= mongoQuery %>;
+                console.debug("Query Result is : ", results);
+                var convertedObjects:<%=modelClassName%>[] = [];
+                _.each(results, function(result){
+                    convertedObjects.push(<%=modelClassName%>.fromDocument(result));
+                });
+                console.debug("Converted Result is : ", convertedObjects);
+                callback(undefined, convertedObjects);
+            }
+            else {
+                console.error("Could not subscribe to collection!");
+                callback(error, undefined);
+            }       
         }); 
     }	
     
