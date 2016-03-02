@@ -127,9 +127,9 @@ module.exports = function () {
         configuration[id].methods = [];
         _.each(jsonContent.service.securedmethods, function (meth) {
             var method = {};
-            method.sharedMethodsPath = path.resolve("app/shared/functions");
-            method.serverMethodsPath = path.resolve("app/server/functions");
-            method.clientMethodsPath = path.resolve("app/client/functions");
+            method.sharedMethodsPath = path.join(config.meteorDirectory, "shared/functions");
+            method.serverMethodsPath = path.join(config.meteorDirectory, "server/functions");
+            method.clientMethodsPath = path.join(config.meteorDirectory, "client/functions");
             method.pathFromSharedMethodToDefinitionsFile = path.relative(method.sharedMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
             method.pathFromServerMethodToDefinitionsFile = path.relative(method.serverMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
             method.pathFromClientMethodToDefinitionsFile = path.relative(method.clientMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
@@ -323,6 +323,7 @@ module.exports = function () {
         roots: roots,
         relativePathFromDefToPackages: path.relative(config.pathToGeneratedDefinitions, config.packagesDirectory).replace(/\\/g, "/"),
         functions: genFunctions,
+        config: config,
         pathToGeneratedDefinitions: config.pathToGeneratedDefinitions
     });
 

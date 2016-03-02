@@ -9,6 +9,7 @@ module.exports = function (type, watch) {
     var _ = require("underscore");
     var find = require("find");
     var path = require("path");
+
     var config = require("../config");
     var compiler = require("../functions/compiler");
     var notifier = require("../functions/notifier");

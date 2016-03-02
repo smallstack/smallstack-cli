@@ -46,4 +46,4 @@ _.forEach(_.keys(roots), function(root){
 
 // OTHERS
 
-/// <reference path="<%=functions.relativePath(pathToGeneratedDefinitions, "app/shared/versions.ts")%>" />
+/// <reference path="<%=functions.relativePath(pathToGeneratedDefinitions, config.meteorDirectory + "/shared/versions.ts")%>" />
