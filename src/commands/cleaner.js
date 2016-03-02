@@ -47,6 +47,9 @@ module.exports = function () {
                 file = file.replace(".ts", ".js");
                 console.log("Deleting : " + file);
                 fs.removeSync(file);
+                file = file.replace(".js", ".js.map");
+                console.log("Deleting : " + file);
+                fs.removeSync(file);
             }
         }
     });
