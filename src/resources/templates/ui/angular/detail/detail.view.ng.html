@@ -4,7 +4,7 @@
 <% _.forEach(type.model.schema, function(schema){
 	var propertyName = schema.name;
 	if (schema.collection !== undefined)
-		propertyName = "get" + _.capitalize(schema.name) + "()";
+		propertyName = "get" + capitalize(schema.name) + "()";
 
 %>
 	<h5><%=f.capitalize(schema.name)%></h5>

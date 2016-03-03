@@ -3,7 +3,6 @@ var path = require("path");
 var _ = require("underscore");
 var glob = require("glob");
 var config = require("../config");
-var tsc = require('typescript-compiler');
 var exec = require("./exec");
 
 var compiler = {

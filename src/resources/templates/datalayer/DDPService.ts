@@ -36,7 +36,7 @@ class <%= serviceClassName %> {
 				if (match !== null)	{
                     subscriptionOptions += "{";
                     for (var p = 0; p < match.length; p++) {
-						var param = _.trim(match[p],'":');
+						var param = functions.trim(match[p],'":');
                         var typeSplit = param.split(":");
                         var paramName = typeSplit[0];
                         var paramType = typeSplit[1] || "any";
@@ -64,7 +64,7 @@ class <%= serviceClassName %> {
             //     mongoQuery = "smallstack.collections[\"" + collectionName + "\"].findOne(" + parsedSelector + ")";
             
 	%>
-	public get<%= _.capitalize(query.name) %>(parameters: {<%=parameters%>}, options: QueryOptions, callback: (error:Error, models:<%=modelClassName%>[]) => void): void {
+	public get<%= functions.capitalize(query.name) %>(parameters: {<%=parameters%>}, options: QueryOptions, callback: (error:Error, models:<%=modelClassName%>[]) => void): void {
         var self = this;
         var selectorOptions:any = {sort : <%=sorting%>};        
         if (options && options.currentPage && options.entriesPerPage) selectorOptions.skip = ((options.currentPage - 1) * options.entriesPerPage);
@@ -90,7 +90,7 @@ class <%= serviceClassName %> {
         }); 
     }	
     
-    public get<%= _.capitalize(query.name) %>Count(parameters : {<%=parameters%>}, callback:(error: Error, count: number) => void): void {
+    public get<%= functions.capitalize(query.name) %>Count(parameters : {<%=parameters%>}, callback:(error: Error, count: number) => void): void {
         return this.dataBridge.getCountForQuery("<%=query.name%>", parameters, callback);
 	}	
 	<% }) %>

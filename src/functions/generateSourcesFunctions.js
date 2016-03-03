@@ -2,19 +2,10 @@
 
 var path = require("path");
 var pluralizer = require("pluralize");
-var _ = require("lodash");
+var _ = require("underscore");
+var _trim = require("underscore.string/trim");
 
 var functions = {};
-
-
-functions.processTemplate = function processTemplate(grunt, from, to, replacers) {
-
-    var template = grunt.file.read(from);
-    var content = grunt.template.process(template, {
-        data: replacers
-    });
-    grunt.file.write(to, content);
-}
 
 functions.getSchemaType = function getSchemaType(type) {
     switch (type.toLowerCase()) {
@@ -183,10 +174,10 @@ functions.getForeignModelGetterName = function getForeignModelGetterName(schema,
         if (schema.type === "foreign")
             return "get" + others[schema.collection].modelClassName + "ById";
         else
-            return "get" + _.capitalize(pluralizer(others[schema.collection].modelClassName)) + "ByIds";
+            return "get" + functions.capitalize((pluralizer(others[schema.collection].modelClassName)) + "ByIds");
     }
     else
-        return "get" + _.capitalize(schema.name);
+        return "get" + functions.capitalize(schema.name);
 }
 
 functions.getChecksForParameters = function getChecksForParameters(array, others) {
@@ -276,7 +267,14 @@ functions.getModelPropertyName = function getModelPropertyName(schema) {
 }
 
 functions.capitalize = function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.substring(1);
+    if (str !== undefined)
+        return str.charAt(0).toUpperCase() + str.substring(1);
+    else
+        return undefined;
+}
+
+functions.trim = function trim(str, characters) {
+    return _trim(str, characters);
 }
 
 functions.getServiceName = function getServiceName(type) {
@@ -318,7 +316,7 @@ functions.getAllQueryParameters = function getAllQueryParameters(query) {
         var selectorString = JSON.stringify(query.selector);
         var match = selectorString.match(/\"\:([a-zA-Z\[\]\:]{2,})\"/g);
         if (match !== null) {
-            _.forEach(match, function (ma) {
+            _.each(match, function (ma) {
                 var param = ma.split(":")[1];
                 param = param.replace("\"", "");
                 parameters.push(param);

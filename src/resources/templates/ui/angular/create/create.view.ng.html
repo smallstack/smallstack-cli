@@ -10,7 +10,7 @@
 				if (schema.collection !== undefined)
 					modelName += "Id";	
 				%><div class="<%=theme.inputFieldClasses%> <%=theme.tableCol%> <%=theme.fullsizeTableCol%>">
-					<smallstack-editor type="<%=schema.type%>" model="<%=modelName%>"<% if (schema.collection !== undefined) print(' foreign-type="' + types[schema.collection].config.model.name + '"');%> label="<%=_.capitalize(schema.name)%>"></smallstack-editor>
+					<smallstack-editor type="<%=schema.type%>" model="<%=modelName%>"<% if (schema.collection !== undefined) print(' foreign-type="' + types[schema.collection].config.model.name + '"');%> label="<%=capitalize(schema.name)%>"></smallstack-editor>
 				</div>
 				<%		
 				}

@@ -4,6 +4,9 @@ var path = require("path");
 var glob = require("glob");
 var _ = require("underscore");
 var lodash = require("lodash");
+var capitalize = require("underscore.string/capitalize");
+
+var templating = require("../functions/templating");
 
 module.exports = function () {
 
@@ -352,19 +355,17 @@ function generatorLog() {
 
 function processTemplate(from, to, replacers) {
     try {
-        var template = fs.readFileSync(from);
-        var content = lodash.template(template);
-        fs.createFileSync(to);
-        fs.writeFileSync(to, content(replacers));
+        templating.compileFileToFile(from, to, replacers);
+        //     var template = fs.readFileSync(from);
+        //     var content = lodash.template(template);
+        //     fs.createFileSync(to);
+        //     fs.writeFileSync(to, content(replacers));
     }
     catch (e) {
         console.log(e);
         throw new Error("Exception while processing template : \n\tfrom  : " + from + "\n\tto    : " + to + "\n\terror : " + e);
     }
-}
 
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.substring(1);
 }
 
 function checkJson(variable, errorMessage) {

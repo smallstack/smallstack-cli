@@ -146,9 +146,9 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
     %>
 	
 	/** 
-	 * Adds a reference to <%=_.capitalize(schema.name) %> 
+	 * Adds a reference to <%=functions.capitalize(schema.name) %> 
 	 */
-    public add<%= _.capitalize(functions.getModelPropertyName(schema)) %>(ids:string[]) {
+    public add<%= functions.capitalize(functions.getModelPropertyName(schema)) %>(ids:string[]) {
         if (this.<%=functions.getModelPropertyName(schema)%> === undefined)
             this.<%=functions.getModelPropertyName(schema)%> = [];
 		_.each(ids, function(id) {
