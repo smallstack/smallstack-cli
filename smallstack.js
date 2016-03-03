@@ -6,6 +6,7 @@ var config = require("./src/config");
 var commander = require('commander');
 var fs = require("fs-extra");
 var _ = require("underscore");
+var colors = require("colors");
 
 // commands
 var generate = require("./src/commands/generate");
@@ -50,9 +51,10 @@ if (!config.projectFound() && !config.calledWithCreateProjectCommand()) {
     console.log("      smallstack create <name>");
     process.exit(0);
 }
-else {
-    showConfig();
-    console.log("\n");
-}
 
-commander.parse(process.argv);
+var output = commander.parse(process.argv);
+
+if (output.args[0]._name === undefined) {
+    console.error(colors.red("Not a valid command: " + output.args[0]));
+    commander.outputHelp();
+}

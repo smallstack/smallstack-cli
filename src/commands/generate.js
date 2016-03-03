@@ -7,6 +7,7 @@ var lodash = require("lodash");
 var capitalize = require("underscore.string/capitalize");
 
 var templating = require("../functions/templating");
+var notifier = require("../functions/notifier");
 
 module.exports = function () {
 
@@ -330,6 +331,8 @@ module.exports = function () {
         pathToGeneratedDefinitions: config.pathToGeneratedDefinitions
     });
 
+
+    notifier("Generating Source Code completed!");
 }
 
 

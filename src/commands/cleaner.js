@@ -6,6 +6,7 @@ var path = require("path");
 module.exports = function () {
 
     var config = require("../config");
+    var notifier = require("../functions/notifier");
 
     // delete meteor/built
     removeDirOrFile( path.join(config.meteorDirectory, "built"));
@@ -56,7 +57,7 @@ module.exports = function () {
     console.log("Deleting : tmp");
     removeDirOrFile("tmp");
 
-
+    notifier("Cleaning completed!");
 }
 
 function removeDirOrFile(directoryOrFile) {
