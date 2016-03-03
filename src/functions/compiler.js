@@ -14,7 +14,7 @@ var compiler = {
 
         if (directory === undefined || !fs.existsSync(directory))
             throw new Error("Cannot compile non-existing directory : " + path.resolve(directory));
-        
+
         var allTSFiles = glob.sync("**/*.ts", {
             cwd: directory,
             nodir: true,
@@ -33,7 +33,7 @@ var compiler = {
                 doneFn();
             return;
         }
-        
+
         var commandFile = config.tmpDirectory + "/tscfiles.txt";
         fs.ensureDirSync(config.tmpDirectory);
         fs.writeFileSync(commandFile, filtered);
@@ -47,10 +47,13 @@ var compiler = {
 
 
         console.log("Command : ", command);
-        
+
         exec(command, {
             cwd: directory,
-            finished: doneFn
+            finished: doneFn,
+            error: function (error) {
+                throw new Error("Compilation failed : " + error);
+            }
         });
     },
 

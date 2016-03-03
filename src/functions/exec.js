@@ -9,6 +9,13 @@ module.exports = function (command, options) {
 
     var process = exec(command, {
         cwd: options.cwd || config.rootDirectory
+    }, function (error) {
+        if (error !== null) {
+            if (options.error)
+                options.error(error);
+            else
+                throw new Error(error);
+        }
     });
 
     process.stdout.on('data', function (data) {
@@ -29,6 +36,8 @@ module.exports = function (command, options) {
             else
                 console.error(options.linePrefix + line);
         });
+        if (options.error)
+            options.error(data);
     });
 
     process.on('close', function (code) {

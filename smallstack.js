@@ -53,7 +53,7 @@ if (!config.projectFound() && !config.calledWithCreateProjectCommand()) {
 }
 
 var output = commander.parse(process.argv);
-if (output.args[0] && output.args[0]._name === undefined) {
-    console.error(colors.red("Not a valid command: " + output.args[0]));
-    commander.outputHelp();
-}
+// if (output.args[0] && output.args[0]._name === undefined) {
+//     console.error(colors.red("Not a valid command: " + output.args[0]));
+//     commander.outputHelp();
+// }
