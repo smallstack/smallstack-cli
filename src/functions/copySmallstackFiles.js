@@ -3,6 +3,7 @@ module.exports = function (toDir) {
     var config = require("../config");
     var fsUtils = require("nodejs-fs-utils");
     var _ = require("underscore");
+    var typings = require("typings");
 
     if (toDir === undefined)
         toDir = config.smallstackDirectory;
@@ -15,4 +16,8 @@ module.exports = function (toDir) {
                 console.error("Error", err)
             });
     }, { skipErrors: true });
+
+    typings.install({
+        cwd: config.smallstackDirectory
+    });
 }
