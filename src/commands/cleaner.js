@@ -16,6 +16,11 @@ module.exports = function () {
     console.log("Cleaning smallstack folder : ", smallstackPath);
     fs.removeSync(smallstackPath);
 
+    // delete node_modules (since we once had one in the project root)
+    var nodeModulesPath = path.join(config.rootDirectory, "node_modules");
+    console.log("Cleaning node_modules folder (since we once had one in the project root) : ", nodeModulesPath);
+    fs.removeSync(nodeModulesPath);
+
     // delete tmp folder
     console.log("Cleaning tmp folder : ", config.tmpDirectory);
     fs.removeSync(config.tmpDirectory);
