@@ -12,6 +12,7 @@ interface DataBridge {
     getCurrentUserId(): string;
     loginWithPassword(username: string, password: string, callbackFn: (error: Error, success?: boolean) => void): void;
     registerWithPassword(email: string, password: string, callbackFn: (error: Error, success?: boolean) => void): void;
+    afterLogin(callbackFn: () => void): void;
     
     // baseUrl
     setBaseUrl(url: string): void;
