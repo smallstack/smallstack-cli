@@ -6,7 +6,7 @@ interface DataBridge {
     getCollectionByName(name: string): any;
     
     // methods
-    call(methodName: string, parameters: string[], callback: (error: Error, response: any) => void): void;
+    call(methodName: string, parameters: any, callback: (error: Error, response: any) => void): void;
 
     // user related
     getCurrentUserId(): string;

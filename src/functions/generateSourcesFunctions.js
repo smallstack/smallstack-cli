@@ -180,7 +180,7 @@ functions.getForeignModelGetterName = function getForeignModelGetterName(schema,
         return "get" + functions.capitalize(schema.name);
 }
 
-functions.getChecksForParameters = function getChecksForParameters(array, others) {
+functions.getChecksForParameters = function getChecksForParameters(array, others, callback) {
     var out = "";
     if (array !== undefined && array instanceof Array) {
         for (var i = 0; i < array.length; i++) {
@@ -199,7 +199,10 @@ functions.getChecksForParameters = function getChecksForParameters(array, others
                 type = "String";
             }
 
-            out += "\t\tUtils.check(" + name + ", " + type + ", \"" + name + "\", callback);\n";
+            out += "\t\tUtils.check(params." + name + ", " + type + ", \"" + name + "\"";
+            if (callback)
+                out += ", callback";
+            out += ");\n";
         }
     }
     return out;

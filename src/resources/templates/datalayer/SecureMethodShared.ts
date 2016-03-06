@@ -5,7 +5,7 @@
  */
 
 Meteor.methods({
-	"<%=methodName%>" : function(<%=methodParameters%>){
+	"<%=methodName%>" : function(params: {<%=methodParameters%>}){
 <%=methodParameterChecks%>
 		
 		throw new Meteor.Error("501", "This method is not implemented yet!");
