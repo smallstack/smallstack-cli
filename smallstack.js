@@ -1,5 +1,3 @@
-#! /usr/bin/env node
-
 // modules
 var logo = require("./src/functions/logo");
 var config = require("./src/config");
