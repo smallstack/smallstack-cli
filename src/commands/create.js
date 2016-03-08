@@ -4,7 +4,6 @@ module.exports = function (projectName) {
     var path = require("path");
     var _ = require("underscore");
     var exec = require('child_process').exec;
-    var copySmallstackFiles = require("../functions/copySmallstackFiles");
 
     var directory = path.join(process.cwd(), projectName);
 
@@ -18,19 +17,11 @@ module.exports = function (projectName) {
 
         console.log("Preparing files...");
 
-        // create smallstack.json
-        var smallstack = {
-            project: {
-                name: projectName,
-                version: projectVersion
-            }
-        }
-        fs.writeJSONSync(path.join(directory, "smallstack.json"), smallstack);
-
         // create package.json
         var packageJSONContent = fs.readJSONSync(__dirname + "/../resources/templates/project/package.json");
         packageJSONContent.name = projectName;
         packageJSONContent.version = projectVersion;
+        packageJSONContent.smallstack = {};
         fs.writeJSONSync(path.join(directory, "package.json"), packageJSONContent);
         
         // create default .gitignore
@@ -47,7 +38,7 @@ module.exports = function (projectName) {
         if (fs.existsSync(appDirectory + "/.meteor/packages"))
             console.log(" |-- Meteor Application exists, skipping code generation!");
         else {
-            var process = exec("meteor create meteor", {
+            var process = exec("meteor create app", {
                 cwd: directory
             });
             process.stdout.on('data', function (data) {
@@ -61,20 +52,10 @@ module.exports = function (projectName) {
                 throw new Error("Aborting since meteor application could not be created!");
             });
             process.on('close', function (code) {
+                fs.renameSync(path.join(directory, "app"), path.join(directory, "meteor"));                
                 console.log(' |-- Done\n');
-                createSmallstackFolder();
             });
         }
-    }
-
-
-
-    function createSmallstackFolder() {
-        console.log("Creating smallstack files...");
-        var dir = path.join(directory, "smallstack");
-        fs.mkdirsSync(dir);
-        copySmallstackFiles(dir);
-        console.log(' |-- Done\n');
     }
 
     // start the chain

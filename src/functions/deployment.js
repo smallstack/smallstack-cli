@@ -5,7 +5,7 @@ var templating = require("./templating");
 var moment = require('moment');
 
 module.exports = {
-    deploymentsFileDirectory: path.join(config.rootDirectory, "deployment"),
+    deploymentsFileDirectory: config.rootDirectory + "/deployment",
     deploymentsFileName: "deployments",
     deploymentsFileEnding: ".json",
 

@@ -3,7 +3,7 @@ module.exports = function (type, watch) {
         watch = false;
 
     require("../functions/copySmallstackFiles")();
-    var compileVersion = require("../functions/compile.version");
+    require("../functions/compile.version")();
 
     var fs = require("fs-extra");
     var _ = require("underscore");
@@ -88,7 +88,6 @@ module.exports = function (type, watch) {
     compileSmallstackDataLayer(function () {
         compileSuperSonicFiles(function () {
             compileMeteorFiles(function () {
-                compileVersion();
                 notifier("Compilation completed!");
             });
         });
