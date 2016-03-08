@@ -4,6 +4,10 @@ var path = require("path");
 var glob = require("glob");
 var _ = require("underscore");
 var lodash = require("lodash");
+var capitalize = require("underscore.string/capitalize");
+
+var templating = require("../functions/templating");
+var notifier = require("../functions/notifier");
 
 module.exports = function () {
 
@@ -127,9 +131,9 @@ module.exports = function () {
         configuration[id].methods = [];
         _.each(jsonContent.service.securedmethods, function (meth) {
             var method = {};
-            method.sharedMethodsPath = path.resolve("app/shared/functions");
-            method.serverMethodsPath = path.resolve("app/server/functions");
-            method.clientMethodsPath = path.resolve("app/client/functions");
+            method.sharedMethodsPath = path.join(config.meteorDirectory, "shared/functions");
+            method.serverMethodsPath = path.join(config.meteorDirectory, "server/functions");
+            method.clientMethodsPath = path.join(config.meteorDirectory, "client/functions");
             method.pathFromSharedMethodToDefinitionsFile = path.relative(method.sharedMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
             method.pathFromServerMethodToDefinitionsFile = path.relative(method.serverMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
             method.pathFromClientMethodToDefinitionsFile = path.relative(method.clientMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
@@ -224,6 +228,14 @@ module.exports = function () {
                 processTemplate(config.datalayerTemplatesPath + "/Service.ts", serviceImpl, data);
         }
 
+        // process ddp services
+        if (data.config.service.skipDDPGeneration === true)
+            generatorLog("  | - skipping generating ddp service since service.skipDDPGeneration === true");
+        else {
+            generatorLog("  | - generating ddp service");
+            processTemplate(config.datalayerTemplatesPath + "/DDPService.ts", config.smallstackDirectory + "/ddp-connector/services/" + data.serviceClassName + ".ts", data);
+        }
+
         // process models
         if (data.config.model.skipGeneration === true)
             generatorLog("  | - skipping generating model since model.skipGeneration === true");
@@ -233,6 +245,14 @@ module.exports = function () {
             var modelImpl = data.modelsDirectory + "/" + data.modelClassName + ".ts";
             if (!fs.existsSync(modelImpl))
                 processTemplate(config.datalayerTemplatesPath + "/Model.ts", modelImpl, data);
+        }
+
+        // process ddp models
+        if (data.config.model.skipDDPGeneration === true)
+            generatorLog("  | - skipping generating model since model.skipDDPGeneration === true");
+        else {
+            generatorLog("  | - generating ddp model");
+            processTemplate(config.datalayerTemplatesPath + "/DDPModel.ts", config.smallstackDirectory + "/ddp-connector/models/" + data.modelClassName + ".ts", data);
         }
 
         // process secured methods
@@ -307,9 +327,12 @@ module.exports = function () {
         roots: roots,
         relativePathFromDefToPackages: path.relative(config.pathToGeneratedDefinitions, config.packagesDirectory).replace(/\\/g, "/"),
         functions: genFunctions,
+        config: config,
         pathToGeneratedDefinitions: config.pathToGeneratedDefinitions
     });
 
+
+    notifier("Generating Source Code completed!");
 }
 
 
@@ -335,19 +358,17 @@ function generatorLog() {
 
 function processTemplate(from, to, replacers) {
     try {
-        var template = fs.readFileSync(from);
-        var content = lodash.template(template);
-        fs.createFileSync(to);
-        fs.writeFileSync(to, content(replacers));
+        templating.compileFileToFile(from, to, replacers);
+        //     var template = fs.readFileSync(from);
+        //     var content = lodash.template(template);
+        //     fs.createFileSync(to);
+        //     fs.writeFileSync(to, content(replacers));
     }
     catch (e) {
         console.log(e);
         throw new Error("Exception while processing template : \n\tfrom  : " + from + "\n\tto    : " + to + "\n\terror : " + e);
     }
-}
 
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.substring(1);
 }
 
 function checkJson(variable, errorMessage) {

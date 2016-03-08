@@ -1,14 +1,13 @@
 /**
- * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY RE-COMPILE
+ * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY CODE GENERATION
  */
 
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/smallstack.d.ts" />
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/meteor/meteor.d.ts" />
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/underscore/underscore.d.ts" />
-/// <reference path="<%= relativePathFromGeneratedModelToPackages %>/smallstack-collections/QueryObject.ts" />
-/// <reference path="<%= relativePathFromGeneratedModelToPackages %>/smallstack-collections/QueryOptions.ts" />
+/// <reference path="../../typings/main.d.ts" />
 
-/// <reference path="<%= relativePathFromGeneratedModelToModel %>" />
+/// <reference path="../../classes/IOC.ts" />
+/// <reference path="../../interfaces/QueryOptions.ts" />
+
+/// <reference path="../services/<%=functions.getServiceName(config)%>.ts" />
 <%
 _.forEach(config.model.schema, function(schema) {
     if (schema.type === "foreign" || schema.type === "foreign[]") {
@@ -17,7 +16,8 @@ _.forEach(config.model.schema, function(schema) {
         if (others[schema.collection] === undefined)
             throw new Error("Type '" + schema.collection + "' is unknown!");
         %>
-/// <reference path="<%=functions.relativePath(modelsGeneratedDirectory,others[schema.collection].servicesDirectory + "/" + others[schema.collection].serviceClassName + ".ts")%>" /><%
+/// <reference path="../services/<%=others[schema.collection].serviceClassName%>.ts" />
+/// <reference path="<%=others[schema.collection].modelClassName%>.ts" /><%
     }
 });
 
@@ -63,7 +63,7 @@ function getSubTypes(schema) {
 %>
 
 
-class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {%> extends <%=config.model.extends%><%}%><% if (config.model.implements !== undefined) {%> implements <%=config.model.implements%><%}%> {
+class <%= modelClassName %> {
 	
 	// generated model properties
 	public id:string;
@@ -158,8 +158,8 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 	}
 		
 <%}%>
-    public <%=functions.getForeignModelGetterName(schema,false,others, functions) %>(options?:QueryOptions): QueryObject<<%=others[schema.collection].modelClassName%>> {
-		return smallstack.ioc.get<<%=others[schema.collection].serviceClassName%>>("<%=functions.lowerCaseFirst(others[schema.collection].serviceClassName)%>").<%=functions.getForeignModelGetterName(schema,true, others) %>({id<% if (schema.type === "foreign[]") {%>s<%}%> : this.<%=functions.getModelPropertyName(schema)%>}, options);
+    public <%=functions.getForeignModelGetterName(schema,false,others, functions) %>(options: QueryOptions, callback: (error: Error, results: <%=others[schema.collection].modelClassName%>[]) => void): void {
+		IOC.instance().get<<%=others[schema.collection].serviceClassName%>>("<%=functions.lowerCaseFirst(others[schema.collection].serviceClassName)%>").<%=functions.getForeignModelGetterName(schema,true, others) %>({id<% if (schema.type === "foreign[]") {%>s<%}%> : this.<%=functions.getModelPropertyName(schema)%>}, options, callback);
 	}
 		<%
 	}
@@ -173,30 +173,6 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 	}
 	
 	/**
-	 * Deletes all sub documents recursively
-	 */
-	public deleteSubDocuments(): void {
-		<% if (foreignKeysFound) {
-		 _.forEach(config.model.schema, function(schema) {
-		if (schema.type === "foreign[]") {%>
-		smallstack.collections["<%=schema.collection%>"].find({"_id" : { "$in" : this["<%=functions.getModelPropertyName(schema)%>"]}}).forEach(function(model){
-			if (model.hasSubdocuments()) {
-				model.deleteSubDocuments();
-			}
-			smallstack.collections["<%=schema.collection%>"].remove(model.id);
-		});		
-		<%}	else if (schema.type === "foreign") {%>
-		smallstack.collections["<%=schema.collection%>"].find({"_id" : this["<%=functions.getModelPropertyName(schema)%>"]}).forEach(function(model){
-			if (model.hasSubdocuments()) {
-				model.deleteSubDocuments();
-			}
-			smallstack.collections["<%=schema.collection%>"].remove(model.id);
-		});		
-		<%}		
-	})}%>
-	}
-	
-	/**
 	 * Returns true if model is stored in database
 	 */
 	public isStored(): boolean {
@@ -204,33 +180,15 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 	}
 	
 	
-	public delete(callback?:(error: Meteor.Error, numberOfRemovedDocuments:number) => void): number {
-		if (callback === undefined && Meteor.isClient)  {
-			var that = this;
-			callback = function(error: Meteor.Error, numberOfRemovedDocuments:number) {
-				if (error)
-					NotificationService.instance().getStandardErrorPopup(error, "Could not delete <%=config.model.name%> with ID '" + that.id + "'!");
-				else
-					NotificationService.instance().notification.success("Successfully removed <%=config.model.name%> with ID '" + that.id + "'!");
-			}
-		}
+	public delete(callback?:(error: Error, numberOfRemovedDocuments:number) => void): void {
 		return <%=functions.getServiceName(config)%>.instance().delete<%=config.model.name%>(<any> this, callback);
 	}
 	
-	public update(callback?:(error: Meteor.Error, numberOfSavedDocuments:number) => void): number {
-		if (callback === undefined && Meteor.isClient)  {
-			var that = this;
-			callback = function(error: Meteor.Error, numberOfSavedDocuments:number) {
-				if (error)
-					NotificationService.instance().getStandardErrorPopup(error, "Could not update <%=config.model.name%> with ID '" + that.id + "'!");
-				else
-					NotificationService.instance().notification.success("Successfully updated <%=config.model.name%> with ID '" + that.id + "'!");
-			}
-		}
+	public update(callback?:(error: Error, numberOfSavedDocuments:number) => void): void {
 		return <%=functions.getServiceName(config)%>.instance().update<%=config.model.name%>(<any> this, callback);
 	}
 	
-	public getModelName() {
+	public getModelName(): string {
 		return "<%= modelClassName %>";
 	}
 }

@@ -1,19 +1,24 @@
+var fs = require("fs-extra");
+var _ = require("underscore");
+var glob = require("glob");
+var path = require("path");
+
 module.exports = function () {
 
-    var fs = require("fs-extra");
-    var _ = require("underscore");
-    var glob = require("glob");
-    var path = require("path");
     var config = require("../config");
+    var notifier = require("../functions/notifier");
 
     // delete meteor/built
-    var meteorBuiltPath = path.join(config.meteorDirectory, "built");
-    console.log("Cleaning meteor built folder : ", meteorBuiltPath);
-    fs.removeSync(meteorBuiltPath);
+    removeDirOrFile( path.join(config.meteorDirectory, "built"));
+
+    // delete smallstackFolder
+    removeDirOrFile(config.smallstackDirectory);
+
+    // delete node_modules (since we once had one in the project root)
+    removeDirOrFile(path.join(config.rootDirectory, "node_modules"));
 
     // delete tmp folder
-    console.log("Cleaning tmp folder : ", config.tmpDirectory);
-    fs.removeSync(config.tmpDirectory);
+    removeDirOrFile(config.tmpDirectory);
     
     // delete all generated folders
     var alreadyDeleted = [];
@@ -24,8 +29,7 @@ module.exports = function () {
     _.each(allSmallstackFiles, function (root) {
         var dir = path.join(config.meteorDirectory, path.dirname(root), "generated").replace(/\\/g, "/");
         if (!_.contains(alreadyDeleted, dir)) {
-            console.log("Deleting : " + dir);
-            fs.removeSync(dir);
+            removeDirOrFile(dir);
             alreadyDeleted.push(dir);
         }
     });
@@ -40,17 +44,26 @@ module.exports = function () {
         if (file.indexOf("node_modules") === -1) {
             if (file.indexOf(".d.ts") === -1) {
                 file = file.replace(".ts", ".js");
-                console.log("Deleting : " + file);
-                fs.removeSync(file);
+                removeDirOrFile(file);
+                file = file.replace(".js", ".js.map");
+                removeDirOrFile(file);
             }
         }
     });
 
     console.log("Deleting : app/built");
-    fs.removeSync("app/built");
+    removeDirOrFile("app/built");
 
     console.log("Deleting : tmp");
-    fs.removeSync("tmp");
+    removeDirOrFile("tmp");
 
+    notifier("Cleaning completed!");
+}
 
+function removeDirOrFile(directoryOrFile) {
+    console.log("Removing:", directoryOrFile);
+    fs.remove(directoryOrFile, function (error) {
+        if (error !== null)
+            console.error(error);
+    });
 }

@@ -2,19 +2,10 @@
 
 var path = require("path");
 var pluralizer = require("pluralize");
-var _ = require("lodash");
+var _ = require("underscore");
+var _trim = require("underscore.string/trim");
 
 var functions = {};
-
-
-functions.processTemplate = function processTemplate(grunt, from, to, replacers) {
-
-    var template = grunt.file.read(from);
-    var content = grunt.template.process(template, {
-        data: replacers
-    });
-    grunt.file.write(to, content);
-}
 
 functions.getSchemaType = function getSchemaType(type) {
     switch (type.toLowerCase()) {
@@ -136,16 +127,34 @@ functions.convertMethodParametersToTypescriptMethodParameters = function convert
         for (var i = 0; i < array.length; i++) {
             if (array[i].indexOf(":") === -1)
                 // default shall be string
-                out += array[i] + ":string";
+                out += array[i] + ": string";
             else {
                 var type = array[i].substring(array[i].indexOf(":") + 1);
                 var name = array[i].substring(0, array[i].indexOf(":"));
-                out += name + ":" + functions.getTypescriptType(type);
+                out += name + ": " + functions.getTypescriptType(type);
             }
             if (i !== (array.length - 1) || traillingComma)
                 out += ", ";
         }
     }
+    return out;
+}
+
+functions.convertMethodParametersToObject = function convertMethodParametersToObject(array) {
+    var out = "{ ";
+    if (array !== undefined && array instanceof Array) {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].indexOf(":") === -1)
+                out += array[i] + ": " + array[i];
+            else {
+                var name = array[i].substring(0, array[i].indexOf(":"));
+                out += name + ": " + name;
+            }
+            if (i !== (array.length - 1))
+                out += ", ";
+        }
+    }
+    out += " }";
     return out;
 }
 
@@ -183,13 +192,13 @@ functions.getForeignModelGetterName = function getForeignModelGetterName(schema,
         if (schema.type === "foreign")
             return "get" + others[schema.collection].modelClassName + "ById";
         else
-            return "get" + _.capitalize(pluralizer(others[schema.collection].modelClassName)) + "ByIds";
+            return "get" + functions.capitalize((pluralizer(others[schema.collection].modelClassName)) + "ByIds");
     }
     else
-        return "get" + _.capitalize(schema.name);
+        return "get" + functions.capitalize(schema.name);
 }
 
-functions.getChecksForParameters = function getChecksForParameters(array, others) {
+functions.getChecksForParameters = function getChecksForParameters(array, others, callback) {
     var out = "";
     if (array !== undefined && array instanceof Array) {
         for (var i = 0; i < array.length; i++) {
@@ -208,7 +217,10 @@ functions.getChecksForParameters = function getChecksForParameters(array, others
                 type = "String";
             }
 
-            out += "\t\tUtils.check(" + name + ", " + type + ", \"" + name + "\", callback);\n";
+            out += "\t\tUtils.check(params." + name + ", " + type + ", \"" + name + "\"";
+            if (callback)
+                out += ", callback";
+            out += ");\n";
         }
     }
     return out;
@@ -276,7 +288,14 @@ functions.getModelPropertyName = function getModelPropertyName(schema) {
 }
 
 functions.capitalize = function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.substring(1);
+    if (str !== undefined)
+        return str.charAt(0).toUpperCase() + str.substring(1);
+    else
+        return undefined;
+}
+
+functions.trim = function trim(str, characters) {
+    return _trim(str, characters);
 }
 
 functions.getServiceName = function getServiceName(type) {
@@ -318,7 +337,7 @@ functions.getAllQueryParameters = function getAllQueryParameters(query) {
         var selectorString = JSON.stringify(query.selector);
         var match = selectorString.match(/\"\:([a-zA-Z\[\]\:]{2,})\"/g);
         if (match !== null) {
-            _.forEach(match, function (ma) {
+            _.each(match, function(ma) {
                 var param = ma.split(":")[1];
                 param = param.replace("\"", "");
                 parameters.push(param);

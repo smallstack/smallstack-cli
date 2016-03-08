@@ -6,5 +6,5 @@
 
 <%
 _.forEach(services, function(service){%>
-smallstack.ioc.register("<%=functions.lowerCaseFirst(service)%>", new <%=_.capitalize(service)%>());
+smallstack.ioc.register("<%=functions.lowerCaseFirst(service)%>", new <%=functions.capitalize(service)%>());
 <% }); %>

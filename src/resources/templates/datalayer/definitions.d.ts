@@ -31,7 +31,7 @@
 <% 
 _.forEach(_.keys(roots), function(root){
     _.forEach(roots[root].services, function(service){
-%>/// <reference path="<%=functions.relativePath(pathToGeneratedDefinitions, root + "/services") + "/" + _.capitalize(service)%>.ts" />
+%>/// <reference path="<%=functions.relativePath(pathToGeneratedDefinitions, root + "/services") + "/" + functions.capitalize(service)%>.ts" />
 <% });}); %>
 
 
@@ -40,10 +40,10 @@ _.forEach(_.keys(roots), function(root){
 <% 
 _.forEach(_.keys(roots), function(root){
     _.forEach(roots[root].collections, function(collection){
-    %>/// <reference path="<%=functions.relativePath(pathToGeneratedDefinitions, root + "/collections") + "/" + _.capitalize(collection)%>.ts" />
+    %>/// <reference path="<%=functions.relativePath(pathToGeneratedDefinitions, root + "/collections") + "/" + functions.capitalize(collection)%>.ts" />
 <% }); }); %>
 
 
 // OTHERS
 
-/// <reference path="<%=functions.relativePath(pathToGeneratedDefinitions, "app/shared/versions.ts")%>" />
+/// <reference path="<%=functions.relativePath(pathToGeneratedDefinitions, config.meteorDirectory + "/shared/versions.ts")%>" />

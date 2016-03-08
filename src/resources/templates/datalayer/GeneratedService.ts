@@ -53,7 +53,7 @@ class <%= generatedServiceClassName %> {
 				if (match !== null)	{
                     subscriptionOptions += "{";
                     for (var p = 0; p < match.length; p++) {
-						var param = _.trim(match[p],'":');
+						var param = functions.trim(match[p],'":');
                         var typeSplit = param.split(":");
                         var paramName = typeSplit[0];
                         var paramType = typeSplit[1] || "any";
@@ -79,8 +79,9 @@ class <%= generatedServiceClassName %> {
             // if (query.returnOne === true)
             //     mongoQuery = "smallstack.collections[\"" + collectionName + "\"].findOne(" + parsedSelector + ")";
             
+    
 	%>
-	public get<%= _.capitalize(query.name) %>(parameters: {<%=parameters%>}, options?: QueryOptions): QueryObject<<%=modelClassName%>> {
+	public get<%= functions.capitalize(query.name) %>(parameters: {<%=parameters%>}, options?: QueryOptions): QueryObject<<%=modelClassName%>> {
         var self = this;
         var selectorOptions:any = {sort : <%=sorting%>, reactive: true};        
         if (options && options.currentPage && options.entriesPerPage) selectorOptions.skip = ((options.currentPage - 1) * options.entriesPerPage);
@@ -103,19 +104,19 @@ class <%= generatedServiceClassName %> {
         }
 	}		
     
-    public get<%= _.capitalize(query.name) %>Count(parameters : {<%=parameters%>}): number {
+    public get<%= functions.capitalize(query.name) %>Count(parameters : {<%=parameters%>}): number {
         return (<any>Counts).get("count-<%=query.name%>");
 	}	
 	<% }) %>
 
 	<% 
 	_.forEach(config.service.securedmethods, function(method){%>
-	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(method.parameters, true)%>callback?: (error: Meteor.Error, result: any) => void) {
-<%=functions.getChecksForParameters(method.parameters, others)%>    
-        Meteor.call("<%=collectionName%>-<%=method.name%>", <%=functions.arrayToCommaSeparatedString(method.parameters, false, true, true)%>callback);
+        
+	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(method.parameters, false)%>, callback?: (error: Meteor.Error, result: any) => void): void {
+        Meteor.call("<%=collectionName%>-<%=method.name%>", <%=functions.convertMethodParametersToObject(method.parameters)%>, callback);
 	}					
 	<%});%>
-	
+    
 	// Model Operations
     public save<%=modelClassName%>(model:<%=modelClassName%>, callback?: (error: Meteor.Error, savedId:string) => void): string {
 		//check(model, smallstack.schemas["<%=collectionName%>"]);
