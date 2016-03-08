@@ -12,7 +12,10 @@
         "type": "git",
         "url": "https://bitbucket.org/smallstack/smallstack-cli.git"
     },
-    "bin": "smallstack.js",
+    "main": "./smallstack",
+    "bin": {
+        "smallstack": "./bin/smallstack"
+    },
     "dependencies": {
         "async": "^1.5.2",
         "chance": "^1.0.1",

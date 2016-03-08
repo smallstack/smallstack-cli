@@ -93,12 +93,13 @@ class <%= serviceClassName %> {
     public get<%= functions.capitalize(query.name) %>Count(parameters : {<%=parameters%>}, callback:(error: Error, count: number) => void): void {
         return this.dataBridge.getCountForQuery("<%=query.name%>", parameters, callback);
 	}	
-	<% }) %>
-
-	<% 
+	<% }) 
+    
+    
 	_.forEach(config.service.securedmethods, function(method){%>
-	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(method.parameters, true)%>callback: (error: Error, result: any) => void): void {
-        this.dataBridge.call("<%=collectionName%>-<%=method.name%>", [<%=functions.arrayToCommaSeparatedString(method.parameters, false, false, false)%>], callback);
+        
+	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(method.parameters, false)%>, callback?: (error: Error, result: any) => void): void {
+        this.dataBridge.call("<%=collectionName%>-<%=method.name%>", <%=functions.convertMethodParametersToObject(method.parameters)%>, callback);
 	}					
 	<%});%>
 	
