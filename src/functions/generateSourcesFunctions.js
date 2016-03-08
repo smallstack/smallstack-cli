@@ -127,16 +127,34 @@ functions.convertMethodParametersToTypescriptMethodParameters = function convert
         for (var i = 0; i < array.length; i++) {
             if (array[i].indexOf(":") === -1)
                 // default shall be string
-                out += array[i] + ":string";
+                out += array[i] + ": string";
             else {
                 var type = array[i].substring(array[i].indexOf(":") + 1);
                 var name = array[i].substring(0, array[i].indexOf(":"));
-                out += name + ":" + functions.getTypescriptType(type);
+                out += name + ": " + functions.getTypescriptType(type);
             }
             if (i !== (array.length - 1) || traillingComma)
                 out += ", ";
         }
     }
+    return out;
+}
+
+functions.convertMethodParametersToObject = function convertMethodParametersToObject(array) {
+    var out = "{ ";
+    if (array !== undefined && array instanceof Array) {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].indexOf(":") === -1)
+                out += array[i] + ": " + array[i];
+            else {
+                var name = array[i].substring(0, array[i].indexOf(":"));
+                out += name + ": " + name;
+            }
+            if (i !== (array.length - 1))
+                out += ", ";
+        }
+    }
+    out += " }";
     return out;
 }
 
@@ -319,7 +337,7 @@ functions.getAllQueryParameters = function getAllQueryParameters(query) {
         var selectorString = JSON.stringify(query.selector);
         var match = selectorString.match(/\"\:([a-zA-Z\[\]\:]{2,})\"/g);
         if (match !== null) {
-            _.each(match, function (ma) {
+            _.each(match, function(ma) {
                 var param = ma.split(":")[1];
                 param = param.replace("\"", "");
                 parameters.push(param);

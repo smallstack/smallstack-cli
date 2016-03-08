@@ -111,9 +111,9 @@ class <%= generatedServiceClassName %> {
 
 	<% 
 	_.forEach(config.service.securedmethods, function(method){%>
-	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(method.parameters, true)%>callback?: (error: Meteor.Error, result: any) => void) {
-<%=functions.getChecksForParameters(method.parameters, others)%>    
-        Meteor.call("<%=collectionName%>-<%=method.name%>", <%=functions.arrayToCommaSeparatedString(method.parameters, false, true, true)%>callback);
+        
+	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(method.parameters, false)%>, callback?: (error: Meteor.Error, result: any) => void): void {
+        Meteor.call("<%=collectionName%>-<%=method.name%>", <%=functions.convertMethodParametersToObject(method.parameters)%>, callback);
 	}					
 	<%});%>
     
