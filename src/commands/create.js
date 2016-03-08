@@ -38,7 +38,7 @@ module.exports = function (projectName) {
         if (fs.existsSync(appDirectory + "/.meteor/packages"))
             console.log(" |-- Meteor Application exists, skipping code generation!");
         else {
-            var process = exec("meteor create meteor", {
+            var process = exec("meteor create app", {
                 cwd: directory
             });
             process.stdout.on('data', function (data) {
@@ -52,6 +52,7 @@ module.exports = function (projectName) {
                 throw new Error("Aborting since meteor application could not be created!");
             });
             process.on('close', function (code) {
+                fs.renameSync(path.join(directory, "app"), path.join(directory, "meteor"));                
                 console.log(' |-- Done\n');
             });
         }

@@ -1,9 +1,9 @@
- var fs = require("fs-extra");
- var path = require("path");
- 
- var config = require("../config");
- 
- 
+var fs = require("fs-extra");
+var path = require("path");
+
+var config = require("../config");
+
+
 module.exports = function() {
 
 
@@ -30,6 +30,7 @@ module.exports = function() {
     content += "\tcompileDate: " + new Date().getTime() + "\n";
     content += "}";
 
+    fs.ensureDirSync(path.join(config.meteorDirectory, "shared"));
     fs.writeFileSync(path.join(config.meteorDirectory, "shared", "versions.ts"), content);
-    
+
 }
