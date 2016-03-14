@@ -1,10 +1,10 @@
 // This section sets up some basic app metadata,
 // the entire section is optional.
 App.info({
-  id: '<%%=f.urlToJavaPackage(deployment.url)%>',
-  name: '<%%=f.capitalize(projectName)%><%% if (deployment.name !== "prod") print(" " + f.capitalize(deployment.name))%>',
-  description: '<%%=f.capitalize(projectName)%>',
-  website: '<%%=deployment.url%>'
+    id: '<%=f.urlToJavaPackage(deployment.url)%>',
+    name: '<%=_.capitalize(projectName)%><% if (deployment.name !== "prod") print(" " + _.capitalize(deployment.name))%>',
+    description: '<%=_.capitalize(projectName)%>',
+    website: '<%=deployment.url%>'
 });
 
 // Set PhoneGap/Cordova preferences

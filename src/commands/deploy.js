@@ -4,39 +4,48 @@ var inquirer = require("inquirer");
 var _ = require("underscore");
 var deploymentFunctions = require("../functions/deployment.js");
 
-module.exports = function (commander) {
-
-    var deployments = deploymentFunctions.getDeployments();
+module.exports = function(commander) {
 
     var questions = [
         {
             type: "list",
             name: "environment",
             message: "Which environment",
-            choices: _.keys(deployments),
-            when: commander.environment === undefined && commander.apacheConfig === true
+            choices: _.keys(deploymentFunctions.getDeployments()),
+            when: commander.environment === undefined && commander.createDefaults !== true
         }
     ];
 
 
-    inquirer.prompt(questions, function (answers) {
-
-        var environment = commander.environment || answers["environment"];
-
-        if (commander.apacheConfig === true) {
-            deploymentFunctions.apacheConfig(deploymentFunctions.getDeployment(environment));
-            return;
-        }
+    inquirer.prompt(questions, function(answers) {
 
         if (commander.createDefaults === true) {
             deploymentFunctions.createDefaults();
             return;
         }
 
-    });
-    
 
-    // grunt.registerTask("deploy:createDefaults", ["deploy:init", "deploy:createDefaultDeploymentFile"]);
+        var environment = commander.environment || answers["environment"];
+        var deployment = deploymentFunctions.getDeployment(environment);
+        console.log("deployment : ", deployment);
+
+        if (commander.apacheConfig === true) {
+            deploymentFunctions.apacheConfig(deployment);
+        }
+
+
+        if (commander.prepareMobile === true) {
+            deploymentFunctions.prepareMobile(deployment);
+        }
+
+        switch (deployment.type) {
+            case "modulus":
+                console.log("Type 'modulus deploy'!");
+                break;
+        }
+
+    });
+
 
     // grunt.registerTask("deploy:mobilePrepare", function () {
     //     var mobileTemplate = path.join(grunt.config.get("deploy.deploymentsPath"), "mobile-config-template.js");
@@ -83,12 +92,12 @@ module.exports = function (commander) {
     //     exec("meteor bundle package.tar.gz", {
     //         cwd: grunt.config.get("project.appDirectory")
     //     });
-        
-        
+
+
     //     // move bundle    
     //     console.log("Moving Meteor Bundle...");
     //     grunt.file.copy(path.join(grunt.config.get("project.appDirectory"), "package.tar.gz"), path.join(conf.rootServerPath, "package.tar.gz"));
-        
+
     //     // extract bundle
     //     console.log("Extracting Meteor Bundle...");
     //     var tmpDirectory = path.join(conf.rootServerPath, "tmp");
@@ -97,11 +106,11 @@ module.exports = function (commander) {
     //     exec("tar xzf " + path.join(conf.rootServerPath, "package.tar.gz"), {
     //         cwd: tmpDirectory
     //     });
-        
+
     //     // remove bundle
     //     console.log("Removing Meteor Bundle...");
     //     fs.unlinkSync(path.join(conf.rootServerPath, "package.tar.gz"));
-        
+
     //     // install dependencies
     //     console.log("Installing Node Dependencies...");
     //     exec("npm install --production", {
@@ -110,13 +119,13 @@ module.exports = function (commander) {
     //     exec("npm prune --production", {
     //         cwd: path.join(conf.rootServerPath, "tmp/bundle/programs/server")
     //     });
-        
+
     //     // deploy and restart app
     //     console.log("Deploying and Restarting Application...");
     //     var bundleDirectory = path.join(conf.rootServerPath, "bundle");
     //     var bundleTmpDirectory = path.join(conf.rootServerPath, "tmp", "bundle");
     //     var bundleOldDirectory = path.join(conf.rootServerPath, "bundle.old");
-            
+
     //     // move current bundle folder   
     //     rmdir(bundleOldDirectory);
     //     if (grunt.file.isDir(bundleDirectory))
@@ -124,7 +133,7 @@ module.exports = function (commander) {
 
     //     // move extracted bundle to real location
     //     fs.renameSync(bundleTmpDirectory, bundleDirectory);
-            
+
     //     // restart app
     //     try {
     //         exec("passenger-config restart-app --ignore-app-not-running --ignore-passenger-not-running" + restartArgs + " " + bundleDirectory);
