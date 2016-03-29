@@ -2,7 +2,8 @@ var path = require("path");
 var fs = require("fs-extra");
 var inquirer = require("inquirer");
 var _ = require("underscore");
-var deploymentFunctions = require("../functions/deployment.js");
+var deploymentFunctions = require("../functions/deployment");
+var DockerDeployment = require("../functions/deployments/DockerDeployment");
 
 module.exports = function(commander) {
 
@@ -42,6 +43,8 @@ module.exports = function(commander) {
             case "modulus":
                 console.log("Type 'modulus deploy'!");
                 break;
+            case "docker":
+                DockerDeployment.start(deployment);
         }
 
     });
