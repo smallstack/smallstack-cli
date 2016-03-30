@@ -11,6 +11,9 @@ interface DataBridge {
     // user related
     getCurrentUserId(): string;
     loginWithPassword(username: string, password: string, callbackFn: (error: Error, success?: boolean) => void): void;
+    loginWithFacebook(callbackFn: (error: Error, success?: boolean) => void): void;
+    loginWithGoogle(callbackFn: (error: Error, success?: boolean) => void): void;
+    loginWithTwitter(callbackFn: (error: Error, success?: boolean) => void): void;
     registerWithPassword(email: string, password: string, callbackFn: (error: Error, success?: boolean) => void): void;
     afterLogin(callbackFn: () => void): void;
     
