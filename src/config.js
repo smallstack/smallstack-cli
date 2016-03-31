@@ -71,6 +71,7 @@ config.cli = cliPackageJson;
 try {
     config.rootDirectory = config.getRootDirectory();
     config.tmpDirectory = path.join(config.rootDirectory, "tmp");
+    config.builtDirectory = path.join(config.rootDirectory, "built");
     config.smallstackDirectory = path.join(config.rootDirectory, "smallstack");
     if (fs.existsSync(path.join(config.rootDirectory, "app"))) {
         console.warn("Warning: Folder called 'app' found. Please consider renaming it to 'meteor' if you don't need the old grunt tasks anymore!");

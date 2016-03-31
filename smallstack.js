@@ -14,6 +14,7 @@ var showConfig = require("./src/commands/showConfig");
 var compile = require("./src/commands/compile");
 var packageUpdater = require("./src/commands/packageUpdater");
 var cleaner = require("./src/commands/cleaner");
+var bundle = require("./src/commands/bundle");
 var jenkins = require("./src/commands/jenkins");
 var deploy = require("./src/commands/deploy");
 
@@ -28,6 +29,7 @@ commander.command("create <name>").action(create);
 commander.command("clean").action(cleaner);
 commander.command("jenkins").action(jenkins).option("--environment [env]");
 commander.command("deploy").action(deploy).option("--apache-config").option("--createDefaults").option("--environment [env]").option("--prepareMobile");
+commander.command("bundle").action(bundle);
 commander.command("generate").action(generate);
 commander.command("compile [smallstack|meteor|supersonic]").action(compile);
 commander.command("supersonic").action(supersonicCreate);

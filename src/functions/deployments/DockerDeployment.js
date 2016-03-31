@@ -124,6 +124,10 @@ module.exports = {
                     {
                         "host_path": "/opt/docker/keys/private",
                         "container_path": "/opt/docker/keys/private"
+                    },
+                    {
+                        "host_path": "/opt/bundles",
+                        "container_path": "/opt/bundles"
                     }]
             };
             resolve();
