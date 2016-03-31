@@ -36,7 +36,10 @@ smallstack clean
 smallstack generate
 smallstack compile
 smallstack bundle
+rm -Rf /opt/bundles/<%=projectName%>/<%=deployment.name%>/
+mkdir -p /opt/bundles/<%=projectName%>/<%=deployment.name%>/
 cp built/meteor.tar.gz /opt/bundles/<%=projectName%>/<%=deployment.name%>/meteor.tar.gz
+tar -xzf /opt/bundles/<%=projectName%>/<%=deployment.name%>/meteor.tar.gz -C /opt/bundles/<%=projectName%>/<%=deployment.name%>/
 smallstack deploy --environment <%=deployment.name%></command>
       </hudson.tasks.Shell>
     </builders>
