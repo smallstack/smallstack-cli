@@ -1,11 +1,11 @@
     <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.5">
       <scms>
-        <hudson.plugins.git.GitSCM plugin="git@2.4.0">
+        <hudson.plugins.git.GitSCM plugin="git@2.4.4">
           <configVersion>2</configVersion>
           <userRemoteConfigs>
             <hudson.plugins.git.UserRemoteConfig>
               <url><%=deployment.repository.url%></url>
-              <credentialsId>a775e0cf-100b-4849-b2f1-39d9acd7642f</credentialsId>
+              <credentialsId>e67de95a-c8fe-401c-8c5e-e73931b99c2a</credentialsId>
             </hudson.plugins.git.UserRemoteConfig>
           </userRemoteConfigs>
           <branches>
@@ -22,14 +22,36 @@
             </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
           </extensions>
         </hudson.plugins.git.GitSCM>
-        
-        <% if (deployment.smallstack.version === "develop" || deployment.smallstack.version === "master") { %>
-        <hudson.plugins.git.GitSCM plugin="git@2.4.0">
+        <hudson.plugins.git.GitSCM plugin="git@2.4.4">
           <configVersion>2</configVersion>
           <userRemoteConfigs>
             <hudson.plugins.git.UserRemoteConfig>
-              <url>https://bitbucket.org/smallstack/smallstack.git</url>
-              <credentialsId>a775e0cf-100b-4849-b2f1-39d9acd7642f</credentialsId>
+              <url>git@bitbucket.org:smallstack/smallstack-cli.git</url>
+              <credentialsId>e67de95a-c8fe-401c-8c5e-e73931b99c2a</credentialsId>
+            </hudson.plugins.git.UserRemoteConfig>
+          </userRemoteConfigs>
+          <branches>
+            <hudson.plugins.git.BranchSpec>
+              <name>develop</name>
+            </hudson.plugins.git.BranchSpec>
+          </branches>
+          <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+          <submoduleCfg class="list" />
+          <extensions>
+            <hudson.plugins.git.extensions.impl.CleanBeforeCheckout/>
+            <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+              <relativeTargetDir>smallstack-cli</relativeTargetDir>
+            </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+          </extensions>
+        </hudson.plugins.git.GitSCM>
+        
+        <% if (deployment.smallstack.version === "develop" || deployment.smallstack.version === "master") { %>
+        <hudson.plugins.git.GitSCM plugin="git@2.4.4">
+          <configVersion>2</configVersion>
+          <userRemoteConfigs>
+            <hudson.plugins.git.UserRemoteConfig>
+              <url>git@bitbucket.org:smallstack/smallstack.git</url>
+              <credentialsId>e67de95a-c8fe-401c-8c5e-e73931b99c2a</credentialsId>
             </hudson.plugins.git.UserRemoteConfig>
           </userRemoteConfigs>
           <branches>
@@ -47,12 +69,12 @@
           </extensions>
         </hudson.plugins.git.GitSCM>
         <% } else if (deployment.smallstack.version.indexOf("tags") === 0) { %>
-        <hudson.plugins.git.GitSCM plugin="git@2.4.0">
+        <hudson.plugins.git.GitSCM plugin="git@2.4.4">
           <configVersion>2</configVersion>
           <userRemoteConfigs>
             <hudson.plugins.git.UserRemoteConfig>
-              <url>https://bitbucket.org/smallstack/smallstack.git</url>
-              <credentialsId>a775e0cf-100b-4849-b2f1-39d9acd7642f</credentialsId>
+              <url>git@bitbucket.org:smallstack/smallstack.git</url>
+              <credentialsId>e67de95a-c8fe-401c-8c5e-e73931b99c2a</credentialsId>
             </hudson.plugins.git.UserRemoteConfig>
           </userRemoteConfigs>
           <branches>
