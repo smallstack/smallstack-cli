@@ -112,6 +112,10 @@ module.exports = {
                     {
                         "key": "DEPLOY_KEY",
                         "value": "/opt/docker/keys/private/bitbucket.id_rsa"
+                    },
+                    {
+                        "key": "BUNDLE_DIR",
+                        "value": "/opt/bundles/" + config.name + "/" + deployment.name
                     }],
                 "container_ports":
                 [{
@@ -143,21 +147,21 @@ module.exports = {
             var envs = {};
             if (deployment.url === undefined)
                 reject(new Error("No deployment URL defined in deployment.json!"));
-            else if (deployment.repository.url === undefined)
-                reject(new Error("No repository.url defined in deployment.json!"));
-            else if (deployment.repository.branch === undefined)
-                reject(new Error("No repository.branch defined in deployment.json!"));
+            // else if (deployment.repository.url === undefined)
+            //     reject(new Error("No repository.url defined in deployment.json!"));
+            // else if (deployment.repository.branch === undefined)
+            //     reject(new Error("No repository.branch defined in deployment.json!"));
             else if (deployment.docker.database.name === undefined)
                 reject(new Error("No docker.database.name defined in deployment.json!"));
             else {
-                that.dockerDeploymentJson["container_envvars"].push({
-                    "key": "REPO",
-                    "value": deployment.repository.url
-                });
-                that.dockerDeploymentJson["container_envvars"].push({
-                    "key": "BRANCH",
-                    "value": deployment.repository.branch
-                });
+                // that.dockerDeploymentJson["container_envvars"].push({
+                //     "key": "REPO",
+                //     "value": deployment.repository.url
+                // });
+                // that.dockerDeploymentJson["container_envvars"].push({
+                //     "key": "BRANCH",
+                //     "value": deployment.repository.branch
+                // });
                 that.dockerDeploymentJson["container_envvars"].push({
                     "key": "VIRTUAL_HOST",
                     "value": deployment.url.toLowerCase().replace("https://", "").replace("http://", "")

@@ -31,7 +31,12 @@ npm install -g
 npm install mgp -g  
 npm install -g typescript
 cd ../<%=projectName%> 
+smallstack clean
 <%=packagesPartial%>
+smallstack generate
+smallstack compile
+smallstack bundle
+cp built/meteor.tar.gz /opt/bundles/<%=projectName%>/<%=deployment.name%>/meteor.tar.gz
 smallstack deploy --environment <%=deployment.name%></command>
       </hudson.tasks.Shell>
     </builders>
