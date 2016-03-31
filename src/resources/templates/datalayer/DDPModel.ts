@@ -4,7 +4,7 @@
 
 /// <reference path="../../typings/main.d.ts" />
 
-/// <reference path="../../classes/IOC.ts" />
+/// <reference path="../../classes/ioc.ts" />
 /// <reference path="../../interfaces/QueryOptions.ts" />
 
 /// <reference path="../services/<%=functions.getServiceName(config)%>.ts" />
