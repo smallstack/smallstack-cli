@@ -4,15 +4,11 @@ var fs = require("fs-extra");
 var cliPackageJson = require(__dirname + "/../package.json");
 var config = {};
 
-if (fs.existsSync(process.cwd() + "/package.json")) {
-    config = require(process.cwd() + "/package.json");
-}
-
 
 /** 
  * Determines how a project can be found
  */
-config.projectFound = function (directory) {
+config.projectFound = function(directory) {
     try {
         if (directory === undefined)
             directory = config.getRootDirectory();
@@ -31,24 +27,24 @@ config.projectFound = function (directory) {
 //     return process.argv[2] === undefined || !_.contains(["create", "--help", "-h", "-v", "--version"], process.argv[2].toLowerCase());
 // }
 
-config.calledWithCreateProjectCommand = function () {
+config.calledWithCreateProjectCommand = function() {
     return process.argv[2] === "create" && process.argv[2] !== undefined;
 }
 
-config.supersonicProjectAvailable = function () {
+config.supersonicProjectAvailable = function() {
     return fs.existsSync(config.supersonicDirectory);
 }
 
-config.meteorProjectAvailable = function () {
+config.meteorProjectAvailable = function() {
     return fs.existsSync(config.meteorDirectory);
 }
 
-config.smallstackDirectoryAvailable = function () {
+config.smallstackDirectoryAvailable = function() {
     return fs.existsSync(config.smallstackDirectory);
 }
 
 
-config.getRootDirectory = function () {
+config.getRootDirectory = function() {
 
     var root = path.resolve("./");
     if (config.projectFound(root))
@@ -88,6 +84,10 @@ try {
     config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
     config.pathToGeneratedDefinitions = config.meteorDirectory + "/typedefinitions";
     config.pathToGeneratedDefinitionsFile = path.join(config.pathToGeneratedDefinitions, "generated.d.ts");
+
+    if (fs.existsSync(config.rootDirectory + "/package.json")) {
+        _.extend(config, require(config.rootDirectory + "/package.json"));
+    }
 }
 catch (e) {
     // console.error(e);
