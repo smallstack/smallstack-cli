@@ -53,7 +53,7 @@ class <%= serviceClassName %> {
 					};
                     subscriptionOptions += "},";
 				}
-                 parsedSelector = parsedSelector.replace(/\"_currentLoggedInUser_\"/g," this.dataBridge.getCurrentUserId()");
+                 parsedSelector = parsedSelector.replace(/\"_currentLoggedInUser_\"/g," self.dataBridge.getCurrentUserId()");
 			}
             
             // one or many?
