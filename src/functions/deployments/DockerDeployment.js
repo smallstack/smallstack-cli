@@ -114,7 +114,7 @@ module.exports = {
                         "value": "/opt/docker/keys/private/bitbucket.id_rsa"
                     },
                     {
-                        "key": "BUNDLE_DIR",
+                        "key": "APP_DIR",
                         "value": "/opt/bundles/" + config.name + "/" + deployment.name
                     }],
                 "container_ports":
