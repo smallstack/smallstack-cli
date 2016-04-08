@@ -17,6 +17,7 @@ var cleaner = require("./src/commands/cleaner");
 var bundle = require("./src/commands/bundle");
 var jenkins = require("./src/commands/jenkins");
 var deploy = require("./src/commands/deploy");
+var compileNpmModule = require("./src/commands/compileNpmModule");
 
 // show a nice logo
 logo();
@@ -32,6 +33,7 @@ commander.command("deploy").action(deploy).option("--apache-config").option("--c
 commander.command("bundle").action(bundle);
 commander.command("generate").action(generate);
 commander.command("compile [smallstack|meteor|supersonic]").action(compile);
+commander.command("compileNpmModule").action(compileNpmModule);
 commander.command("supersonic").action(supersonicCreate);
 commander.command("showconfig").action(showConfig);
 commander.command("packages").action(packageUpdater).option("--mode [mode]").option("--path [path]");
@@ -45,7 +47,7 @@ if (!process.argv.slice(2).length) {
 }
 
 // check if project is available
-if (!config.projectFound() && !config.calledWithCreateProjectCommand()) {
+if (!config.projectFound() && !config.calledWithCreateProjectCommand() && !config.calledWithNonProjectCommand())  {
     console.log("No smallstack project found! If you want to create one:");
     console.log(" ");
     console.log("      smallstack create <name>");
