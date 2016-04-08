@@ -64,7 +64,7 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 			smallstack.indizes["<%=collectionName%>"] = new EasySearch.Index({
 				collection: this._collection,
 				fields: <%=JSON.stringify(functions.getSearchableFieldsArray(config.model.schema))%>,
-				engine: new EasySearch.Minimongo()
+				engine: new EasySearch.MongoDB()
 			});
 		}
 
