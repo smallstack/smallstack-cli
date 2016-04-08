@@ -98,7 +98,7 @@ class <%= serviceClassName %> {
     
 	_.forEach(config.service.securedmethods, function(method){%>
         
-	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(method.parameters, false)%>, callback?: (error: Error, result: any) => void): void {
+	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(method.parameters, true)%>callback?: (error: Error, result: any) => void): void {
         this.dataBridge.call("<%=collectionName%>-<%=method.name%>", <%=functions.convertMethodParametersToObject(method.parameters)%>, callback);
 	}					
 	<%});%>

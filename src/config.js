@@ -4,10 +4,6 @@ var fs = require("fs-extra");
 var cliPackageJson = require(__dirname + "/../package.json");
 var config = {};
 
-if (fs.existsSync(process.cwd() + "/package.json")) {
-    config = require(process.cwd() + "/package.json");
-}
-
 
 /** 
  * Determines how a project can be found
@@ -34,6 +30,7 @@ config.projectFound = function(directory) {
 config.calledWithCreateProjectCommand = function() {
     return process.argv[2] === "create" && process.argv[2] !== undefined;
 }
+
 
 config.calledWithNonProjectCommand = function() {
     return process.argv[2] === "compileNpmModule";
@@ -92,6 +89,10 @@ try {
     config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
     config.pathToGeneratedDefinitions = config.meteorDirectory + "/typedefinitions";
     config.pathToGeneratedDefinitionsFile = path.join(config.pathToGeneratedDefinitions, "generated.d.ts");
+
+    if (fs.existsSync(config.rootDirectory + "/package.json")) {
+        _.extend(config, require(config.rootDirectory + "/package.json"));
+    }
 }
 catch (e) {
     // console.error(e);
