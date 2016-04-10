@@ -7,7 +7,7 @@ interface DataBridge {
     subscribe(name: string, parameters: any, options: any, callback: (error: Error, subscribed: boolean) => void): void;
     getCountForQuery(queryName: string, parameters: any, callback: (error: Error, count: number) => void): void;
     getCollectionByName(name: string): any;
-    seach(collectionName: string, queryString: string, callback: (error: Error, models: any[]) => void): void;
+    search(collectionName: string, queryString: string, callback: (error: Error, models: any[]) => void): void;
 
     // methods
     call(methodName: string, parameters: any, callback: (error: Error, response: any) => void): void;
