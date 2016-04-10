@@ -59,14 +59,7 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 		}
 		
 		// create search index
-		if (Package["easysearch:core"]) {
-			console.log("Creating search index for collection '<%=collectionName%>' and fields '<%=functions.getSearchableFieldsArray(config.model.schema)%>'!");
-			smallstack.indizes["<%=collectionName%>"] = new EasySearch.Index({
-				collection: this._collection,
-				fields: <%=JSON.stringify(functions.getSearchableFieldsArray(config.model.schema))%>,
-				engine: new EasySearch.MongoDB()
-			});
-		}
+        this.createSearchIndex();
 
 		// attach collection to smallstack.collections
 		smallstack.collections["<%=collectionName%>"] = this._collection;
@@ -84,6 +77,17 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 			%>this.collectionService.addPublisher("<%=config.collection.name%>", "<%=query.name%>"<% if(query.selector !== undefined) {%>, <%=JSON.stringify(query.selector)%><%} if (query.options !== undefined) {%>, <%=JSON.stringify(query.options)%><%}%>);
 		<%});%>}
 	}
+    
+    protected createSearchIndex() {
+        if (Package["easysearch:core"]) {
+			console.log("Creating search index for collection '<%=collectionName%>' and fields '<%=functions.getSearchableFieldsArray(config.model.schema)%>'!");
+			smallstack.indizes["<%=collectionName%>"] = new EasySearch.Index({
+				collection: this._collection,
+				fields: <%=JSON.stringify(functions.getSearchableFieldsArray(config.model.schema))%>,
+				engine: new EasySearch.MongoDB()
+			});
+		}
+    }
 	
 	protected createCollection() {
 		this._collection = new Mongo.Collection<<%=modelClassName%>>("<%=collectionName%>", { "transform" : function(doc){
