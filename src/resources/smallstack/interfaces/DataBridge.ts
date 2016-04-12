@@ -21,6 +21,7 @@ interface DataBridge {
     registerWithPassword(email: string, password: string, callbackFn: (error: Error, success?: boolean) => void): void;
     afterLogin(callbackFn: () => void): void;
     logout(callbackFn: (error: Error, success?: boolean) => void): void;
+    getAvatarUrlForUser(user: any): string;
 
     // baseUrl
     setBaseUrl(url: string): void;
