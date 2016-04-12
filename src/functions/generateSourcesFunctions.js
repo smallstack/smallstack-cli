@@ -363,4 +363,49 @@ functions.urlToJavaPackage = function urlToJavaPackage(url) {
     return pkg;
 }
 
+functions.evaluateQuery = function evaluateQuery(query, userIdString) {
+    if (userIdString === undefined)
+        userIdString = "Meteor.userId()";
+    var parameters = "";
+    var firstParameter = undefined;
+    var secondParameter = undefined;
+    var parameterArray = [];
+    var subscriptionOptions = "";
+    var parsedSelector = JSON.stringify(query.selector) || "{}";
+    if (query.selector !== undefined) {
+        var stringified = JSON.stringify(query.selector);
+        var match = stringified.match(/\"\:([a-zA-Z\[\]\:]{2,})\"/g);
+        if (match !== null) {
+            subscriptionOptions += "{";
+            for (var p = 0; p < match.length; p++) {
+                var param = functions.trim(match[p], '":');
+                var typeSplit = param.split(":");
+                var paramName = typeSplit[0];
+                var paramType = typeSplit[1] || "any";
+                if (firstParameter === undefined)
+                    firstParameter = paramName;
+                else if (secondParameter === undefined)
+                    secondParameter = paramName;
+                parameterArray.push(paramName);
+                parameters += paramName + ": " + paramType;
+                if (p !== (match.length - 1))
+                    parameters += ", ";
+                parsedSelector = parsedSelector.replace(match[p], " parameters." + paramName + " ");
+                subscriptionOptions += "\"" + paramName + "\": parameters." + paramName + ", ";
+            };
+            subscriptionOptions += "},";
+        }
+        parsedSelector = parsedSelector.replace(/\"_currentLoggedInUser_\"/g, userIdString);
+    }
+
+    return {
+        parameters: parameters,
+        firstParameter: firstParameter,
+        secondParameter: secondParameter,
+        parameterArray: parameterArray,
+        subscriptionOptions: subscriptionOptions,
+        parsedSelector: parsedSelector
+    }
+}
+
 module.exports = functions;

@@ -41,47 +41,17 @@ class <%= generatedServiceClassName %> {
 	<% 
 		_.forEach(config.service.queries, function(query){ 
 			// scan selector for possible variables
-			var parameters = "";
-            var firstParameter = undefined;
-            var secondParameter = undefined;
-            var parameterArray = [];
-            var subscriptionOptions = "";
-			var parsedSelector = JSON.stringify(query.selector) || "{}";
-			if (query.selector !== undefined) {
-				var stringified = JSON.stringify(query.selector);
-				var match = stringified.match(/\"\:([a-zA-Z\[\]\:]{2,})\"/g);
-				if (match !== null)	{
-                    subscriptionOptions += "{";
-                    for (var p = 0; p < match.length; p++) {
-						var param = functions.trim(match[p],'":');
-                        var typeSplit = param.split(":");
-                        var paramName = typeSplit[0];
-                        var paramType = typeSplit[1] || "any";
-                        if (firstParameter === undefined)
-                            firstParameter = paramName;
-                        else if (secondParameter === undefined)
-                            secondParameter = paramName;
-                        parameterArray.push(paramName);
-						parameters += paramName + ": " + paramType;
-                        if (p !== (match.length - 1))
-                             parameters += ", ";
-						parsedSelector = parsedSelector.replace(match[p]," parameters." + paramName + " ");
-                        subscriptionOptions += "\"" + paramName + "\": parameters." + paramName + ", ";
-					};
-                    subscriptionOptions += "},";
-				}
-                 parsedSelector = parsedSelector.replace(/\"_currentLoggedInUser_\"/g,"Meteor.userId()");
-			}
+            var evaluatedQuery = functions.evaluateQuery(query);
             
             // one or many?
             var sorting = query.sorting !== undefined ? JSON.stringify(query.sorting) : "{}";
-            var mongoQuery = "smallstack.collections[\"" + collectionName + "\"].find(" + parsedSelector + ", selectorOptions)";
+            var mongoQuery = "smallstack.collections[\"" + collectionName + "\"].find(" + evaluatedQuery.parsedSelector + ", selectorOptions)";
             // if (query.returnOne === true)
             //     mongoQuery = "smallstack.collections[\"" + collectionName + "\"].findOne(" + parsedSelector + ")";
             
     
 	%>
-	public get<%= functions.capitalize(query.name) %>(parameters: {<%=parameters%>}, options?: QueryOptions): QueryObject<<%=modelClassName%>> {
+	public get<%= functions.capitalize(query.name) %>(parameters: {<%=evaluatedQuery.parameters%>}, options?: QueryOptions): QueryObject<<%=modelClassName%>> {
         var self = this;
         var selectorOptions:any = {sort : <%=sorting%>, reactive: true};        
         if (options && options.currentPage && options.entriesPerPage) selectorOptions.skip = ((options.currentPage - 1) * options.entriesPerPage);
@@ -104,7 +74,7 @@ class <%= generatedServiceClassName %> {
         }
 	}		
     
-    public get<%= functions.capitalize(query.name) %>Count(parameters : {<%=parameters%>}): number {
+    public get<%= functions.capitalize(query.name) %>Count(parameters : {<%=evaluatedQuery.parameters%>}): number {
         return (<any>Counts).get("count-<%=query.name%>");
 	}	
 	<% }) %>
