@@ -135,41 +135,13 @@ module.exports = function() {
         configuration[id].relativePathToTypeDefinitions = path.relative(configuration[id].collectionsDirectory, config.pathToTypeDefinitions).replace(/\\/g, "/");
         configuration[id].relativePathToTypeDefinitionsGen = path.relative(configuration[id].collectionsGeneratedDirectory, config.pathToTypeDefinitions).replace(/\\/g, "/");
 
-        // secure method variables
-        configuration[id].methods = [];
-        _.each(jsonContent.service.securedmethods, function(meth) {
-            var method = {};
-            method.sharedMethodsPath = sharedMethodsPath;
-            method.serverMethodsPath = serverMethodsPath;
-            method.clientMethodsPath = clientMethodsPath;
-            method.pathFromSharedMethodToDefinitionsFile = pathFromSharedMethodToDefinitionsFile;
-            method.pathFromServerMethodToDefinitionsFile = pathFromServerMethodToDefinitionsFile;
-            method.pathFromClientMethodToDefinitionsFile = pathFromClientMethodToDefinitionsFile;
-            method.methodName = configuration[id].collectionName + "-" + meth.name;
-            method.methodParameters = genFunctions.convertMethodParametersToTypescriptMethodParameters(meth.parameters);
-            method.methodParameterChecks = genFunctions.getChecksForParameters(meth.parameters, configuration);
-            if (meth.returns === undefined) {
-                console.warn(generatorLog("No method return type given for method '" + meth.name + "', using 'string'!"));
-                method.methodReturnType = "string";
-            } else
-                method.methodReturnType = meth.returns;
-            if (meth.visibility === undefined) {
-                console.warn(generatorLog("No method visibility type given for method '" + meth.name + "', using 'server'!"));
-                method.methodVisibility = "server";
-            } else {
-                if (meth.visibility === 'server' || meth.visibility === 'separate' || meth.visibility === 'shared')
-                    method.methodVisibility = meth.visibility;
-                else
-                    throw new Error("'" + meth.visibility + "' is not a known method visibility. Please use 'server', 'separate', or 'shared'!");
-            }
-            configuration[id].methods.push(method);
-        });
     });
 
 
+    // evaluate extends
     _.each(_.values(configuration), function(data) {
 
-        console.log(generatorLog("processing : " + data.collectionName));
+        console.log(generatorLog("evaluating extends for : " + data.collectionName));
 
         if (extendings[data.collectionName] !== undefined) {
             generatorLog("Extending type " + data.collectionName);
@@ -181,6 +153,50 @@ module.exports = function() {
             });
             generatorLog("After  : ", data.config);
         }
+    });
+
+
+
+    // evaluate secured methods
+    _.each(_.values(configuration), function(data) {
+        console.log(generatorLog("evaluating secured methods for : " + data.collectionName));
+        data.methods = [];
+        if (data.config.service !== undefined) {
+            _.each(data.config.service.securedmethods, function(meth) {
+                var method = {};
+                method.sharedMethodsPath = sharedMethodsPath;
+                method.serverMethodsPath = serverMethodsPath;
+                method.clientMethodsPath = clientMethodsPath;
+                method.pathFromSharedMethodToDefinitionsFile = pathFromSharedMethodToDefinitionsFile;
+                method.pathFromServerMethodToDefinitionsFile = pathFromServerMethodToDefinitionsFile;
+                method.pathFromClientMethodToDefinitionsFile = pathFromClientMethodToDefinitionsFile;
+                method.methodName = data.collectionName + "-" + meth.name;
+                method.methodParameters = genFunctions.convertMethodParametersToTypescriptMethodParameters(meth.parameters);
+                method.methodParameterChecks = genFunctions.getChecksForParameters(meth.parameters, configuration);
+                if (meth.returns === undefined) {
+                    console.warn(generatorLog("No method return type given for method '" + meth.name + "', using 'string'!"));
+                    method.methodReturnType = "string";
+                } else
+                    method.methodReturnType = meth.returns;
+                if (meth.visibility === undefined) {
+                    console.warn(generatorLog("No method visibility type given for method '" + meth.name + "', using 'server'!"));
+                    method.methodVisibility = "server";
+                } else {
+                    if (meth.visibility === 'server' || meth.visibility === 'separate' || meth.visibility === 'shared')
+                        method.methodVisibility = meth.visibility;
+                    else
+                        throw new Error("'" + meth.visibility + "' is not a known method visibility. Please use 'server', 'separate', or 'shared'!");
+                }
+                data.methods.push(method);
+            });
+        }
+    });
+
+
+
+    _.each(_.values(configuration), function(data) {
+
+        console.log(generatorLog("processing : " + data.collectionName));
 
         // extending the data
         data.functions = genFunctions;
@@ -269,6 +285,7 @@ module.exports = function() {
         else {
             generatorLog("  | - generating secured methods");
             _.each(data.methods, function(method) {
+
 
                 var methodClientFile = method.clientMethodsPath + "/" + method.methodName + ".ts";
                 var methodSharedFile = method.sharedMethodsPath + "/" + method.methodName + ".ts";
