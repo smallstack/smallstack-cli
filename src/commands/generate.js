@@ -175,9 +175,8 @@ module.exports = function() {
                 method.methodParameterChecks = genFunctions.getChecksForParameters(meth.parameters, configuration);
                 if (meth.returns === undefined) {
                     console.warn(generatorLog("No method return type given for method '" + meth.name + "', using 'string'!"));
-                    method.methodReturnType = "string";
-                } else
-                    method.methodReturnType = meth.returns;
+                    meth.returns = "string";
+                }
                 if (meth.visibility === undefined) {
                     console.warn(generatorLog("No method visibility type given for method '" + meth.name + "', using 'server'!"));
                     method.methodVisibility = "server";
