@@ -81,6 +81,7 @@ module.exports = function() {
         if (roots[rootDirectory] === undefined) {
             roots[rootDirectory] = {};
             roots[rootDirectory].services = [];
+            roots[rootDirectory].models = [];
             roots[rootDirectory].collections = [];
         }
 
@@ -104,6 +105,7 @@ module.exports = function() {
         configuration[id].relativePathFromModelToGeneratedModel = path.relative(configuration[id].modelsDirectory, configuration[id].modelsGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedModelClassName + ".ts";
         configuration[id].relativePathFromGeneratedModelToModel = path.relative(configuration[id].modelsGeneratedDirectory, configuration[id].modelsDirectory).replace(/\\/g, "/") + "/" + configuration[id].modelClassName + ".ts";
         configuration[id].relativePathFromGeneratedModelToPackages = path.relative(configuration[id].modelsGeneratedDirectory, config.packagesDirectory).replace(/\\/g, "/");
+        roots[configuration[id].rootDirectory].models.push(configuration[id].modelClassName);
 
         // collection variables
         configuration[id].collectionsDirectory = path.join(configuration[id].rootDirectory, "collections");
@@ -361,6 +363,13 @@ module.exports = function() {
         functions: genFunctions,
         config: config,
         pathToGeneratedDefinitions: config.pathToGeneratedDefinitions
+    });
+
+    console.log("generating ddp definitions.d.ts file ...");
+    processTemplate(config.datalayerTemplatesPath + "/ddp-connector.d.ts", path.join(config.smallstackDirectory,"ddp-connector.d.ts"), {
+        roots: roots,
+        functions: genFunctions,
+        config: config
     });
 
     // generate server-counts file
