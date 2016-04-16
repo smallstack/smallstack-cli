@@ -202,6 +202,14 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 	public isStored(): boolean {
 		return this._isStored;
 	}
+    
+    <%    
+	_.forEach(config.service.securedmethods, function(method){
+        if (method.modelAware === true) {%>
+	public <%=method.name%>(<%=functions.arrayToCommaSeparatedString(method.parameters, true, true, false)%>callback?: (error: Meteor.Error, result: <%=method.returns%>) => void): void {
+        return <%=functions.getServiceName(config)%>.instance().<%=method.name%>(this.id, <%=functions.arrayToCommaSeparatedString(method.parameters,false, true, false)%>callback);
+	}					
+	<%}});%>
 	
 	
 	public delete(callback?:(error: Meteor.Error, numberOfRemovedDocuments:number) => void): number {

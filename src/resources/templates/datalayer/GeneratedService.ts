@@ -80,10 +80,17 @@ class <%= generatedServiceClassName %> {
 	<% }) %>
 
 	<% 
-	_.forEach(config.service.securedmethods, function(method){%>
+	_.forEach(config.service.securedmethods, function(method){
+        var params = [];
+        if (method.modelAware === true) {
+            params.push("modelId:string");
+        }
+        if (method.parameters)
+            params = _.union(params, _.clone(method.parameters))
+        %>
         
-	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(method.parameters, true)%>callback?: (error: Meteor.Error, result: any) => void): void {
-        Meteor.call("<%=collectionName%>-<%=method.name%>", <%=functions.convertMethodParametersToObject(method.parameters)%>, callback);
+	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(params, true)%>callback?: (error: Meteor.Error, result: <%=method.returns%>) => void): void {
+        Meteor.call("<%=collectionName%>-<%=method.name%>", <%=functions.convertMethodParametersToObject(params)%>, callback);
 	}					
 	<%});%>
     
