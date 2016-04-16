@@ -179,9 +179,9 @@ module.exports = function() {
                 method.methodParameters = genFunctions.convertMethodParametersToTypescriptMethodParameters(params);
                 method.methodParameterChecks = genFunctions.getChecksForParameters(params, configuration);
                 if (meth.returns === undefined) {
-                    console.warn(generatorLog("No method return type given for method '" + meth.name + "', using 'string'!"));
-                    meth.returns = "string";
-                    method.returns = "string";
+                    console.warn(generatorLog("No method return type given for method '" + meth.name + "', using 'any'!"));
+                    meth.returns = "any";
+                    method.returns = "any";
                 }
                 else 
                     method.returns = meth.returns;
