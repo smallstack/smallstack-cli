@@ -10,6 +10,6 @@ Meteor.methods({
 		
 		throw new Meteor.Error("501", "This method is not implemented yet!");
         
-        // Please either return a value of type <%=methodReturnType%> or thow a new Meteor.Error in this method!
+        // Please either return a value of type <%=returns%> or thow a new Meteor.Error in this method!
 	}
 });

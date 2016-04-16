@@ -171,12 +171,20 @@ module.exports = function() {
                 method.pathFromServerMethodToDefinitionsFile = pathFromServerMethodToDefinitionsFile;
                 method.pathFromClientMethodToDefinitionsFile = pathFromClientMethodToDefinitionsFile;
                 method.methodName = data.collectionName + "-" + meth.name;
-                method.methodParameters = genFunctions.convertMethodParametersToTypescriptMethodParameters(meth.parameters);
-                method.methodParameterChecks = genFunctions.getChecksForParameters(meth.parameters, configuration);
+                var params = [];
+                if (meth.modelAware)
+                    params.push("modelId:string");
+                if (meth.parameters)
+                    params = _.union(params, meth.parameters);
+                method.methodParameters = genFunctions.convertMethodParametersToTypescriptMethodParameters(params);
+                method.methodParameterChecks = genFunctions.getChecksForParameters(params, configuration);
                 if (meth.returns === undefined) {
                     console.warn(generatorLog("No method return type given for method '" + meth.name + "', using 'string'!"));
                     meth.returns = "string";
+                    method.returns = "string";
                 }
+                else 
+                    method.returns = meth.returns;
                 if (meth.visibility === undefined) {
                     console.warn(generatorLog("No method visibility type given for method '" + meth.name + "', using 'server'!"));
                     method.methodVisibility = "server";
