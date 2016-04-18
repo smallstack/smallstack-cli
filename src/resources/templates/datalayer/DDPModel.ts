@@ -63,7 +63,7 @@ function getSubTypes(schema) {
 %>
 
 
-class <%= modelClassName %> {
+<% if(config.model.abstract === true) print("abstract "); %>class <%= modelClassName %> {
 	
 	// generated model properties
 	public id:string;
@@ -115,7 +115,10 @@ class <%= modelClassName %> {
 		
 	}
 	
-	public static fromDocument(doc: any) {
+	public static fromDocument(doc: any): <%= modelClassName %> {
+		<% if(config.model.abstract === true) { %>
+		throw new Error("<%= generatedModelClassName %> is abstract and cannot be instanciated!");
+		<%} else {%>
 		var model = new <%= modelClassName %>();
 		if (doc._id !== undefined) {
 			model._isStored = true; 
@@ -125,6 +128,7 @@ class <%= modelClassName %> {
 	 		%>model["<%=functions.getModelPropertyName(schema) %>"] = doc["<%=functions.getModelPropertyName(schema) %>"]; 
 		<%});
 		%>return model;
+		<% } %>
 	}
 	
 	public toDocument() {
