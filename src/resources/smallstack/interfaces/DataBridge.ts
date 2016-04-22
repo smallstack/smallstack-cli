@@ -1,3 +1,4 @@
+/// <reference path="NotificationService.ts" />
 
 interface DataBridge {
     // connection related
@@ -26,4 +27,7 @@ interface DataBridge {
     // baseUrl
     setBaseUrl(url: string): void;
     getAbsoluteUrl(path: string): string;
+
+    // other stuff
+    notificationService: NotificationService;
 }
