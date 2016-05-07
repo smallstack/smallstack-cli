@@ -62,6 +62,9 @@ class <%= generatedServiceClassName %> {
             subscribe : function($scope: any) {
                 return $scope.$meteorSubscribe("<%=query.name%>", parameters, selectorOptions);
             },
+            subscribeNative : function(onReady?:() => void):void {
+                Meteor.subscribe("<%=query.name%>", parameters, selectorOptions, onReady);
+            },
             val : function(index) {
                 if (index === undefined)
                     return cursor.fetch();
