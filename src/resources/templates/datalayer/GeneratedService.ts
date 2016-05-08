@@ -10,9 +10,9 @@
 
 class <%= generatedServiceClassName %> {
 	
-    private subscriptionManager: any;
-    private rolesService: any;
-    private collectionService: any;
+    protected subscriptionManager: any;
+    protected rolesService: RolesService;
+    protected collectionService: CollectionService;
     
 	constructor() {
         this.subscriptionManager = smallstack.ioc.get("subscriptionManager");
