@@ -20,14 +20,14 @@ module.exports = function (type, watch) {
 
 
     function compileSmallstackDataLayer(nextFn) {
-    
+
         // smallstack data layer
         if (type === "smallstack" || type === undefined && config.smallstackDirectoryAvailable()) {
             console.log("compiling smallstack");
             // compiler.compileTypescriptFiles(config.smallstackDirectory, { outFile: "bundle.js", consolePrefix: "[smallstack]" });
             compiler.compileTypescriptFiles(path.join(config.smallstackDirectory, "ddp-connector"), { outFile: ddpConnectorFile, consolePrefix: "[ddp-connector]" }, function () {
                 if (config.supersonicProjectAvailable()) {
-                    fs.copySync(ddpConnectorFile, path.join(config.supersonicDirectory, "app", "common", "connector", "ddp-connector.js"));
+                    fs.copySync(ddpConnectorFile, path.join(config.supersonicDirectory, "www", "connector", "ddp-connector.js"));
                 }
                 nextFn();
             });
