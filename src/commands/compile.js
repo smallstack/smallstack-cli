@@ -41,7 +41,7 @@ module.exports = function (type, watch) {
         // supersonic files
         if ((type === "supersonic" || type === undefined) && config.supersonicProjectAvailable()) {
             console.log("compiling supersonic");
-            compiler.compileTypescriptFiles(config.supersonicDirectory, { consolePrefix: "[supersonic]" }, nextFn);
+            compiler.compileTypescriptFiles(config.supersonicDirectory + "/www", { consolePrefix: "[supersonic]" }, nextFn);
         }
         else
             nextFn();
