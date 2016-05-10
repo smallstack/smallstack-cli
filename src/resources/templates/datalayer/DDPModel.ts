@@ -10,7 +10,7 @@
 /// <reference path="../services/<%=functions.getServiceName(config)%>.ts" />
 <%
 _.forEach(config.model.schema, function(schema) {
-    if (schema.type === "foreign" || schema.type === "foreign[]") {
+    if ((schema.type === "foreign" || schema.type === "foreign[]") && others[schema.collection].modelClassName !== modelClassName) {
         if (schema.collection === undefined)
             throw new Error("schema." + schema.name + " is of type foreign or foreign[] but doesn't have a collection!!!");
         if (others[schema.collection] === undefined)
