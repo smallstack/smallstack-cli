@@ -11,14 +11,17 @@
 /// <reference path="<%= relativePathFromGeneratedModelToModel %>" />
 <%
 _.forEach(config.model.schema, function(schema) {
-	if ((schema.type === "foreign" || schema.type === "foreign[]") && others[schema.collection].modelClassName !== modelClassName) {	
+	if (schema.type === "foreign" || schema.type === "foreign[]") {	
         if (schema.collection === undefined)
             throw new Error("schema." + schema.name + " is of type foreign or foreign[] but doesn't have a collection!!!");
         if (others[schema.collection] === undefined)
             throw new Error("Type '" + schema.collection + "' is unknown!");
+			
+		if (others[schema.collection].modelClassName !== modelClassName) {
         %>
 /// <reference path="<%=functions.relativePath(modelsGeneratedDirectory,others[schema.collection].servicesDirectory + "/" + others[schema.collection].serviceClassName + ".ts")%>" /><%
-    }
+    	}
+	}
 });
 
 
