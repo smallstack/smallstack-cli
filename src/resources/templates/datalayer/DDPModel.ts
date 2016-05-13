@@ -9,6 +9,10 @@
 
 /// <reference path="../services/<%=functions.getServiceName(config)%>.ts" />
 <%
+
+// check for unknown properties
+functions.checkSchema(config.model.schema, config.model.name);
+
 _.forEach(config.model.schema, function(schema) {
     if ((schema.type === "foreign" || schema.type === "foreign[]") && others[schema.collection].modelClassName !== modelClassName) {
         if (schema.collection === undefined)

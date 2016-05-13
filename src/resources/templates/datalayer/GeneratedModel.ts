@@ -10,7 +10,14 @@
 
 /// <reference path="<%= relativePathFromGeneratedModelToModel %>" />
 <%
+
+// check for unknown properties
+functions.checkSchema(config.model.schema, config.model.name);
+	
 _.forEach(config.model.schema, function(schema) {
+	
+
+	
 	if (schema.type === "foreign" || schema.type === "foreign[]") {	
         if (schema.collection === undefined)
             throw new Error("schema." + schema.name + " is of type foreign or foreign[] but doesn't have a collection!!!");
@@ -61,6 +68,7 @@ function getSubTypes(schema) {
 	return subTypes;
 }
 
+// check model properties
 
 
 %>

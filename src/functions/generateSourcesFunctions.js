@@ -109,6 +109,25 @@ functions.getJavascriptType = function getJavascriptType(type) {
     throw new Error("Can't convert '" + type + "' to a javascript type!");
 }
 
+functions.checkSchema = function checkSchema(schema, modelName) {
+    for (var i = 0; i < schema.length; i++) {
+        for (var key in schema[i]) {
+            switch (key) {
+                case "name":
+                case "type":
+                case "optional":
+                case "collection":
+                case "allowedValues":
+                case "defaultValue":
+                case "min":
+                case "max":
+                    continue;
+                default:
+                    throw new Error("Unknown schema property : " + modelName + "[" + (i + 1) + "] -> " + key);
+            }
+        }
+    }
+}
 
 functions.toArrayString = function toArrayString(arr) {
     var out = "[";
@@ -337,7 +356,7 @@ functions.getAllQueryParameters = function getAllQueryParameters(query) {
         var selectorString = JSON.stringify(query.selector);
         var match = selectorString.match(/\"\:([a-zA-Z\[\]\:]{2,})\"/g);
         if (match !== null) {
-            _.each(match, function(ma) {
+            _.each(match, function (ma) {
                 var param = ma.split(":")[1];
                 param = param.replace("\"", "");
                 parameters.push(param);
