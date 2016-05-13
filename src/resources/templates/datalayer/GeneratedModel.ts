@@ -59,12 +59,9 @@ function getSubTypes(schema) {
 	_.forEach(schema, function(schema) {
 		if (schema.name.indexOf(".") !== -1) {
 			var split = schema.name.split(".");
-			console.log("split : ", split);
 			addSubtype(subTypes, split, schema);
 		}
 	});
-	
-	console.log("subtypes : ", subTypes);
 	return subTypes;
 }
 

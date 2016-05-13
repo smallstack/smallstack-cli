@@ -80,7 +80,7 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
     
     protected createSearchIndex() {
         if (Package["easysearch:core"]) {
-			console.log("Creating search index for collection '<%=collectionName%>' and fields '<%=functions.getSearchableFieldsArray(config.model.schema)%>'!");
+			smallstack.logger.info("EasySearch", "Creating search index for collection '<%=collectionName%>' and fields '<%=functions.getSearchableFieldsArray(config.model.schema)%>'!");
 			smallstack.indizes["<%=collectionName%>"] = new EasySearch.Index({
 				collection: this._collection,
 				fields: <%=JSON.stringify(functions.getSearchableFieldsArray(config.model.schema))%>,
@@ -93,7 +93,6 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 		this._collection = new Mongo.Collection<<%=modelClassName%>>("<%=collectionName%>", { "transform" : function(doc){
 			return <%=modelClassName%>.fromDocument(doc);
 		}});
-		console.log("created collection : <%=collectionName%>");
 	}
 	
 	protected configureAllowDenyRules():void {
