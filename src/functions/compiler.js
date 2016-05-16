@@ -45,6 +45,9 @@ var compiler = {
             command += " --outFile " + options.outFile;
         if (options.outDir !== undefined)
             command += " --outDir " + options.outDir;
+        command += " --experimentalDecorators";
+        command += " --emitDecoratorMetadata";
+        command += " --target ES5";
         // command += " --watch";
 
 
