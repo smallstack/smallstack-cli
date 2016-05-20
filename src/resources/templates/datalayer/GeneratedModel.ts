@@ -3,8 +3,6 @@
  */
 
 /// <reference path="<%= relativePathToTypeDefinitionsGen %>/smallstack.d.ts" />
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/meteor/meteor.d.ts" />
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/underscore/underscore.d.ts" />
 /// <reference path="<%= relativePathFromGeneratedModelToPackages %>/smallstack-collections/QueryObject.ts" />
 /// <reference path="<%= relativePathFromGeneratedModelToPackages %>/smallstack-collections/QueryOptions.ts" />
 

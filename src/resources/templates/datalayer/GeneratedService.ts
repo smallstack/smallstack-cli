@@ -3,7 +3,7 @@
  */
 
 /// <reference path="<%= relativePathFromGeneratedServiceToGeneratedDefinitionsFile %>" />
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/underscore/underscore.d.ts" />
+/// <reference path="<%= relativePathToTypeDefinitionsGen %>/smallstack.d.ts" />
 /// <reference path="<%= relativePathFromGeneratedServiceToPackages %>/smallstack-collections/QueryOptions.ts" />
 /// <reference path="<%= relativePathFromServiceToModel %>" />
 

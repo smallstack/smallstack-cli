@@ -2,8 +2,7 @@
  * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY RE-COMPILE
  */
 
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/meteor/meteor.d.ts" />
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/underscore/underscore.d.ts" />
+/// <reference path="<%= relativePathToTypeDefinitionsGen %>/smallstack.d.ts" />
 /// <reference path="<%= relativePathFromGeneratedCollectionToCollectionService %>" />
 /// <reference path="<%= relativePathFromGeneratedCollectionToSmallstackCollection %>" />
 /// <reference path="<%= relativePathFromCollectionToModel %>" />
