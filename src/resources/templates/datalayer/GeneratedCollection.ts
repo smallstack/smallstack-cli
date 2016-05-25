@@ -2,8 +2,7 @@
  * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY RE-COMPILE
  */
 
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/meteor/meteor.d.ts" />
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/underscore/underscore.d.ts" />
+/// <reference path="<%= relativePathToTypeDefinitionsGen %>/smallstack.d.ts" />
 /// <reference path="<%= relativePathFromGeneratedCollectionToCollectionService %>" />
 /// <reference path="<%= relativePathFromGeneratedCollectionToSmallstackCollection %>" />
 /// <reference path="<%= relativePathFromCollectionToModel %>" />
@@ -80,7 +79,7 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
     
     protected createSearchIndex() {
         if (Package["easysearch:core"]) {
-			smallstack.logger.info("EasySearch", "Creating search index for collection '<%=collectionName%>' and fields '<%=functions.getSearchableFieldsArray(config.model.schema)%>'!");
+			smallstack.logger.debug("EasySearch", "Creating search index for collection '<%=collectionName%>' and fields '<%=functions.getSearchableFieldsArray(config.model.schema)%>'!");
 			smallstack.indizes["<%=collectionName%>"] = new EasySearch.Index({
 				collection: this._collection,
 				fields: <%=JSON.stringify(functions.getSearchableFieldsArray(config.model.schema))%>,

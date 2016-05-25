@@ -9,7 +9,7 @@ var capitalize = require("underscore.string/capitalize");
 var templating = require("../functions/templating");
 var notifier = require("../functions/notifier");
 
-module.exports = function() {
+module.exports = function () {
 
 
     // own stuff
@@ -57,7 +57,7 @@ module.exports = function() {
 
 
 
-    _.each(allSmallstackFiles, function(smallstackFile) {
+    _.each(allSmallstackFiles, function (smallstackFile) {
         smallstackFile = path.resolve(config.meteorDirectory, smallstackFile);
         console.log(generatorLog("preparing : " + smallstackFile));
 
@@ -141,14 +141,14 @@ module.exports = function() {
 
 
     // evaluate extends
-    _.each(_.values(configuration), function(data) {
+    _.each(_.values(configuration), function (data) {
 
         console.log(generatorLog("evaluating extends for : " + data.collectionName));
 
         if (extendings[data.collectionName] !== undefined) {
             generatorLog("Extending type " + data.collectionName);
             generatorLog("Before : ", data.config);
-            lodash.merge(data.config, extendings[data.collectionName], function(a, b) {
+            lodash.merge(data.config, extendings[data.collectionName], function (a, b) {
                 if (_.isArray(a)) {
                     return a.concat(b);
                 }
@@ -160,11 +160,11 @@ module.exports = function() {
 
 
     // evaluate secured methods
-    _.each(_.values(configuration), function(data) {
+    _.each(_.values(configuration), function (data) {
         console.log(generatorLog("evaluating secured methods for : " + data.collectionName));
         data.methods = [];
         if (data.config.service !== undefined) {
-            _.each(data.config.service.securedmethods, function(meth) {
+            _.each(data.config.service.securedmethods, function (meth) {
                 var method = {};
                 method.sharedMethodsPath = sharedMethodsPath;
                 method.serverMethodsPath = serverMethodsPath;
@@ -185,7 +185,7 @@ module.exports = function() {
                     meth.returns = "any";
                     method.returns = "any";
                 }
-                else 
+                else
                     method.returns = meth.returns;
                 if (meth.visibility === undefined) {
                     console.warn(generatorLog("No method visibility type given for method '" + meth.name + "', using 'server'!"));
@@ -203,7 +203,7 @@ module.exports = function() {
 
 
 
-    _.each(_.values(configuration), function(data) {
+    _.each(_.values(configuration), function (data) {
 
         console.log(generatorLog("processing : " + data.collectionName));
 
@@ -216,8 +216,8 @@ module.exports = function() {
         var byIdsName = genFunctions.getByIdsGetter(data.modelClassName);
         var byIdName = genFunctions.lowerCaseFirst(data.modelClassName) + "ById";
 
-        var byIdsFound = _.find(data.config.service.queries, function(query) { return query.name === byIdsName; })
-        var byIdFound = _.find(data.config.service.queries, function(query) { return query.name === byIdName; })
+        var byIdsFound = _.find(data.config.service.queries, function (query) { return query.name === byIdsName; })
+        var byIdFound = _.find(data.config.service.queries, function (query) { return query.name === byIdName; })
 
         if (!byIdsFound) {
             if (data.config.service === undefined)
@@ -293,7 +293,7 @@ module.exports = function() {
             generatorLog("  | - skipping generating secured methods since service.securedmethods.skipGeneration === true");
         else {
             generatorLog("  | - generating secured methods");
-            _.each(data.methods, function(method) {
+            _.each(data.methods, function (method) {
 
 
                 var methodClientFile = method.clientMethodsPath + "/" + method.methodName + ".ts";
@@ -336,7 +336,7 @@ module.exports = function() {
         }
     });
 
-    _.each(_.keys(roots), function(root) {
+    _.each(_.keys(roots), function (root) {
 
         // generate services file
         console.log("generating service instances file ...");
@@ -366,7 +366,7 @@ module.exports = function() {
     });
 
     console.log("generating ddp definitions.d.ts file ...");
-    processTemplate(config.datalayerTemplatesPath + "/ddp-connector.d.ts", path.join(config.smallstackDirectory,"ddp-connector.d.ts"), {
+    processTemplate(config.datalayerTemplatesPath + "/ddp-connector.d.ts", path.join(config.smallstackDirectory, "ddp-connector.d.ts"), {
         roots: roots,
         functions: genFunctions,
         config: config
@@ -379,6 +379,13 @@ module.exports = function() {
         config: config,
         configuration: _.values(configuration),
         pathFromServerMethodToDefinitionsFile: pathFromServerMethodToDefinitionsFile
+    });
+
+    // generate typesystem file
+    console.log("generating typesystem.ts file ...");
+    processTemplate(config.datalayerTemplatesPath + "/typesystem.ts", path.join(config.packagesDirectory, "smallstack-typesystem", "generated.ts"), {
+        functions: genFunctions,
+        configuration: _.values(configuration)
     });
 
 

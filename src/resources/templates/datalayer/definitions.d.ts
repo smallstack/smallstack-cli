@@ -1,10 +1,4 @@
-// THIRD PARTY
-
-/// <reference path="<%=relativePathFromDefToPackages%>/smallstack-core/typedefinitions/meteor/meteor.d.ts" />
-
-
-
-// SMALLSTACK COMPONENTS (manually included)
+// SMALLSTACK COMPONENTS
 
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-core/typedefinitions/smallstack.d.ts" />
 
