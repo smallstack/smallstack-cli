@@ -119,6 +119,7 @@ functions.checkSchema = function checkSchema(schema, modelName) {
                 case "collection":
                 case "allowedValues":
                 case "defaultValue":
+                case "blackbox":
                 case "min":
                 case "max":
                     continue;

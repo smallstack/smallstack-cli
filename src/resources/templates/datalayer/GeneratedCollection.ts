@@ -151,6 +151,8 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 				"decimal" : <%= schema.decimal %><%}%><% 
 				if (schema.optional !== undefined) {%>,
 				"optional" : <%= schema.optional %><%}%><% 
+				if (schema.blackbox !== undefined) {%>,
+				"blackbox" : <%= schema.blackbox %><%}%><% 
 				if (schema.minCount !== undefined) {%>,
 				"minCount" : <%= schema.minCount %><%}%><% 
 				if (schema.maxCount !== undefined) {%>,
