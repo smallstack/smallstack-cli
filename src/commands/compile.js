@@ -1,6 +1,4 @@
-module.exports = function (type, watch) {
-    if (watch === undefined)
-        watch = false;
+module.exports = function (parameters) {
 
     require("../functions/copySmallstackFiles")();
     require("../functions/compile.version")();
@@ -18,11 +16,17 @@ module.exports = function (type, watch) {
     // var meteorTargetFile = config.meteorDirectory + "/shared/lib/smallstack.js";
     var ddpConnectorFile = path.join(config.smallstackDirectory, "ddp-connector.js");
 
+    function shallBeCompiled(type) {
+        var keys = _.keys(parameters);
+        if (keys === undefined || keys.length === 0)
+            return true;
+        return keys.indexOf(type) !== -1;
+    }
 
     function compileSmallstackDataLayer(nextFn) {
 
         // smallstack data layer
-        if (type === "smallstack" || type === undefined && config.smallstackDirectoryAvailable()) {
+        if (shallBeCompiled("smallstack") && config.smallstackDirectoryAvailable()) {
             console.log("compiling smallstack");
             // compiler.compileTypescriptFiles(config.smallstackDirectory, { outFile: "bundle.js", consolePrefix: "[smallstack]" });
             compiler.compileTypescriptFiles(path.join(config.smallstackDirectory, "ddp-connector"), { outFile: ddpConnectorFile, consolePrefix: "[ddp-connector]" }, function () {
@@ -39,19 +43,18 @@ module.exports = function (type, watch) {
     function compileSuperSonicFiles(nextFn) {
 
         // supersonic files
-        if ((type === "supersonic" || type === undefined) && config.supersonicProjectAvailable()) {
+        if (shallBeCompiled("supersonic") && config.supersonicProjectAvailable()) {
             console.log("compiling supersonic");
             compiler.compileTypescriptFiles(config.supersonicDirectory + "/www", { consolePrefix: "[supersonic]" }, nextFn);
         }
         else
             nextFn();
-
     }
 
     function compileMeteorFiles(nextFn) {
 
         // meteor files
-        if ((type === "meteor" || type === undefined) && config.meteorProjectAvailable()) {
+        if (shallBeCompiled("meteor") && config.meteorProjectAvailable()) {
             var meteorBuiltPath = path.join(config.tmpDirectory, "meteorbuilt");
             fs.removeSync(meteorBuiltPath);
             console.log("compiling meteor");
@@ -92,11 +95,4 @@ module.exports = function (type, watch) {
             });
         });
     });
-
-
-
-
-
-
-
 }

@@ -9,7 +9,7 @@ module.exports = function () {
     var notifier = require("../functions/notifier");
 
     // delete meteor/built
-    removeDirOrFile( path.join(config.meteorDirectory, "built"));
+    removeDirOrFile(path.join(config.meteorDirectory, "built"));
 
     // delete smallstackFolder
     removeDirOrFile(config.smallstackDirectory);
@@ -19,7 +19,7 @@ module.exports = function () {
 
     // delete tmp folder
     removeDirOrFile(config.tmpDirectory);
-    
+
     // delete all generated folders
     var alreadyDeleted = [];
     var allSmallstackFiles = glob.sync("**/*.smallstack.json", {
@@ -33,7 +33,7 @@ module.exports = function () {
             alreadyDeleted.push(dir);
         }
     });
-        
+
     // delete all generated js files
     var compiledJsFiles = glob.sync("**/*.ts", {
         cwd: config.meteorDirectory,
@@ -62,8 +62,12 @@ module.exports = function () {
 
 function removeDirOrFile(directoryOrFile) {
     console.log("Removing:", directoryOrFile);
-    fs.remove(directoryOrFile, function (error) {
-        if (error !== null)
-            console.error(error);
-    });
+    try {
+        fs.removeSync(directoryOrFile);
+    } catch (e) {
+        console.error(" ");
+        console.error("ERROR : Files/Directory could not be removed, maybe they are opened/locked by an IDE?");
+        console.error(" ");
+        throw e;
+    }
 }
