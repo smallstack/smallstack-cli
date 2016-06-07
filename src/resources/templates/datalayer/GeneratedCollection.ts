@@ -72,8 +72,11 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 			<% _.forEach(config.service.queries, function(query) {
             if (typeof query.name !== 'string' || query.name.length === 0)
                 throw new Error("query.name is empty for query : " + query);
-                        
-			%>this.collectionService.addPublisher("<%=config.collection.name%>", "<%=query.name%>"<% if(query.selector !== undefined) {%>, <%=JSON.stringify(query.selector)%><%} if (query.options !== undefined) {%>, <%=JSON.stringify(query.options)%><%}%>);
+			var selector = query.selector !== undefined ? query.selector : {};
+			var options = {};
+			if (query.sorting)
+				options.sort = query.sorting;                        
+			%>this.collectionService.addPublisher("<%=config.collection.name%>", "<%=query.name%>", <%=JSON.stringify(selector)%>, <%=JSON.stringify(options)%>);
 		<%});%>}
 	}
     
