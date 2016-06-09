@@ -217,6 +217,15 @@ function getSubTypes(schema) {
 	_.forEach(config.service.securedmethods, function(method){
         if (method.modelAware === true) {%>
 	public <%=method.name%>(<%=functions.arrayToCommaSeparatedString(method.parameters, true, true, false)%>callback?: (error: Meteor.Error, result: <%=method.returns%>) => void): void {
+		if (callback === undefined && Meteor.isClient)  {
+			var that = this;
+			callback = function(error: Meteor.Error, numberOfSavedDocuments:number) {
+				if (error)
+					NotificationService.instance().getStandardErrorPopup(error, "Could not execute action '<%=method.name%>' for <%=config.model.name%> with ID '" + that.id + "'!");
+				else
+					NotificationService.instance().notification.success("Successfully executed '<%=method.name%>' for <%=config.model.name%> with ID '" + that.id + "'!");
+			}
+		}
         return <%=functions.getServiceName(config)%>.instance().<%=method.name%>(this.id, <%=functions.arrayToCommaSeparatedString(method.parameters,false, true, false)%>callback);
 	}					
 	<%}});%>

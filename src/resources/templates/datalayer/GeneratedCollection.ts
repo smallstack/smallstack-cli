@@ -116,6 +116,7 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 	 * If return value is not undefined these rules will get applied 
 	 */
 	protected getCollectionAllowRules(): Mongo.AllowDenyOptions {
+		var that = this;
 		return {
             insert: function(userId, doc) {
                 // the user must be logged in, and the document must be owned by the user
@@ -123,11 +124,11 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
             },
             update: function(userId, doc, fields, modifier) {
                 // can only change your own documents
-                return (doc.ownerId === userId || this.rolesService.userHasRole(userId, "<%=functions.lowerCaseFirst(modelClassName)%>-manage", "<%=functions.lowerCaseFirst(modelClassName)%>-" + doc._id));
+                return (doc.ownerId === userId || that.rolesService.userHasRole(userId, "<%=functions.lowerCaseFirst(modelClassName)%>-manage", "<%=functions.lowerCaseFirst(modelClassName)%>-" + doc._id));
             },
             remove: function(userId, doc) {
                 // can only remove your own documents
-                return (doc.ownerId === userId || this.rolesService.userHasRole(userId, "<%=functions.lowerCaseFirst(modelClassName)%>-manage", "<%=functions.lowerCaseFirst(modelClassName)%>-" + doc._id));
+                return (doc.ownerId === userId || that.rolesService.userHasRole(userId, "<%=functions.lowerCaseFirst(modelClassName)%>-manage", "<%=functions.lowerCaseFirst(modelClassName)%>-" + doc._id));
             },
             fetch: ['ownerId']
         }
