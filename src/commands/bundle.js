@@ -1,4 +1,4 @@
-module.exports = function(projectName) {
+module.exports = function (projectName) {
 
     var config = require('../config')
     var path = require("path");
@@ -13,17 +13,17 @@ module.exports = function(projectName) {
     var process = exec("meteor build " + path.relative(config.meteorDirectory, config.builtDirectory) + " --architecture os.linux.x86_64", {
         cwd: config.meteorDirectory
     });
-    process.stdout.on('data', function(data) {
+    process.stdout.on('data', function (data) {
         var lines = data.split("\n");
-        _.each(lines, function(line) {
+        _.each(lines, function (line) {
             console.log(' |-- ' + line);
-        })
+        });
     });
-    process.stderr.on('data', function(data) {
+    process.stderr.on('data', function (data) {
         console.error(' |-- ' + data);
         throw new Error("Aborting since meteor bundle could not be created!");
     });
-    process.on('close', function(code) {
+    process.on('close', function (code) {
         console.log(' |-- Bundling done!\n');
     });
 

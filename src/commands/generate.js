@@ -289,8 +289,8 @@ module.exports = function () {
         }
 
         // process secured methods
-        if (data.config.service && data.config.service.securedmethods && data.config.service.securedmethods.skipGeneration === true)
-            generatorLog("  | - skipping generating secured methods since service.securedmethods.skipGeneration === true");
+        if (data.config.service && data.config.service.securedmethods && data.config.service.skipSecuredMethodsGeneration === true)
+            generatorLog("  | - skipping generating secured methods since service.skipSecuredMethodsGeneration === true");
         else {
             generatorLog("  | - generating secured methods");
             _.each(data.methods, function (method) {

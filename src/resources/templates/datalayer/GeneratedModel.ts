@@ -219,7 +219,7 @@ function getSubTypes(schema) {
 	public <%=method.name%>(<%=functions.arrayToCommaSeparatedString(method.parameters, true, true, false)%>callback?: (error: Meteor.Error, result: <%=method.returns%>) => void): void {
 		if (callback === undefined && Meteor.isClient)  {
 			var that = this;
-			callback = function(error: Meteor.Error, numberOfSavedDocuments:number) {
+			callback = function(error: Meteor.Error, result: <%=method.returns%>) {
 				if (error)
 					NotificationService.instance().getStandardErrorPopup(error, "Could not execute action '<%=method.name%>' for <%=config.model.name%> with ID '" + that.id + "'!");
 				else

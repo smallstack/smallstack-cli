@@ -66,10 +66,14 @@ class <%= generatedServiceClassName %> {
                 Meteor.subscribe("<%=query.name%>", parameters, selectorOptions, onReady);
             },
             val : function(index) {
-                if (index === undefined)
-                    return cursor.fetch();
-                else 
-                    return cursor.fetch()[index];
+                if (index === undefined)<% if (config.customTransformMethod) {%>
+                    return self["<%=config.customTransformMethod%>"](cursor.fetch());<%
+                    } else {%>                 
+                    return cursor.fetch();<%}%>
+                else <% if (config.customTransformMethod) {%>
+                    return self["<%=config.customTransformMethod%>"]([cursor.fetch()[index]])[0];<%
+                    } else {%>
+                    return cursor.fetch()[index];<%}%>
             },
             expand: function($scope: any, foreignKeys:string[], callback?: () => void) {
                 self.collectionService.subscribeForeignKeys($scope, self.getCollection()["smallstackCollection"], cursor, foreignKeys, callback);
