@@ -261,3 +261,5 @@ function getSubTypes(schema) {
 		return "<%= modelClassName %>";
 	}
 }
+
+smallstack.models["<%= modelClassName %>"] = <%= generatedModelClassName %>;

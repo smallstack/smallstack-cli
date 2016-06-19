@@ -193,4 +193,8 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 	public static getForeignGetter(): string {
 		return "<%=functions.getByIdsGetter(modelClassName)%>";
 	}
+
+	public getModelName() {
+		return "<%= modelClassName %>";
+	}
 }
