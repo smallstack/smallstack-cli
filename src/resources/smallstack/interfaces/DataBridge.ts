@@ -28,6 +28,10 @@ interface DataBridge {
     setBaseUrl(url: string): void;
     getAbsoluteUrl(path: string): string;
 
+    // AWS S3 related
+    setS3BucketName(s3BucketName: string): void;
+    setS3Region(s3Region: string): void;
+
     // other stuff
     notificationService: NotificationService;
 }
