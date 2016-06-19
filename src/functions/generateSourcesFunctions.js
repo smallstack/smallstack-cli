@@ -197,14 +197,18 @@ functions.arrayToCommaSeparatedString = function arrayToCommaSeparatedString(arr
     return out;
 }
 
+functions.endsWith = function endsWith(string, endsWith) {
+    return string.indexOf(endsWith, string.length - endsWith.length) !== -1;
+}
+
 functions.getForeignModelGetterName = function getForeignModelGetterName(schema, real, others) {
     if (schema.type === "foreign[]") {
-        if (schema.name.toLowerCase().indexOf("ids") === schema.name.length - 3)
-            throw new Error("model.schema." + schema.name + " : Don't end schema.name with 'Ids' when using 'foreign[]'. It will get appended automatically!");
+        if (!functions.endsWith(schema.name, "Ids"))
+            throw new Error("model.schema." + schema.name + " is of type foreign[] but doesn't end with 'Ids'!");
     }
     else if (schema.type === "foreign") {
-        if (schema.name.toLowerCase().indexOf("id") === schema.name.length - 2)
-            throw new Error("model.schema." + schema.name + " : Don't end schema.name with 'Id' when using 'foreign'. It will get appended automatically!");
+        if (!functions.endsWith(schema.name, "Id"))
+            throw new Error("model.schema." + schema.name + " is of type foreign but doesn't end with 'Id'!");
     }
     else throw new Error("'" + schema.type + "' is not a known foreign key!");
 
@@ -214,8 +218,12 @@ functions.getForeignModelGetterName = function getForeignModelGetterName(schema,
         else
             return "get" + functions.capitalize((pluralizer(others[schema.collection].modelClassName)) + "ByIds");
     }
-    else
-        return "get" + functions.capitalize(schema.name);
+    else {
+        if (schema.type === "foreign")
+            return "get" + functions.capitalize(schema.name.replace("Id", ""));
+        else
+            return "get" + functions.capitalize(pluralizer(schema.name.replace("Ids", "")));
+    }
 }
 
 functions.getChecksForParameters = function getChecksForParameters(array, others, callback) {
@@ -296,15 +304,15 @@ functions.isPrimitiveType = function isPrimitiveType(typeAsString) {
 }
 
 functions.getModelPropertyName = function getModelPropertyName(schema) {
-    switch (schema.type) {
-        case "foreign":
-            return schema.name + "Id";
-        case "foreign[]":
-            var singular = pluralizer.singular(schema.name);
-            return singular + "Ids";
-        default:
-            return schema.name;
-    }
+    // switch (schema.type) {
+    // case "foreign":
+    //     return schema.name + "Id";
+    // case "foreign[]":
+    //     var singular = pluralizer.singular(schema.name);
+    //     return singular + "Ids";
+    // default:
+    return schema.name;
+    // }
 }
 
 functions.capitalize = function capitalize(str) {
