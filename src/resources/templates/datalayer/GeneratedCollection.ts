@@ -75,7 +75,9 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 			var selector = query.selector !== undefined ? query.selector : {};
 			var options = {};
 			if (query.sorting)
-				options.sort = query.sorting;                        
+				options.sort = query.sorting; 
+			if (query.fields)
+				options.fields = query.fields;                       
 			%>this.collectionService.addPublisher("<%=config.collection.name%>", "<%=query.name%>", <%=JSON.stringify(selector)%>, <%=JSON.stringify(options)%>);
 		<%});%>}
 	}
