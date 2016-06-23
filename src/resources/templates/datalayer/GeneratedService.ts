@@ -7,15 +7,20 @@
 /// <reference path="<%= relativePathFromGeneratedServiceToPackages %>/smallstack-collections/QueryOptions.ts" />
 /// <reference path="<%= relativePathFromServiceToModel %>" />
 
+declare var SubsCache: any;
+
 
 class <%= generatedServiceClassName %> {
 	
-    protected subscriptionManager: any;
+    public subscriptionManager: any;
     protected rolesService: RolesService;
     protected collectionService: CollectionService;
     
 	constructor() {
-        this.subscriptionManager = smallstack.ioc.get("subscriptionManager");
+        this.subscriptionManager = new SubsCache({
+            expireAter: 5,
+            cacheLimit: this.getSubscriptionCacheLimit()
+        });;
         this.rolesService = smallstack.ioc.get<RolesService>("rolesService");
         this.collectionService = smallstack.ioc.get<CollectionService>("collectionService");
         this.getCollection()["smallstackService"] = this;
@@ -36,6 +41,10 @@ class <%= generatedServiceClassName %> {
 	public getCollection(): Mongo.Collection<<%=modelClassName%>> {
 		return smallstack.collections["<%= collectionName %>"];
 	}
+
+    public getSubscriptionCacheLimit():number {
+        return 10;
+    }
     
     // generated service methods for queries
 	<% 
@@ -58,14 +67,11 @@ class <%= generatedServiceClassName %> {
         if (options && options.entriesPerPage) selectorOptions.limit = options.entriesPerPage;
         var cursor = <%= mongoQuery %>;
         return {
-            cursor : cursor,
-            subscribe : function($scope: any) {
-                return $scope.$meteorSubscribe("<%=query.name%>", parameters, selectorOptions);
-            },
-            subscribeNative : function(onReady?:() => void):void {
-                Meteor.subscribe("<%=query.name%>", parameters, selectorOptions, onReady);
-            },
-            val : function(index) {
+            cursor: cursor,
+            subscribe: (onReady?: () => void): void => {
+                self.subscriptionManager.subscribe("<%=query.name%>", parameters, selectorOptions).onReady(onReady);
+            }, 
+            val: (index) => {
                 if (index === undefined)<% if (config.customTransformMethod) {%>
                     return self["<%=config.customTransformMethod%>"](cursor.fetch());<%
                     } else {%>                 
@@ -75,8 +81,8 @@ class <%= generatedServiceClassName %> {
                     } else {%>
                     return cursor.fetch()[index];<%}%>
             },
-            expand: function($scope: any, foreignKeys:string[], callback?: () => void) {
-                self.collectionService.subscribeForeignKeys($scope, self.getCollection()["smallstackCollection"], cursor, foreignKeys, callback);
+            expand: (foreignKeys:string[], callback?: () => void) => {
+                self.collectionService.subscribeForeignKeys(self.getCollection()["smallstackCollection"], cursor, foreignKeys, callback);
             }
         }
 	}		

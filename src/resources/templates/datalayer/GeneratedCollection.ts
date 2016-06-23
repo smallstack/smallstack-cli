@@ -199,4 +199,8 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 	public getModelName() {
 		return "<%= modelClassName %>";
 	}
+
+	public getServiceName(): string {
+		return "<%=functions.lowerCaseFirst(serviceClassName)%>";
+	}
 }
