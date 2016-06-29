@@ -7,6 +7,8 @@ module.exports = function (command, options) {
     var _ = require("underscore");
     var config = require("../config");
 
+    console.log("executing : ", command, options);
+
     var process = exec(command, {
         cwd: options.cwd || config.rootDirectory
     }, function (error) {
