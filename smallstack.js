@@ -22,6 +22,7 @@ commands.bundle = require("./src/commands/bundle");
 commands.jenkins = require("./src/commands/jenkins");
 commands.deploy = require("./src/commands/deploy");
 commands.compileNpmModule = require("./src/commands/compileNpmModule");
+commands.gitflow = require("./src/commands/gitflow");
 commands.signAndroid = require("./src/commands/signAndroid");
 
 // show a nice logo
