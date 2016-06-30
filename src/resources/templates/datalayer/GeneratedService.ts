@@ -2,8 +2,8 @@
  * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY RE-COMPILE
  */
 
-/// <reference path="<%= relativePathFromGeneratedServiceToGeneratedDefinitionsFile %>" />
 /// <reference path="<%= relativePathToTypeDefinitionsGen %>/smallstack.d.ts" />
+/// <reference path="<%= relativePathFromGeneratedServiceToPackages %>/smallstack-roles/RolesService.ts" />
 /// <reference path="<%= relativePathFromGeneratedServiceToPackages %>/smallstack-collections/QueryOptions.ts" />
 /// <reference path="<%= relativePathFromServiceToModel %>" />
 
