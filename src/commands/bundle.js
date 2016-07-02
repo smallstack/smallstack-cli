@@ -10,10 +10,14 @@ module.exports = function (parameters) {
 
     console.log("Creating bundle in directory : ", config.builtDirectory);
 
-    if (!parameters.server)
-        throw new Error("Please set --server!");
+    // if (!parameters.server)
+    //     throw new Error("Please set --server!");
 
-    exec("meteor build " + path.relative(config.meteorDirectory, config.builtDirectory) + " --architecture os.linux.x86_64 --server " + parameters.server, {
+    // exec("meteor build " + path.relative(config.meteorDirectory, config.builtDirectory) + " --architecture os.linux.x86_64 --server " + parameters.server, {
+    //     cwd: config.meteorDirectory
+    // });
+
+    exec("meteor build " + path.relative(config.meteorDirectory, config.builtDirectory) + " --architecture os.linux.x86_64 --server-only", {
         cwd: config.meteorDirectory
     });
 

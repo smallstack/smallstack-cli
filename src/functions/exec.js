@@ -1,13 +1,14 @@
 module.exports = function (command, options) {
 
     options = options || {};
-    options.linePrefix = options.linePrefix || " |-- ";
 
     var exec = require('child_process').exec;
     var _ = require("underscore");
     var config = require("../config");
 
-    console.log("executing : ", command, options);
+    console.log("executing : ", command);
+    console.log(" |-- opts : ", options);
+    options.linePrefix = options.linePrefix || " |-- ";
 
     var process = exec(command, {
         cwd: options.cwd || config.rootDirectory
