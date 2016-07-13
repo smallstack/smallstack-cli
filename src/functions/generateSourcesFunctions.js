@@ -122,6 +122,7 @@ functions.checkSchema = function checkSchema(schema, modelName) {
                 case "blackbox":
                 case "min":
                 case "max":
+                case "decimal":
                     continue;
                 default:
                     throw new Error("Unknown schema property : " + modelName + "[" + (i + 1) + "] -> " + key);
