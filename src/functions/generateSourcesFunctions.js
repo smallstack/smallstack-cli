@@ -115,6 +115,7 @@ functions.checkSchema = function checkSchema(schema, modelName) {
             switch (key) {
                 case "name":
                 case "type":
+                case "decimal":
                 case "optional":
                 case "collection":
                 case "allowedValues":
