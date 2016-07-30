@@ -3,7 +3,7 @@ var _ = require("underscore");
 var glob = require("glob");
 var path = require("path");
 
-module.exports = function () {
+module.exports = function (parameters, done) {
 
     var config = require("../config");
     var notifier = require("../functions/notifier");
@@ -58,6 +58,7 @@ module.exports = function () {
     removeDirOrFile("tmp");
 
     notifier("Cleaning completed!");
+    done();
 }
 
 function removeDirOrFile(directoryOrFile) {

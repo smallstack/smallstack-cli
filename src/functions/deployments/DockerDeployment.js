@@ -318,6 +318,7 @@ module.exports = {
                         "to_service": mongodbUri,
                         "name": "mongodb"
                     });
+                    console.log("using mongo uri : ", mongodbUri);
                     resolve(mongodbUri);
                 }
             });

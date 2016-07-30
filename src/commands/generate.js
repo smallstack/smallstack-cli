@@ -9,7 +9,7 @@ var capitalize = require("underscore.string/capitalize");
 var templating = require("../functions/templating");
 var notifier = require("../functions/notifier");
 
-module.exports = function () {
+module.exports = function (params, done) {
 
 
     // own stuff
@@ -390,6 +390,8 @@ module.exports = function () {
 
 
     notifier("Generating Source Code completed!");
+
+    done();
 }
 
 

@@ -5,6 +5,7 @@ var config = require("./src/config");
 var fs = require("fs-extra");
 var _ = require("underscore");
 var colors = require("colors");
+var async = require("async");
 
 var parseArguments = require("./src/functions/parseArguments");
 
@@ -24,6 +25,7 @@ commands.deploy = require("./src/commands/deploy");
 commands.compileNpmModule = require("./src/commands/compileNpmModule");
 commands.gitflow = require("./src/commands/gitflow");
 commands.signAndroid = require("./src/commands/signAndroid");
+commands.upload = require("./src/commands/upload");
 
 // show a nice logo
 logo();
@@ -42,12 +44,17 @@ _.each(parsedCommands, function (command) {
 
 // then execute
 if (allCommandsFine) {
-    _.each(parsedCommands, function (command) {
+    console.log("commands : ", parsedCommands);
+    async.eachLimit(parsedCommands, 1, function (command, done) {
         console.log("################################################################################");
         console.log("##### Command : " + command.name);
         console.log("##### Parameters : ", command.parameters);
         console.log("################################################################################");
-        commands[command.name](command.parameters);
+        commands[command.name](command.parameters, done);
+    }, function (error) {
+        if (error)
+            console.error(error);
+        else "Finished!";
     });
 }
 

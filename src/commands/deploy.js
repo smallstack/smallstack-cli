@@ -2,10 +2,12 @@ var path = require("path");
 var fs = require("fs-extra");
 var inquirer = require("inquirer");
 var _ = require("underscore");
+var commander = require("commander");
 var deploymentFunctions = require("../functions/deployment");
 var DockerDeployment = require("../functions/deployments/DockerDeployment");
 
-module.exports = function(commander) {
+module.exports = function (parameters) {
+
 
     var questions = [
         {
@@ -13,29 +15,28 @@ module.exports = function(commander) {
             name: "environment",
             message: "Which environment",
             choices: _.keys(deploymentFunctions.getDeployments()),
-            when: commander.environment === undefined && commander.createDefaults !== true
+            when: parameters.environment === undefined && parameters.createDefaults !== true
         }
     ];
 
 
-    inquirer.prompt(questions, function(answers) {
+    inquirer.prompt(questions, function (answers) {
 
-        if (commander.createDefaults === true) {
+        if (parameters.createDefaults === true) {
             deploymentFunctions.createDefaults();
             return;
         }
 
-
-        var environment = commander.environment || answers["environment"];
+        var environment = parameters.environment || answers["environment"];
         var deployment = deploymentFunctions.getDeployment(environment);
         console.log("deployment : ", deployment);
 
-        if (commander.apacheConfig === true) {
+        if (parameters.apacheConfig === true) {
             deploymentFunctions.apacheConfig(deployment);
         }
 
 
-        if (commander.prepareMobile === true) {
+        if (parameters.prepareMobile === true) {
             deploymentFunctions.prepareMobile(deployment);
         }
 
@@ -45,6 +46,9 @@ module.exports = function(commander) {
                 break;
             case "docker":
                 DockerDeployment.start(deployment);
+                break;
+            default:
+                throw new Error("Unknown deployment type!");
         }
 
     });

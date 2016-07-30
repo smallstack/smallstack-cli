@@ -17,7 +17,8 @@
     "smallstack": "./bin/smallstack"
   },
   "dependencies": {
-    "async": "^1.5.2",
+    "async": "1.5.2",
+    "aws-sdk": "2.4.11",
     "chance": "^1.0.1",
     "colors": "^1.1.2",
     "commander": "^2.9.0",

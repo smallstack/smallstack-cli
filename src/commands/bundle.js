@@ -1,4 +1,4 @@
-module.exports = function (parameters) {
+module.exports = function (parameters, done) {
 
     var config = require('../config')
     var path = require("path");
@@ -18,7 +18,10 @@ module.exports = function (parameters) {
     // });
 
     exec("meteor build " + path.relative(config.meteorDirectory, config.builtDirectory) + " --architecture os.linux.x86_64 --server-only", {
-        cwd: config.meteorDirectory
+        cwd: config.meteorDirectory,
+        finished: function() {
+            done();
+        }
     });
 
 }

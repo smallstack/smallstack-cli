@@ -14,15 +14,7 @@ module.exports = {
         return path.join(this.deploymentsFileDirectory, this.deploymentsFileName + this.deploymentsFileEnding);
     },
     getDeployments: function() {
-        var deploymentsFile = this.getDeploymentsFilePath();
-
-        // prepare
-        if (!fs.existsSync(deploymentsFile)) {
-            //console.error("Deployments File (" + deploymentsFile + ") not found. Use 'smallstack deploy --createDefaults' to create a default one!");
-            return {};
-        }
-
-        return require(deploymentsFile);
+        return config.smallstack.environments;
     },
     getDeployment: function(environment) {
 

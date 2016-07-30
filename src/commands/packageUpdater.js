@@ -7,7 +7,7 @@ var exec = require("../functions/exec");
 var path = require("path");
 var DecompressZip = require("decompress-zip");
 
-module.exports = function(commander) {
+module.exports = function (commander, done) {
 
 
     // properties
@@ -24,7 +24,7 @@ module.exports = function(commander) {
                 { name: "locally checked out version (e.g. develop, master or a feature branch)", value: "local" },
                 { name: "downloaded zip file (placed in " + smallstackZipFilePath + ")", value: "zip" }
             ],
-            when: function() {
+            when: function () {
                 return !smallstackMode;
             }
         },
@@ -33,7 +33,7 @@ module.exports = function(commander) {
             type: 'input',
             message: 'relative path from project root to local smallstack directory :',
             default: "../smallstack",
-            when: function(answers) {
+            when: function (answers) {
                 return answers["smallstack.mode"] === "local" && smallstackPath === undefined;
             }
         },
@@ -41,22 +41,23 @@ module.exports = function(commander) {
             name: "smallstack.path",
             type: 'list',
             message: 'Select the downloaded file : ',
-            choices: function() {
+            choices: function () {
                 return glob.sync(smallstackZipFilePath + "/smallstack-*.zip");
             },
-            when: function(answers) {
+            when: function (answers) {
                 return answers["smallstack.mode"] === "zip" && smallstackPath === undefined;
             }
         }
     ]
 
-    inquirer.prompt(questions, function(answers) {
+    inquirer.prompt(questions, function (answers) {
         smallstackMode = answers["smallstack.mode"] || smallstackMode;
         if (answers["smallstack.path"])
             smallstackPath = path.join(config.rootDirectory, answers["smallstack.path"]);
         else
             smallstackPath = answers["smallstack.path"] || smallstackPath;
         persistPackageConfiguration(smallstackMode, smallstackPath);
+        done();
     });
 
 }
@@ -71,7 +72,7 @@ function persistPackageConfiguration(smallstackMode, smallstackPath) {
         if (smallstackPath === undefined)
             throw Error("Smallstack Version is set to 'local' but no smallstack.path is given!");
         var localPackagesContent = {};
-        _.each(readPackages(smallstackPath), function(availablePackage) {
+        _.each(readPackages(smallstackPath), function (availablePackage) {
             localPackagesContent[path.basename(availablePackage)] = {
                 "path": path.relative(config.meteorDirectory, availablePackage).replace(/\\/g, "/")
             }
@@ -99,21 +100,21 @@ function persistPackageConfiguration(smallstackMode, smallstackPath) {
 
         // unzip file
         var unzipper = new DecompressZip(smallstackPath);
-        unzipper.on('error', function(err) {
+        unzipper.on('error', function (err) {
             console.log('Caught an error', err);
         });
 
-        unzipper.on('extract', function(log) {
+        unzipper.on('extract', function (log) {
             console.log('Finished extracting');
         });
 
-        unzipper.on('progress', function(fileIndex, fileCount) {
+        unzipper.on('progress', function (fileIndex, fileCount) {
             console.log('Extracted file ' + (fileIndex + 1) + ' of ' + fileCount);
         });
 
         unzipper.extract({
             path: destinationPath,
-            filter: function(file) {
+            filter: function (file) {
                 return file.type !== "SymbolicLink";
             }
         });

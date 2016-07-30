@@ -1,4 +1,4 @@
-module.exports = function (parameters) {
+module.exports = function (parameters, done) {
 
     require("../functions/copySmallstackFiles")();
     require("../functions/compile.version")();
@@ -92,6 +92,7 @@ module.exports = function (parameters) {
         compileSuperSonicFiles(function () {
             compileMeteorFiles(function () {
                 notifier("Compilation completed!");
+                done();
             });
         });
     });
