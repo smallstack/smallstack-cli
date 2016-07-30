@@ -123,6 +123,7 @@ functions.checkSchema = function checkSchema(schema, modelName) {
                 case "blackbox":
                 case "min":
                 case "max":
+                case "decimal":
                     continue;
                 default:
                     throw new Error("Unknown schema property : " + modelName + "[" + (i + 1) + "] -> " + key);
@@ -345,9 +346,10 @@ functions.pluralize = function pluralize(singular) {
 functions.getSearchableFieldsArray = function getSearchableFieldsArray(schema) {
     var fields = [];
     for (var i = 0; i < schema.length; i++) {
-        if (schema[i].type !== "foreign" && schema[i].type !== "foreign[]")
+        if (schema[i].type !== "foreign[]")
             fields.push(schema[i].name);
     }
+    fields.push("_id");
     return fields;
 }
 
