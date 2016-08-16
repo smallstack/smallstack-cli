@@ -123,6 +123,8 @@ functions.checkSchema = function checkSchema(schema, modelName) {
                 case "blackbox":
                 case "min":
                 case "max":
+                case "minCount":
+                case "maxCount":
                 case "decimal":
                     continue;
                 default:
