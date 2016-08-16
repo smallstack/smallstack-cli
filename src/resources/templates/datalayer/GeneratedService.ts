@@ -62,7 +62,7 @@ class <%= generatedServiceClassName %> {
 	%>
 	public get<%= functions.capitalize(query.name) %>(parameters: {<%=evaluatedQuery.parameters%>}, options?: QueryOptions): QueryObject<<%=modelClassName%>> {
         var self = this;
-        var selectorOptions:any = {sort : <%=sorting%>, reactive: true};        
+        var selectorOptions:any = {sort : <%=sorting%>, reactive: (options && options.reactive === true)};        
         if (options && options.currentPage && options.entriesPerPage) selectorOptions.skip = ((options.currentPage - 1) * options.entriesPerPage);
         if (options && options.entriesPerPage) selectorOptions.limit = options.entriesPerPage;
         var cursor = <%= mongoQuery %>;
