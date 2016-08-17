@@ -8,6 +8,8 @@ var _trim = require("underscore.string/trim");
 var functions = {};
 
 functions.getSchemaType = function getSchemaType(type) {
+    if (type === undefined)
+        throw new Error("type is undefined!");
     switch (type.toLowerCase()) {
         case "date":
             return "Date";

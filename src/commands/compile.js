@@ -88,12 +88,12 @@ module.exports = function (parameters, done) {
 
     }
 
-    compileSmallstackDataLayer(function () {
-        compileSuperSonicFiles(function () {
-            compileMeteorFiles(function () {
-                notifier("Compilation completed!");
-                done();
-            });
-        });
+    // compileSmallstackDataLayer(function () {
+    //     compileSuperSonicFiles(function () {
+    compileMeteorFiles(function () {
+        notifier("Compilation completed!");
+        done();
     });
+    //     });
+    // });
 }
