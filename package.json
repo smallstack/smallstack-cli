@@ -33,6 +33,7 @@
     "moment": "^2.11.2",
     "nightmare": "^2.6.0",
     "node-notifier": "^4.5.0",
+    "node-watch": "^0.4.0",
     "nodejs-fs-utils": "^1.0.26",
     "pluralize": "^1.2.1",
     "promise": "^7.1.1",

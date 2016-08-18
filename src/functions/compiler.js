@@ -50,9 +50,6 @@ var compiler = {
         command += " --target ES5";
         // command += " --watch";
 
-
-        console.log("Command : ", command);
-
         exec(command, {
             cwd: directory,
             finished: doneFn,

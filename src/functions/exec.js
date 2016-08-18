@@ -7,7 +7,7 @@ module.exports = function (command, options) {
     var config = require("../config");
 
     console.log("executing : ", command);
-    console.log(" |-- opts : ", options);
+    // console.log(" |-- opts : ", options);
     options.linePrefix = options.linePrefix || " |-- ";
 
     var process = exec(command, {
