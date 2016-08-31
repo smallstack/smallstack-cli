@@ -47,6 +47,7 @@ var compiler = {
             command += " --outDir " + options.outDir;
         command += " --experimentalDecorators";
         command += " --emitDecoratorMetadata";
+        command += " --moduleResolution node";
         command += " --target ES5";
         // command += " --watch";
 
