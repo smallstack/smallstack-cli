@@ -128,6 +128,8 @@ functions.checkSchema = function checkSchema(schema, modelName) {
                 case "minCount":
                 case "maxCount":
                 case "decimal":
+                case "index":
+                case "unique":
                     continue;
                 default:
                     throw new Error("Unknown schema property : " + modelName + "[" + (i + 1) + "] -> " + key);

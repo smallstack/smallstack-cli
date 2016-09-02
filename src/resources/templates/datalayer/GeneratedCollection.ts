@@ -159,6 +159,10 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 				"optional" : <%= schema.optional %><%}%><% 
 				if (schema.blackbox !== undefined) {%>,
 				"blackbox" : <%= schema.blackbox %><%}%><% 
+				if (schema.index !== undefined) {%>,
+				"index" : <%= schema.index %><%}%><% 
+				if (schema.unique !== undefined) {%>,
+				"unique" : <%= schema.unique %><%}%><% 
 				if (schema.minCount !== undefined) {%>,
 				"minCount" : <%= schema.minCount %><%}%><% 
 				if (schema.maxCount !== undefined) {%>,
