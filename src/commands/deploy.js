@@ -2,57 +2,76 @@ var path = require("path");
 var fs = require("fs-extra");
 var inquirer = require("inquirer");
 var _ = require("underscore");
-var commander = require("commander");
 var deploymentFunctions = require("../functions/deployment");
 var DockerDeployment = require("../functions/deployments/DockerDeployment");
+var smallstackAPI = require("../functions/smallstackAPI");
+var config = require("../config");
 
-module.exports = function (parameters) {
+module.exports = function (parameters, done) {
 
+    // getting available projects
+    smallstackAPI({
+        host: parameters.apiHost,
+        protocol: parameters.apiProtocol,
+        port: parameters.apiPort,
+        path: "/api/projects"
+    }, function (projects) {
 
-    var questions = [
-        {
-            type: "list",
-            name: "environment",
-            message: "Which environment",
-            choices: _.keys(deploymentFunctions.getDeployments()),
-            when: parameters.environment === undefined && parameters.createDefaults !== true
-        }
-    ];
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "projectId",
+                message: "Which project",
+                choices: function () {
+                    var projectKeys = [];
+                    _.each(projects, function (project) {
+                        projectKeys.push({ name: project.name, value: project.id });
+                    });
+                    return projectKeys;
+                },
+                when: parameters.projectId === undefined && parameters.environmentId === undefined
+            },
+            {
+                type: "list",
+                name: "environmentId",
+                message: "Which environment",
+                choices: function (answers) {
+                    var done = this.async();
+                    smallstackAPI({
+                        host: parameters.apiHost,
+                        protocol: parameters.apiProtocol,
+                        port: parameters.apiPort,
+                        path: "/api/environments?projectId=" + answers.projectId
+                    }, function (environments) {
+                        var environmentKeys = [];
+                        _.each(environments, function (environment) {
+                            environmentKeys.push({ name: environment.name, value: environment.id });
+                        });
+                        done(environmentKeys);
+                    }).end();
+                },
+                when: parameters.environmentId === undefined
+            }
+        ], function (answers) {
+            var request = smallstackAPI({
+                host: parameters.apiHost,
+                protocol: parameters.apiProtocol,
+                port: parameters.apiPort,
+                method: "POST",
+                path: "/api/deployments?projectId=" + answers.projectId + "&environmentId=" + answers.environmentId
+            });
 
-
-    inquirer.prompt(questions, function (answers) {
-
-        if (parameters.createDefaults === true) {
-            deploymentFunctions.createDefaults();
-            return;
-        }
-
-        var environment = parameters.environment || answers["environment"];
-        var deployment = deploymentFunctions.getDeployment(environment);
-        console.log("deployment : ", deployment);
-
-        if (parameters.apacheConfig === true) {
-            deploymentFunctions.apacheConfig(deployment);
-        }
-
-
-        if (parameters.prepareMobile === true) {
-            deploymentFunctions.prepareMobile(deployment);
-        }
-
-        switch (deployment.type) {
-            case "modulus":
-                console.log("Type 'modulus deploy'!");
-                break;
-            case "docker":
-                DockerDeployment.start(deployment);
-                break;
-            default:
-                throw new Error("Unknown deployment type!");
-        }
-
-    });
-
+            console.log("Uploading File");
+            fs.readFile(config.builtDirectory + "/meteor.tar.gz", function (err, data) {
+                request.write(data);
+                request.on("end", function () {
+                    console.log("Meteor Bundle successfully uploaded!");
+                });
+                request.end();
+            });
+        });
+    }).end();
+}
 
     // grunt.registerTask("deploy:mobilePrepare", function () {
     //     var mobileTemplate = path.join(grunt.config.get("deploy.deploymentsPath"), "mobile-config-template.js");
@@ -154,5 +173,4 @@ module.exports = function (parameters) {
     //     rmdir(path.join(conf.rootServerPath, "tmp"));
     // }
 
-}
 

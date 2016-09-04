@@ -137,13 +137,13 @@ function getSubTypes(schema) {
 		<% } %>
 	}
 	
-	public toDocument() {
+	public toDocument(identifierKey: string = "_id") {
 		var doc = {};
 		<% _.forEach(config.model.schema, function(schema) {
 	 		%>doc["<%=functions.getModelPropertyName(schema) %>"] = this["<%=functions.getModelPropertyName(schema) %>"]; 
 		<%});%>
 		if (this.isStored()) {
-			doc["_id"] = this.id;
+			doc[identifierKey] = this.id;
 		}
 		return doc;
 	}

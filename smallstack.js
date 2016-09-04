@@ -46,7 +46,6 @@ _.each(parsedCommands, function (command) {
 
 // then execute
 if (allCommandsFine) {
-    console.log("commands : ", parsedCommands);
     async.eachLimit(parsedCommands, 1, function (command, done) {
         console.log("################################################################################");
         console.log("##### Command : " + command.name);
