@@ -36,11 +36,17 @@ module.exports = function (options, callback) {
     })
 
     return httpCaller.request(options, function (response) {
+
         var str = "";
         response.on('data', function (chunk) {
             str += chunk;
         });
         response.on('end', function () {
+
+            if (response.statusCode !== 200) {
+                throw new Error(response.statusCode + " - " + str);
+            }
+
             if (typeof callback === 'function') {
                 try {
                     callback(JSON.parse(str));

@@ -14,8 +14,12 @@ module.exports = function (parameters, done) {
         host: parameters.apiHost,
         protocol: parameters.apiProtocol,
         port: parameters.apiPort,
+        apiKey: parameters.apiKey,
         path: "/api/projects"
     }, function (projects) {
+        
+        if (!(projects instanceof Array) || projects.length === 0)
+            throw new Error("No projects found for this account! Please go to https://smallstack.io and create some!");
 
         inquirer.prompt([
             {
@@ -41,6 +45,7 @@ module.exports = function (parameters, done) {
                         host: parameters.apiHost,
                         protocol: parameters.apiProtocol,
                         port: parameters.apiPort,
+                        apiKey: parameters.apiKey,
                         path: "/api/environments?projectId=" + answers.projectId
                     }, function (environments) {
                         var environmentKeys = [];
@@ -57,6 +62,7 @@ module.exports = function (parameters, done) {
                 host: parameters.apiHost,
                 protocol: parameters.apiProtocol,
                 port: parameters.apiPort,
+                apiKey: parameters.apiKey,
                 method: "POST",
                 path: "/api/deployments?projectId=" + answers.projectId + "&environmentId=" + answers.environmentId
             });
