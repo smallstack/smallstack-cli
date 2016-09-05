@@ -121,7 +121,8 @@ module.exports = function (parameters, done) {
                                 if (error)
                                     console.error(error);
                                 else {
-                                    console.log(body.message);
+                                    if (body && body.message)
+                                        console.log(body.message);
                                 }
                                 spinner.stop(true);
                                 done();
