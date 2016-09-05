@@ -4,80 +4,140 @@ var inquirer = require("inquirer");
 var _ = require("underscore");
 var deploymentFunctions = require("../functions/deployment");
 var DockerDeployment = require("../functions/deployments/DockerDeployment");
-var smallstackAPI = require("../functions/smallstackAPI");
 var config = require("../config");
+var request = require("request");
+var Spinner = require('cli-spinner').Spinner;
 
 module.exports = function (parameters, done) {
 
+    // some defaults
+    var apiUrl = parameters.apiUrl || "https://smallstack.io/api";
+    var apiKey = parameters.apiKey || process.env.SMALLSTACK_API_KEY;
+    var filePath = config.builtDirectory + "/meteor.tar.gz";
+    if (!apiKey) {
+        console.info("ERROR: Please provide an API Key");
+        console.info("\t* via SMALLSTACK_API_KEY environment variable");
+        console.info("\t* via --apiKey parameter\n");
+        console.info("If you don't have an api key, please generate one in your profile at https://smallstack.io/profile\n\n");
+        return;
+    }
+
     // getting available projects
-    smallstackAPI({
-        host: parameters.apiHost,
-        protocol: parameters.apiProtocol,
-        port: parameters.apiPort,
-        apiKey: parameters.apiKey,
-        path: "/api/projects"
-    }, function (projects) {
-        
-        if (!(projects instanceof Array) || projects.length === 0)
-            throw new Error("No projects found for this account! Please go to https://smallstack.io and create some!");
+    request({
+        url: apiUrl + "/projects",
+        headers: {
+            "x-smallstack-apikey": apiKey
+        }
+    }, function (error, response, body) {
+        if (error)
+            console.error(error);
+        else {
+            var projects = JSON.parse(body);
+            if (!(projects instanceof Array) || projects.length === 0)
+                throw new Error("No projects found for this account! Please go to https://smallstack.io and create one!");
 
-        inquirer.prompt([
-            {
-                type: "list",
-                name: "projectId",
-                message: "Which project",
-                choices: function () {
-                    var projectKeys = [];
-                    _.each(projects, function (project) {
-                        projectKeys.push({ name: project.name, value: project.id });
-                    });
-                    return projectKeys;
-                },
-                when: parameters.projectId === undefined && parameters.environmentId === undefined
-            },
-            {
-                type: "list",
-                name: "environmentId",
-                message: "Which environment",
-                choices: function (answers) {
-                    var done = this.async();
-                    smallstackAPI({
-                        host: parameters.apiHost,
-                        protocol: parameters.apiProtocol,
-                        port: parameters.apiPort,
-                        apiKey: parameters.apiKey,
-                        path: "/api/environments?projectId=" + answers.projectId
-                    }, function (environments) {
-                        var environmentKeys = [];
-                        _.each(environments, function (environment) {
-                            environmentKeys.push({ name: environment.name, value: environment.id });
+            inquirer.prompt([
+                {
+                    type: "list",
+                    name: "projectId",
+                    message: "Which project",
+                    choices: function () {
+                        var projectKeys = [];
+                        _.each(projects, function (project) {
+                            if (project.type === "developer")
+                                projectKeys.push({ name: project.name, value: project.id });
                         });
-                        done(environmentKeys);
-                    }).end();
+                        return projectKeys;
+                    },
+                    when: parameters.environmentId === undefined
                 },
-                when: parameters.environmentId === undefined
-            }
-        ], function (answers) {
-            var request = smallstackAPI({
-                host: parameters.apiHost,
-                protocol: parameters.apiProtocol,
-                port: parameters.apiPort,
-                apiKey: parameters.apiKey,
-                method: "POST",
-                path: "/api/deployments?projectId=" + answers.projectId + "&environmentId=" + answers.environmentId
-            });
+                {
+                    type: "list",
+                    name: "environmentId",
+                    message: "Which environment",
+                    choices: function (answers) {
+                        var doneAsync = this.async();
+                        request({
+                            url: apiUrl + "/environments?projectId=" + answers.projectId,
+                            headers: {
+                                "x-smallstack-apikey": apiKey
+                            }
+                        }, function (error, response, body) {
+                            if (error)
+                                console.error(error);
+                            else {
+                                var environments = JSON.parse(body);
+                                if (!(environments instanceof Array) || environments.length === 0)
+                                    throw new Error("No environments found for this project! Please go to https://smallstack.io and create one!");
 
-            console.log("Uploading File");
-            fs.readFile(config.builtDirectory + "/meteor.tar.gz", function (err, data) {
-                request.write(data);
-                request.on("end", function () {
-                    console.log("Meteor Bundle successfully uploaded!");
+                                var environmentKeys = [];
+                                _.each(environments, function (environment) {
+                                    environmentKeys.push({ name: environment.name, value: environment.id });
+                                });
+                                doneAsync(environmentKeys);
+                            }
+                        });
+                    },
+                    when: parameters.environmentId === undefined
+                }
+            ], function (answers) {
+
+                request({
+                    method: "POST",
+                    url: apiUrl + "/deployments?environmentId=" + answers.environmentId,
+                    headers: {
+                        "x-smallstack-apikey": apiKey
+                    }
+                }, function (error, response, body) {
+                    if (error)
+                        console.error("Error while getting creating deployment : ", error);
+                    else {
+                        var data = JSON.parse(body);
+                        if (!data || !data.signedUrl)
+                            throw new Error("Could not get signed S3 url!");
+
+                        var spinner = new Spinner('%s uploading file...');
+                        spinner.start();
+                        fs.createReadStream(filePath).pipe(request.put({
+                            url: data.signedUrl,
+                            headers: {
+                                "Content-Length": fs.statSync(filePath)["size"]
+                            }
+                        }, function (error, response, body) {
+                            if (error)
+                                console.error(error);
+                            else {
+                                console.log(body);
+                                console.log("File Upload Completed!");
+                            }
+                            spinner.setSpinnerTitle("%s deploying...");
+                            request({
+                                method: "GET",
+                                url: apiUrl + "/deployments/" + data.deploymentId + "/deploy",
+                                headers: {
+                                    "x-smallstack-apikey": apiKey
+                                }
+                            }, function (error, response, body) {
+                                if (error)
+                                    console.error(error);
+                                else {
+                                    console.log(body.message);
+                                }
+                                spinner.stop(true);
+                                done();
+                            });
+                        }));
+                    }
                 });
-                request.end();
             });
-        });
-    }).end();
+        }
+    });
 }
+
+
+
+
+
 
     // grunt.registerTask("deploy:mobilePrepare", function () {
     //     var mobileTemplate = path.join(grunt.config.get("deploy.deploymentsPath"), "mobile-config-template.js");
