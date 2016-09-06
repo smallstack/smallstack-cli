@@ -68,8 +68,8 @@ class <%= generatedServiceClassName %> {
         var cursor = <%= mongoQuery %>;
         return {
             cursor: cursor,
-            subscribe: (onReady?: () => void): void => {
-                self.subscriptionManager.subscribe("<%=query.name%>", parameters, selectorOptions).onReady(onReady);
+            subscribe: (onReady?: (cursor) => void): void => {
+                self.subscriptionManager.subscribe("<%=query.name%>", parameters, selectorOptions).onReady(() => onReady(cursor));
             }, 
             val: (index) => {
                 if (index === undefined)<% if (config.customTransformMethod) {%>
