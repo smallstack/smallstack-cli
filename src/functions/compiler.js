@@ -7,7 +7,7 @@ var exec = require("./exec");
 
 var compiler = {
 
-    compileTypescriptFiles: function (directory, options, doneFn) {
+    compileTypescriptFiles: function(directory, options, doneFn) {
         options = options || {};
         options.excludes = options.excludes || [];
         options.consolePrefix = options.consolePrefix || "";
@@ -15,14 +15,15 @@ var compiler = {
         if (directory === undefined || !fs.existsSync(directory))
             throw new Error("Cannot compile non-existing directory : " + path.resolve(directory));
 
+        console.log("searching typescript files in directory:", directory);
         var allTSFiles = glob.sync("**/*.ts", {
             cwd: directory,
-            nodir: true,
-            follow: true
+            follow: true,
+            ignore: "**/node_modules/**"
         });
 
         var filtered = "";
-        _.each(allTSFiles, function (file) {
+        _.each(allTSFiles, function(file) {
             if (file.indexOf(".d.ts") === -1)
                 filtered += path.join(directory, file) + "\n";
         });
@@ -34,8 +35,9 @@ var compiler = {
             return;
         }
 
-        var commandFile = config.tmpDirectory + "/tscfiles.txt";
-        fs.ensureDirSync(config.tmpDirectory);
+        var tmpDirectory = config.tmpDirectory !== undefined ? config.tmpDirectory : "./tmp";
+        var commandFile = tmpDirectory + "/tscfiles.txt";
+        fs.ensureDirSync(tmpDirectory);
         fs.writeFileSync(commandFile, filtered);
 
         var command = "tsc @" + commandFile;
@@ -43,21 +45,22 @@ var compiler = {
             command += " --outFile " + options.outFile;
         if (options.outDir !== undefined)
             command += " --outDir " + options.outDir;
+        command += " --experimentalDecorators";
+        command += " --emitDecoratorMetadata";
+        command += " --moduleResolution node";
+        command += " --target ES5";
         // command += " --watch";
-
-
-        console.log("Command : ", command);
 
         exec(command, {
             cwd: directory,
             finished: doneFn,
-            error: function (error) {
+            error: function(error) {
                 throw new Error("Compilation failed : " + error);
             }
         });
     },
 
-    removeGlobalScope: function (javascriptFilePath) {
+    removeGlobalScope: function(javascriptFilePath) {
         var content = fs.readFileSync(javascriptFilePath).toString();
         var returnContent = "";
         var splitArray = content.split("\n");

@@ -9,9 +9,9 @@ var capitalize = require("underscore.string/capitalize");
 var templating = require("../functions/templating");
 var notifier = require("../functions/notifier");
 
-module.exports = function () {
+module.exports = function (params, done) {
 
-    
+
     // own stuff
     var genFunctions = require("../functions/generateSourcesFunctions");
     var copySmallstackFiles = require("../functions/copySmallstackFiles");
@@ -21,7 +21,7 @@ module.exports = function () {
 
     // empty log
     fs.removeSync(logPath);
-    
+
     // copy smallstack files
     copySmallstackFiles();
 
@@ -30,9 +30,17 @@ module.exports = function () {
     var configuration = {};
     var roots = {};
     var extendings = {};
-    
-    
-        
+
+    // methods configuration
+    var sharedMethodsPath = path.join(config.meteorDirectory, "shared/functions");
+    var serverMethodsPath = path.join(config.meteorDirectory, "server/functions");
+    var clientMethodsPath = path.join(config.meteorDirectory, "client/functions");
+    var pathFromSharedMethodToDefinitionsFile = path.relative(sharedMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
+    var pathFromServerMethodToDefinitionsFile = path.relative(serverMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
+    var pathFromClientMethodToDefinitionsFile = path.relative(clientMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
+
+
+
     // display some information
     console.log(generatorLog("Root Directory :       ", config.rootDirectory));
     console.log(generatorLog("Meteor Directory : ", config.meteorDirectory));
@@ -52,11 +60,11 @@ module.exports = function () {
     _.each(allSmallstackFiles, function (smallstackFile) {
         smallstackFile = path.resolve(config.meteorDirectory, smallstackFile);
         console.log(generatorLog("preparing : " + smallstackFile));
-            
+
         // read in data          
         var content = fs.readFileSync(smallstackFile);
         var jsonContent = JSON.parse(content);
-            
+
         // "just" extending?
         if (jsonContent.extends !== undefined) {
             generatorLog("found schema extending for : " + jsonContent.extends);
@@ -65,7 +73,7 @@ module.exports = function () {
             _.extend(extendings[jsonContent.extends], jsonContent);
             return;
         }
-            
+
 
         // generate files and directories            
         var rootDirectory = path.dirname("" + smallstackFile);
@@ -73,10 +81,11 @@ module.exports = function () {
         if (roots[rootDirectory] === undefined) {
             roots[rootDirectory] = {};
             roots[rootDirectory].services = [];
+            roots[rootDirectory].models = [];
             roots[rootDirectory].collections = [];
         }
 
-        var id = jsonContent.collection.name;         
+        var id = jsonContent.collection.name;
 
         // fill the configuration
         configuration[id] = {};
@@ -96,6 +105,7 @@ module.exports = function () {
         configuration[id].relativePathFromModelToGeneratedModel = path.relative(configuration[id].modelsDirectory, configuration[id].modelsGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedModelClassName + ".ts";
         configuration[id].relativePathFromGeneratedModelToModel = path.relative(configuration[id].modelsGeneratedDirectory, configuration[id].modelsDirectory).replace(/\\/g, "/") + "/" + configuration[id].modelClassName + ".ts";
         configuration[id].relativePathFromGeneratedModelToPackages = path.relative(configuration[id].modelsGeneratedDirectory, config.packagesDirectory).replace(/\\/g, "/");
+        roots[configuration[id].rootDirectory].models.push(configuration[id].modelClassName);
 
         // collection variables
         configuration[id].collectionsDirectory = path.join(configuration[id].rootDirectory, "collections");
@@ -127,41 +137,13 @@ module.exports = function () {
         configuration[id].relativePathToTypeDefinitions = path.relative(configuration[id].collectionsDirectory, config.pathToTypeDefinitions).replace(/\\/g, "/");
         configuration[id].relativePathToTypeDefinitionsGen = path.relative(configuration[id].collectionsGeneratedDirectory, config.pathToTypeDefinitions).replace(/\\/g, "/");
 
-        // secure method variables
-        configuration[id].methods = [];
-        _.each(jsonContent.service.securedmethods, function (meth) {
-            var method = {};
-            method.sharedMethodsPath = path.join(config.meteorDirectory, "shared/functions");
-            method.serverMethodsPath = path.join(config.meteorDirectory, "server/functions");
-            method.clientMethodsPath = path.join(config.meteorDirectory, "client/functions");
-            method.pathFromSharedMethodToDefinitionsFile = path.relative(method.sharedMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
-            method.pathFromServerMethodToDefinitionsFile = path.relative(method.serverMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
-            method.pathFromClientMethodToDefinitionsFile = path.relative(method.clientMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
-            method.methodName = configuration[id].collectionName + "-" + meth.name;
-            method.methodParameters = genFunctions.convertMethodParametersToTypescriptMethodParameters(meth.parameters);
-            method.methodParameterChecks = genFunctions.getChecksForParameters(meth.parameters, configuration);
-            if (meth.returns === undefined) {
-                console.warn(generatorLog("No method return type given for method '" + meth.name + "', using 'string'!"));
-                method.methodReturnType = "string";
-            } else
-                method.methodReturnType = meth.returns;
-            if (meth.visibility === undefined) {
-                console.warn(generatorLog("No method visibility type given for method '" + meth.name + "', using 'server'!"));
-                method.methodVisibility = "server";
-            } else {
-                if (meth.visibility === 'server' || meth.visibility === 'separate' || meth.visibility === 'shared')
-                    method.methodVisibility = meth.visibility;
-                else
-                    throw new Error("'" + meth.visibility + "' is not a known method visibility. Please use 'server', 'separate', or 'shared'!");
-            }
-            configuration[id].methods.push(method);
-        });
     });
 
 
+    // evaluate extends
     _.each(_.values(configuration), function (data) {
 
-        console.log(generatorLog("processing : " + data.collectionName));
+        console.log(generatorLog("evaluating extends for : " + data.collectionName));
 
         if (extendings[data.collectionName] !== undefined) {
             generatorLog("Extending type " + data.collectionName);
@@ -173,38 +155,89 @@ module.exports = function () {
             });
             generatorLog("After  : ", data.config);
         }
-        
+    });
+
+
+
+    // evaluate secured methods
+    _.each(_.values(configuration), function (data) {
+        console.log(generatorLog("evaluating secured methods for : " + data.collectionName));
+        data.methods = [];
+        if (data.config.service !== undefined) {
+            _.each(data.config.service.securedmethods, function (meth) {
+                var method = {};
+                method.sharedMethodsPath = sharedMethodsPath;
+                method.serverMethodsPath = serverMethodsPath;
+                method.clientMethodsPath = clientMethodsPath;
+                method.pathFromSharedMethodToDefinitionsFile = pathFromSharedMethodToDefinitionsFile;
+                method.pathFromServerMethodToDefinitionsFile = pathFromServerMethodToDefinitionsFile;
+                method.pathFromClientMethodToDefinitionsFile = pathFromClientMethodToDefinitionsFile;
+                method.methodName = data.collectionName + "-" + meth.name;
+                var params = [];
+                if (meth.modelAware)
+                    params.push("modelId:string");
+                if (meth.parameters)
+                    params = _.union(params, meth.parameters);
+                method.methodParameters = genFunctions.convertMethodParametersToTypescriptMethodParameters(params);
+                method.methodParameterChecks = genFunctions.getChecksForParameters(params, configuration);
+                if (meth.returns === undefined) {
+                    console.warn(generatorLog("No method return type given for method '" + meth.name + "', using 'any'!"));
+                    meth.returns = "any";
+                    method.returns = "any";
+                }
+                else
+                    method.returns = meth.returns;
+                if (meth.visibility === undefined) {
+                    console.warn(generatorLog("No method visibility type given for method '" + meth.name + "', using 'server'!"));
+                    method.methodVisibility = "server";
+                } else {
+                    if (meth.visibility === 'server' || meth.visibility === 'separate' || meth.visibility === 'shared')
+                        method.methodVisibility = meth.visibility;
+                    else
+                        throw new Error("'" + meth.visibility + "' is not a known method visibility. Please use 'server', 'separate', or 'shared'!");
+                }
+                data.methods.push(method);
+            });
+        }
+    });
+
+
+
+    _.each(_.values(configuration), function (data) {
+
+        console.log(generatorLog("processing : " + data.collectionName));
+
         // extending the data
         data.functions = genFunctions;
         data.others = configuration;
         data.general = config;
-                
+
         // extending queries if byId and byIds are missing
-        var byIdsName = genFunctions.getByIdsGetter(data.modelClassName);
-        var byIdName = genFunctions.lowerCaseFirst(data.modelClassName) + "ById";
+        // var byIdsName = genFunctions.getByIdsGetter(data.modelClassName);
+        // var byIdName = genFunctions.lowerCaseFirst(data.modelClassName) + "ById";
 
-        var byIdsFound = _.find(data.config.service.queries, function (query) { return query.name === byIdsName; })
-        var byIdFound = _.find(data.config.service.queries, function (query) { return query.name === byIdName; })
+        // var byIdsFound = _.find(data.config.service.queries, function (query) { return query.name === byIdsName; })
+        // var byIdFound = _.find(data.config.service.queries, function (query) { return query.name === byIdName; })
 
-        if (!byIdsFound) {
-            if (data.config.service === undefined)
-                data.config.service = {};
-            if (data.config.service.queries === undefined)
-                data.config.service.queries = [];
-            data.config.service.queries.push({
-                "name": byIdsName,
-                "selector": {
-                    "_id": { $in: ":ids:string[]" }
-                }
-            });
-        }
-        if (!byIdFound)
-            data.config.service.queries.push({
-                "name": byIdName,
-                "selector": {
-                    "_id": ":id:string"
-                }
-            });
+        // if (!byIdsFound) {
+        //     if (data.config.service === undefined)
+        //         data.config.service = {};
+        //     if (data.config.service.queries === undefined)
+        //         data.config.service.queries = [];
+        //     data.config.service.queries.push({
+        //         "name": byIdsName,
+        //         "selector": {
+        //             "_id": { $in: ":ids:string[]" }
+        //         }
+        //     });
+        // }
+        // if (!byIdFound)
+        //     data.config.service.queries.push({
+        //         "name": byIdName,
+        //         "selector": {
+        //             "_id": ":id:string"
+        //         }
+        //     });
 
         // process collections
         if (data.config.collection.skipGeneration === true)
@@ -256,11 +289,12 @@ module.exports = function () {
         }
 
         // process secured methods
-        if (data.config.service && data.config.service.securedmethods && data.config.service.securedmethods.skipGeneration === true)
-            generatorLog("  | - skipping generating secured methods since service.securedmethods.skipGeneration === true");
+        if (data.config.service && data.config.service.securedmethods && data.config.service.skipSecuredMethodsGeneration === true)
+            generatorLog("  | - skipping generating secured methods since service.skipSecuredMethodsGeneration === true");
         else {
             generatorLog("  | - generating secured methods");
             _.each(data.methods, function (method) {
+
 
                 var methodClientFile = method.clientMethodsPath + "/" + method.methodName + ".ts";
                 var methodSharedFile = method.sharedMethodsPath + "/" + method.methodName + ".ts";
@@ -311,8 +345,8 @@ module.exports = function () {
             functions: genFunctions,
             relativePathFromGenServicesToApp: path.relative(root, config.meteorDirectory).replace(/\\/g, "/")
         });
-            
-            
+
+
         // generate .gitignore
         console.log("generating .gitignore file ...");
         processTemplate(config.datalayerTemplatesPath + "/generated-folder.gitignore", root + "/.gitignore", {
@@ -331,8 +365,33 @@ module.exports = function () {
         pathToGeneratedDefinitions: config.pathToGeneratedDefinitions
     });
 
+    console.log("generating ddp definitions.d.ts file ...");
+    processTemplate(config.datalayerTemplatesPath + "/ddp-connector.d.ts", path.join(config.smallstackDirectory, "ddp-connector.d.ts"), {
+        roots: roots,
+        functions: genFunctions,
+        config: config
+    });
+
+    // generate server-counts file
+    console.log("generating server-counts.ts file ...");
+    processTemplate(config.datalayerTemplatesPath + "/server-counts.ts", path.join(serverMethodsPath, "server-counts.ts"), {
+        functions: genFunctions,
+        config: config,
+        configuration: _.values(configuration),
+        pathFromServerMethodToDefinitionsFile: pathFromServerMethodToDefinitionsFile
+    });
+
+    // generate typesystem file
+    console.log("generating typesystem.ts file ...");
+    processTemplate(config.datalayerTemplatesPath + "/typesystem.ts", path.join(config.packagesDirectory, "smallstack-typesystem", "generated.ts"), {
+        functions: genFunctions,
+        configuration: _.values(configuration)
+    });
+
 
     notifier("Generating Source Code completed!");
+
+    done();
 }
 
 

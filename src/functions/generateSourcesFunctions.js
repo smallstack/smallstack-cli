@@ -8,6 +8,8 @@ var _trim = require("underscore.string/trim");
 var functions = {};
 
 functions.getSchemaType = function getSchemaType(type) {
+    if (type === undefined)
+        throw new Error("type is undefined!");
     switch (type.toLowerCase()) {
         case "date":
             return "Date";
@@ -109,6 +111,32 @@ functions.getJavascriptType = function getJavascriptType(type) {
     throw new Error("Can't convert '" + type + "' to a javascript type!");
 }
 
+functions.checkSchema = function checkSchema(schema, modelName) {
+    for (var i = 0; i < schema.length; i++) {
+        for (var key in schema[i]) {
+            switch (key) {
+                case "name":
+                case "type":
+                case "decimal":
+                case "optional":
+                case "collection":
+                case "allowedValues":
+                case "defaultValue":
+                case "blackbox":
+                case "min":
+                case "max":
+                case "minCount":
+                case "maxCount":
+                case "decimal":
+                case "index":
+                case "unique":
+                    continue;
+                default:
+                    throw new Error("Unknown schema property : " + modelName + "[" + (i + 1) + "] -> " + key);
+            }
+        }
+    }
+}
 
 functions.toArrayString = function toArrayString(arr) {
     var out = "[";
@@ -177,14 +205,18 @@ functions.arrayToCommaSeparatedString = function arrayToCommaSeparatedString(arr
     return out;
 }
 
+functions.endsWith = function endsWith(string, endsWith) {
+    return string.indexOf(endsWith, string.length - endsWith.length) !== -1;
+}
+
 functions.getForeignModelGetterName = function getForeignModelGetterName(schema, real, others) {
     if (schema.type === "foreign[]") {
-        if (schema.name.toLowerCase().indexOf("ids") === schema.name.length - 3)
-            throw new Error("model.schema." + schema.name + " : Don't end schema.name with 'Ids' when using 'foreign[]'. It will get appended automatically!");
+        if (!functions.endsWith(schema.name, "Ids"))
+            throw new Error("model.schema." + schema.name + " is of type foreign[] but doesn't end with 'Ids'!");
     }
     else if (schema.type === "foreign") {
-        if (schema.name.toLowerCase().indexOf("id") === schema.name.length - 2)
-            throw new Error("model.schema." + schema.name + " : Don't end schema.name with 'Id' when using 'foreign'. It will get appended automatically!");
+        if (!functions.endsWith(schema.name, "Id"))
+            throw new Error("model.schema." + schema.name + " is of type foreign but doesn't end with 'Id'!");
     }
     else throw new Error("'" + schema.type + "' is not a known foreign key!");
 
@@ -194,8 +226,12 @@ functions.getForeignModelGetterName = function getForeignModelGetterName(schema,
         else
             return "get" + functions.capitalize((pluralizer(others[schema.collection].modelClassName)) + "ByIds");
     }
-    else
-        return "get" + functions.capitalize(schema.name);
+    else {
+        if (schema.type === "foreign")
+            return "get" + functions.capitalize(schema.name.replace("Id", ""));
+        else
+            return "get" + functions.capitalize(pluralizer(schema.name.replace("Ids", "")));
+    }
 }
 
 functions.getChecksForParameters = function getChecksForParameters(array, others, callback) {
@@ -276,15 +312,15 @@ functions.isPrimitiveType = function isPrimitiveType(typeAsString) {
 }
 
 functions.getModelPropertyName = function getModelPropertyName(schema) {
-    switch (schema.type) {
-        case "foreign":
-            return schema.name + "Id";
-        case "foreign[]":
-            var singular = pluralizer.singular(schema.name);
-            return singular + "Ids";
-        default:
-            return schema.name;
-    }
+    // switch (schema.type) {
+    // case "foreign":
+    //     return schema.name + "Id";
+    // case "foreign[]":
+    //     var singular = pluralizer.singular(schema.name);
+    //     return singular + "Ids";
+    // default:
+    return schema.name;
+    // }
 }
 
 functions.capitalize = function capitalize(str) {
@@ -316,9 +352,10 @@ functions.pluralize = function pluralize(singular) {
 functions.getSearchableFieldsArray = function getSearchableFieldsArray(schema) {
     var fields = [];
     for (var i = 0; i < schema.length; i++) {
-        if (schema[i].type !== "foreign" && schema[i].type !== "foreign[]")
+        if (schema[i].type !== "foreign[]")
             fields.push(schema[i].name);
     }
+    fields.push("_id");
     return fields;
 }
 
@@ -337,7 +374,7 @@ functions.getAllQueryParameters = function getAllQueryParameters(query) {
         var selectorString = JSON.stringify(query.selector);
         var match = selectorString.match(/\"\:([a-zA-Z\[\]\:]{2,})\"/g);
         if (match !== null) {
-            _.each(match, function(ma) {
+            _.each(match, function (ma) {
                 var param = ma.split(":")[1];
                 param = param.replace("\"", "");
                 parameters.push(param);
@@ -348,7 +385,7 @@ functions.getAllQueryParameters = function getAllQueryParameters(query) {
 }
 
 functions.getByIdsGetter = function getByIdsGetter(modelClassName) {
-    return functions.lowerCaseFirst(functions.pluralize(modelClassName)) + "ByIds";
+    return "get" + functions.pluralize(modelClassName) + "ByIds";
 }
 
 functions.urlToJavaPackage = function urlToJavaPackage(url) {
@@ -361,6 +398,53 @@ functions.urlToJavaPackage = function urlToJavaPackage(url) {
             pkg += ".";
     }
     return pkg;
+}
+
+functions.evaluateQuery = function evaluateQuery(query, userIdString) {
+    if (!query.name || query.name.indexOf("get") !== 0)
+        throw new Error("Query Name '" + query.name + "' should start with 'get'!");
+    if (userIdString === undefined)
+        userIdString = "Meteor.userId()";
+    var parameters = "";
+    var firstParameter = undefined;
+    var secondParameter = undefined;
+    var parameterArray = [];
+    var subscriptionOptions = "";
+    var parsedSelector = JSON.stringify(query.selector) || "{}";
+    if (query.selector !== undefined) {
+        var stringified = JSON.stringify(query.selector);
+        var match = stringified.match(/\"\:([a-zA-Z\[\]\:]{2,})\"/g);
+        if (match !== null) {
+            subscriptionOptions += "{";
+            for (var p = 0; p < match.length; p++) {
+                var param = functions.trim(match[p], '":');
+                var typeSplit = param.split(":");
+                var paramName = typeSplit[0];
+                var paramType = typeSplit[1] || "any";
+                if (firstParameter === undefined)
+                    firstParameter = paramName;
+                else if (secondParameter === undefined)
+                    secondParameter = paramName;
+                parameterArray.push(paramName);
+                parameters += paramName + ": " + paramType;
+                if (p !== (match.length - 1))
+                    parameters += ", ";
+                parsedSelector = parsedSelector.replace(match[p], " parameters." + paramName + " ");
+                subscriptionOptions += "\"" + paramName + "\": parameters." + paramName + ", ";
+            };
+            subscriptionOptions += "},";
+        }
+        parsedSelector = parsedSelector.replace(/\"_currentLoggedInUser_\"/g, userIdString);
+    }
+
+    return {
+        parameters: parameters,
+        firstParameter: firstParameter,
+        secondParameter: secondParameter,
+        parameterArray: parameterArray,
+        subscriptionOptions: subscriptionOptions,
+        parsedSelector: parsedSelector
+    }
 }
 
 module.exports = functions;

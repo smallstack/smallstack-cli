@@ -53,7 +53,7 @@ class <%= serviceClassName %> {
 					};
                     subscriptionOptions += "},";
 				}
-                 parsedSelector = parsedSelector.replace(/\"_currentLoggedInUser_\"/g," this.dataBridge.getCurrentUserId()");
+                 parsedSelector = parsedSelector.replace(/\"_currentLoggedInUser_\"/g," self.dataBridge.getCurrentUserId()");
 			}
             
             // one or many?
@@ -95,11 +95,17 @@ class <%= serviceClassName %> {
 	}	
 	<% }) 
     
-    
-	_.forEach(config.service.securedmethods, function(method){%>
+	_.forEach(config.service.securedmethods, function(method){
+        var params = [];
+        if (method.modelAware === true) {
+            params.push("modelId:string");
+        }
+        if (method.parameters)
+            params = _.union(params, _.clone(method.parameters))
+        %>
         
-	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(method.parameters, false)%>, callback?: (error: Error, result: any) => void): void {
-        this.dataBridge.call("<%=collectionName%>-<%=method.name%>", <%=functions.convertMethodParametersToObject(method.parameters)%>, callback);
+	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(params, true)%>callback?: (error: Error, result: <%=method.returns%>) => void): void {
+        this.dataBridge.call("<%=collectionName%>-<%=method.name%>", <%=functions.convertMethodParametersToObject(params)%>, callback);
 	}					
 	<%});%>
 	

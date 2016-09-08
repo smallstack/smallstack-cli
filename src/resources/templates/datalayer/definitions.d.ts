@@ -1,10 +1,4 @@
-// THIRD PARTY
-
-/// <reference path="<%=relativePathFromDefToPackages%>/smallstack-core/typedefinitions/meteor/meteor.d.ts" />
-
-
-
-// SMALLSTACK COMPONENTS (manually included)
+// SMALLSTACK COMPONENTS
 
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-core/typedefinitions/smallstack.d.ts" />
 
@@ -12,13 +6,14 @@
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-collections/CollectionService.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-cookies/CookieService.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-ioc/ioc.ts" />
-/// <reference path="<%=relativePathFromDefToPackages%>/smallstack-navigation/NavigationEntry.ts" />
-/// <reference path="<%=relativePathFromDefToPackages%>/smallstack-navigation/NavigationService.ts" />
+/// <reference path="<%=relativePathFromDefToPackages%>/smallstack-navigation/types/models/NavigationEntry.ts" />
+/// <reference path="<%=relativePathFromDefToPackages%>/smallstack-navigation/types/services/NavigationService.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-media/types/services/MediaService.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-migration/MigrationService.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-notifications/NotificationService.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-roles/RolesService.ts" />
-/// <reference path="<%=relativePathFromDefToPackages%>/smallstack-location/LocationService.ts" />
+/// <reference path="<%=relativePathFromDefToPackages%>/smallstack-location/services/GeocoderService.ts" />
+/// <reference path="<%=relativePathFromDefToPackages%>/smallstack-location/services/RoutingService.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-user/AvatarService.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-user/types/services/UserService.ts" />
 /// <reference path="<%=relativePathFromDefToPackages%>/smallstack-social/FacebookService.ts" />

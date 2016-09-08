@@ -3,33 +3,6 @@
     <actions/>
     <description>creates the android app for project <%=projectName%></description>
     <keepDependencies>false</keepDependencies>
-    <properties>
-      <jenkins.plugins.slack.SlackNotifier_-SlackJobProperty plugin="slack@1.8">
-        <teamDomain></teamDomain>
-        <token></token>
-        <room></room>
-        <startNotification>false</startNotification>
-        <notifySuccess>true</notifySuccess>
-        <notifyAborted>false</notifyAborted>
-        <notifyNotBuilt>false</notifyNotBuilt>
-        <notifyUnstable>true</notifyUnstable>
-        <notifyFailure>false</notifyFailure>
-        <notifyBackToNormal>true</notifyBackToNormal>
-        <notifyRepeatedFailure>true</notifyRepeatedFailure>
-        <includeTestSummary>false</includeTestSummary>
-        <showCommitList>false</showCommitList>
-        <includeCustomMessage>true</includeCustomMessage>
-        <customMessage>New Android APK was built!</customMessage>
-      </jenkins.plugins.slack.SlackNotifier_-SlackJobProperty>
-      <jenkins.model.BuildDiscarderProperty>
-        <strategy class="hudson.tasks.LogRotator">
-          <daysToKeep>30</daysToKeep>
-          <numToKeep>30</numToKeep>
-          <artifactDaysToKeep>30</artifactDaysToKeep>
-          <artifactNumToKeep>30</artifactNumToKeep>
-        </strategy>
-      </jenkins.model.BuildDiscarderProperty>
-    </properties>
     <%=scm%>
     <canRoam>true</canRoam>
     <disabled>false</disabled>
@@ -40,7 +13,11 @@
     <concurrentBuild>true</concurrentBuild>
     <builders>
       <hudson.tasks.Shell>
-        <command>cd <%=projectName%>
+        <command>cd smallstack-cli
+npm install -g      
+npm install mgp -g  
+npm install -g typescript
+cd ../<%=projectName%>
 npm install 
 <%=packagesPartial%>
 grunt ci:android --deploy.env <%=deployment.name%> --stack</command>
@@ -55,12 +32,6 @@ grunt ci:android --deploy.env <%=deployment.name%> --stack</command>
         <defaultExcludes>true</defaultExcludes>
         <caseSensitive>true</caseSensitive>
       </hudson.tasks.ArtifactArchiver>
-      <jenkins.plugins.slack.SlackNotifier plugin="slack@1.8">
-        <teamDomain>smallstack</teamDomain>
-        <authToken>wefweaffefaffawefwaf</authToken>
-        <buildServerUrl>http://jenkins.smallstack.io/</buildServerUrl>
-        <room>project-<%=projectName%></room>
-      </jenkins.plugins.slack.SlackNotifier>
     </publishers>
     <buildWrappers>
       <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.28">
@@ -72,7 +43,7 @@ grunt ci:android --deploy.env <%=deployment.name%> --stack</command>
         <colorMapName>xterm</colorMapName>
       </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
       <jenkins.plugins.nodejs.tools.NpmPackagesBuildWrapper plugin="nodejs@0.2.1">
-        <nodeJSInstallationName>node-0.10.40</nodeJSInstallationName>
+        <nodeJSInstallationName>4.4.1</nodeJSInstallationName>
       </jenkins.plugins.nodejs.tools.NpmPackagesBuildWrapper>
     </buildWrappers>
   </project>

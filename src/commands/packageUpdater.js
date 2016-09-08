@@ -7,9 +7,9 @@ var exec = require("../functions/exec");
 var path = require("path");
 var DecompressZip = require("decompress-zip");
 
-module.exports = function (commander) {
+module.exports = function (commander, done) {
 
-    
+
     // properties
     var smallstackZipFilePath = "smallstack";
     var smallstackMode = commander.mode;
@@ -52,8 +52,12 @@ module.exports = function (commander) {
 
     inquirer.prompt(questions, function (answers) {
         smallstackMode = answers["smallstack.mode"] || smallstackMode;
-        smallstackPath = answers["smallstack.path"] || smallstackPath;
+        if (answers["smallstack.path"])
+            smallstackPath = path.join(config.rootDirectory, answers["smallstack.path"]);
+        else
+            smallstackPath = answers["smallstack.path"] || smallstackPath;
         persistPackageConfiguration(smallstackMode, smallstackPath);
+        done();
     });
 
 }
@@ -90,10 +94,10 @@ function persistPackageConfiguration(smallstackMode, smallstackPath) {
         console.log("zip path :", path.resolve(smallstackPath));
 
         var destinationPath = path.join(config.meteorDirectory, "packages");
-            
+
         // clean packages directory
         fs.emptyDirSync(destinationPath);
-            
+
         // unzip file
         var unzipper = new DecompressZip(smallstackPath);
         unzipper.on('error', function (err) {

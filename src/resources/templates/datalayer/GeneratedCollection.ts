@@ -2,8 +2,7 @@
  * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY RE-COMPILE
  */
 
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/meteor/meteor.d.ts" />
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/underscore/underscore.d.ts" />
+/// <reference path="<%= relativePathToTypeDefinitionsGen %>/smallstack.d.ts" />
 /// <reference path="<%= relativePathFromGeneratedCollectionToCollectionService %>" />
 /// <reference path="<%= relativePathFromGeneratedCollectionToSmallstackCollection %>" />
 /// <reference path="<%= relativePathFromCollectionToModel %>" />
@@ -19,16 +18,16 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 	protected rolesService:RolesService;
 	
 	public static queries = {<% 
-		for(var q = 0; q < config.service.queries.length; q++) {%>
-		"<%=config.service.queries[q].name%>": {name : "<%=config.service.queries[q].name%>", parameters : {<% 
-		var parameters = functions.getAllQueryParameters(config.service.queries[q]);
+		_.forEach(config.service.queries, function(query, index) {%>
+		"<%=query.name%>": {name : "<%=query.name%>", parameters : {<% 
+		var parameters = functions.getAllQueryParameters(query);
 		for (var p = 0; p < parameters.length; p++) {
 			print(parameters[p] + " : \"" + parameters[p] + "\"");
 			if (p !== (parameters.length - 1))
 				print(", ");	
 		}		
-		%>}}<% if (q !== (config.service.queries.length - 1)) {%>,<%}		
-	};%>
+		%>}}<% if (index !== (config.service.queries.length - 1)) {%>,<%}		
+		});%>
 	}
 	
 	public static expandables = {<% 
@@ -59,14 +58,7 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 		}
 		
 		// create search index
-		if (Package["easysearch:core"]) {
-			console.log("Creating search index for collection '<%=collectionName%>' and fields '<%=functions.getSearchableFieldsArray(config.model.schema)%>'!");
-			smallstack.indizes["<%=collectionName%>"] = new EasySearch.Index({
-				collection: this._collection,
-				fields: <%=JSON.stringify(functions.getSearchableFieldsArray(config.model.schema))%>,
-				engine: new EasySearch.Minimongo()
-			});
-		}
+        this.createSearchIndex();
 
 		// attach collection to smallstack.collections
 		smallstack.collections["<%=collectionName%>"] = this._collection;
@@ -80,16 +72,31 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 			<% _.forEach(config.service.queries, function(query) {
             if (typeof query.name !== 'string' || query.name.length === 0)
                 throw new Error("query.name is empty for query : " + query);
-                        
-			%>this.collectionService.addPublisher("<%=config.collection.name%>", "<%=query.name%>"<% if(query.selector !== undefined) {%>, <%=JSON.stringify(query.selector)%><%} if (query.options !== undefined) {%>, <%=JSON.stringify(query.options)%><%}%>);
+			var selector = query.selector !== undefined ? query.selector : {};
+			var options = {};
+			if (query.sorting)
+				options.sort = query.sorting; 
+			if (query.fields)
+				options.fields = query.fields;                       
+			%>this.collectionService.addPublisher("<%=config.collection.name%>", "<%=query.name%>", <%=JSON.stringify(selector)%>, <%=JSON.stringify(options)%>);
 		<%});%>}
 	}
+    
+    protected createSearchIndex() {
+        if (Package["easysearch:core"]) {
+			smallstack.logger.debug("EasySearch", "Creating search index for collection '<%=collectionName%>' and fields '<%=functions.getSearchableFieldsArray(config.model.schema)%>'!");
+			smallstack.indizes["<%=collectionName%>"] = new EasySearch.Index({
+				collection: this._collection,
+				fields: <%=JSON.stringify(functions.getSearchableFieldsArray(config.model.schema))%>,
+				engine: new EasySearch.MongoDB()
+			});
+		}
+    }
 	
 	protected createCollection() {
 		this._collection = new Mongo.Collection<<%=modelClassName%>>("<%=collectionName%>", { "transform" : function(doc){
 			return <%=modelClassName%>.fromDocument(doc);
 		}});
-		console.log("created collection : <%=collectionName%>");
 	}
 	
 	protected configureAllowDenyRules():void {
@@ -111,6 +118,7 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 	 * If return value is not undefined these rules will get applied 
 	 */
 	protected getCollectionAllowRules(): Mongo.AllowDenyOptions {
+		var that = this;
 		return {
             insert: function(userId, doc) {
                 // the user must be logged in, and the document must be owned by the user
@@ -118,11 +126,11 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
             },
             update: function(userId, doc, fields, modifier) {
                 // can only change your own documents
-                return (doc.ownerId === userId || this.rolesService.userHasRole(userId, "<%=functions.lowerCaseFirst(modelClassName)%>-manage", "<%=functions.lowerCaseFirst(modelClassName)%>-" + doc._id));
+                return (doc.ownerId === userId || that.rolesService.userHasRole(userId, "<%=functions.lowerCaseFirst(modelClassName)%>-manage", "<%=functions.lowerCaseFirst(modelClassName)%>-" + doc._id));
             },
             remove: function(userId, doc) {
                 // can only remove your own documents
-                return (doc.ownerId === userId || this.rolesService.userHasRole(userId, "<%=functions.lowerCaseFirst(modelClassName)%>-manage", "<%=functions.lowerCaseFirst(modelClassName)%>-" + doc._id));
+                return (doc.ownerId === userId || that.rolesService.userHasRole(userId, "<%=functions.lowerCaseFirst(modelClassName)%>-manage", "<%=functions.lowerCaseFirst(modelClassName)%>-" + doc._id));
             },
             fetch: ['ownerId']
         }
@@ -149,6 +157,12 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 				"decimal" : <%= schema.decimal %><%}%><% 
 				if (schema.optional !== undefined) {%>,
 				"optional" : <%= schema.optional %><%}%><% 
+				if (schema.blackbox !== undefined) {%>,
+				"blackbox" : <%= schema.blackbox %><%}%><% 
+				if (schema.index !== undefined) {%>,
+				"index" : <%= schema.index %><%}%><% 
+				if (schema.unique !== undefined) {%>,
+				"unique" : <%= schema.unique %><%}%><% 
 				if (schema.minCount !== undefined) {%>,
 				"minCount" : <%= schema.minCount %><%}%><% 
 				if (schema.maxCount !== undefined) {%>,
@@ -184,5 +198,13 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 	
 	public static getForeignGetter(): string {
 		return "<%=functions.getByIdsGetter(modelClassName)%>";
+	}
+
+	public getModelName() {
+		return "<%= modelClassName %>";
+	}
+
+	public getServiceName(): string {
+		return "<%=functions.lowerCaseFirst(serviceClassName)%>";
 	}
 }

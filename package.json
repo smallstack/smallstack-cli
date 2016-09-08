@@ -1,39 +1,46 @@
 {
-    "name": "smallstack-cli",
-    "version": "0.2.1",
-    "description": "Command Line Interface for Smallstack Projects",
-    "author": {
-        "email": "max@smallstack.io",
-        "name": "Maximilian Friedmann",
-        "url": "http://smallstack.io"
-    },
-    "homepage": "http://smallstack.io",
-    "repository": {
-        "type": "git",
-        "url": "https://bitbucket.org/smallstack/smallstack-cli.git"
-    },
-    "main": "./smallstack",
-    "bin": {
-        "smallstack": "./bin/smallstack"
-    },
-    "dependencies": {
-        "async": "^1.5.2",
-        "chance": "^1.0.1",
-        "colors": "^1.1.2",
-        "commander": "^2.9.0",
-        "decompress-zip": "^0.2.0",
-        "figlet": "^1.1.1",
-        "find": "0.2.4",
-        "fs-extra": "^0.26.4",
-        "glob": "^7.0.0",
-        "inquirer": "^0.11.4",
-        "lodash": "^3.10.1",
-        "moment": "^2.11.2",
-        "node-notifier": "^4.5.0",
-        "nodejs-fs-utils": "^1.0.26",
-        "pluralize": "^1.2.1",
-        "typings": "0.6.9",
-        "underscore": "^1.8.3",
-        "underscore.string": "^3.3.4"
-    }
+  "name": "smallstack-cli",
+  "version": "0.3.0",
+  "description": "Command Line Interface for Smallstack Projects",
+  "author": {
+    "email": "max@smallstack.io",
+    "name": "Maximilian Friedmann",
+    "url": "https://smallstack.io"
+  },
+  "homepage": "https://smallstack.io",
+  "repository": {
+    "type": "git",
+    "url": "https://bitbucket.org/smallstack/smallstack-cli.git"
+  },
+  "main": "./smallstack",
+  "bin": {
+    "smallstack": "./bin/smallstack"
+  },
+  "dependencies": {
+    "async": "1.5.2",
+    "aws-sdk": "2.4.11",
+    "chance": "^1.0.1",
+    "cli-spinner": "^0.2.5",
+    "colors": "^1.1.2",
+    "decompress-zip": "^0.2.0",
+    "figlet": "^1.1.1",
+    "find": "0.2.4",
+    "flat": "^2.0.1",
+    "fs-extra": "^0.26.4",
+    "glob": "^7.0.0",
+    "inquirer": "^0.11.4",
+    "lodash": "^3.10.1",
+    "moment": "^2.11.2",
+    "nightmare": "^2.6.0",
+    "node-notifier": "^4.5.0",
+    "node-watch": "^0.4.0",
+    "nodejs-fs-utils": "^1.0.26",
+    "pluralize": "^1.2.1",
+    "promise": "^7.1.1",
+    "properties-parser": "^0.3.1",
+    "request": "^2.74.0",
+    "typings": "0.6.9",
+    "underscore": "^1.8.3",
+    "underscore.string": "^3.3.4"
+  }
 }

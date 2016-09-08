@@ -1,6 +1,4 @@
-module.exports = function (type, watch) {
-    if (watch === undefined)
-        watch = false;
+module.exports = function (parameters, done) {
 
     require("../functions/copySmallstackFiles")();
     require("../functions/compile.version")();
@@ -10,24 +8,49 @@ module.exports = function (type, watch) {
     var find = require("find");
     var path = require("path");
 
+
     var config = require("../config");
     var compiler = require("../functions/compiler");
     var notifier = require("../functions/notifier");
+    var functions = require("../functions/generateSourcesFunctions");
+
+    var currentlyCompiling = false;
+
+    if (parameters.watch) {
+        var watch = require('node-watch');
+        watch(config.meteorDirectory, {
+            followSymLinks: true,
+            filter: function (fullpath) {
+                return fullpath !== undefined && fullpath.indexOf(".meteor") === -1;
+            }
+        }, function (filename) {
+            if (functions.endsWith(filename, ".ts")) {
+                console.log(filename, ' changed.');
+                compileMeteorFiles();
+            }
+        });
+    }
 
     // var supersonicTargetFile = config.supersonicDirectory + "/www/scripts/smallstack.js";
     // var meteorTargetFile = config.meteorDirectory + "/shared/lib/smallstack.js";
     var ddpConnectorFile = path.join(config.smallstackDirectory, "ddp-connector.js");
 
+    function shallBeCompiled(type) {
+        var keys = _.keys(parameters);
+        if (keys === undefined || (keys.indexOf("meteor") === -1 && keys.indexOf("smallstack") === -1 && keys.indexOf("supersonic") === -1))
+            return true;
+        return keys.indexOf(type) !== -1;
+    }
 
     function compileSmallstackDataLayer(nextFn) {
-    
+
         // smallstack data layer
-        if (type === "smallstack" || type === undefined && config.smallstackDirectoryAvailable()) {
+        if (shallBeCompiled("smallstack") && config.smallstackDirectoryAvailable()) {
             console.log("compiling smallstack");
             // compiler.compileTypescriptFiles(config.smallstackDirectory, { outFile: "bundle.js", consolePrefix: "[smallstack]" });
             compiler.compileTypescriptFiles(path.join(config.smallstackDirectory, "ddp-connector"), { outFile: ddpConnectorFile, consolePrefix: "[ddp-connector]" }, function () {
                 if (config.supersonicProjectAvailable()) {
-                    fs.copySync(ddpConnectorFile, path.join(config.supersonicDirectory, "app", "common", "connector", "ddp-connector.js"));
+                    fs.copySync(ddpConnectorFile, path.join(config.supersonicDirectory, "www", "connector", "ddp-connector.js"));
                 }
                 nextFn();
             });
@@ -39,19 +62,21 @@ module.exports = function (type, watch) {
     function compileSuperSonicFiles(nextFn) {
 
         // supersonic files
-        if ((type === "supersonic" || type === undefined) && config.supersonicProjectAvailable()) {
+        if (shallBeCompiled("supersonic") && config.supersonicProjectAvailable()) {
             console.log("compiling supersonic");
-            compiler.compileTypescriptFiles(config.supersonicDirectory, { consolePrefix: "[supersonic]" }, nextFn);
+            compiler.compileTypescriptFiles(config.supersonicDirectory + "/www", { consolePrefix: "[supersonic]" }, nextFn);
         }
-        else
-            nextFn();
-
+        else {
+            if (typeof nextFn === 'function')
+                nextFn();
+        }
     }
 
     function compileMeteorFiles(nextFn) {
 
         // meteor files
-        if ((type === "meteor" || type === undefined) && config.meteorProjectAvailable()) {
+        if (shallBeCompiled("meteor") && config.meteorProjectAvailable() && !currentlyCompiling) {
+            currentlyCompiling = true;
             var meteorBuiltPath = path.join(config.tmpDirectory, "meteorbuilt");
             fs.removeSync(meteorBuiltPath);
             console.log("compiling meteor");
@@ -77,26 +102,29 @@ module.exports = function (type, watch) {
                 if (fs.existsSync(path.join(meteorBuiltPath, "shared")))
                     fs.copySync(path.join(meteorBuiltPath, "shared"), path.join(config.meteorDirectory, "built", "shared"), { clobber: true });
 
-                nextFn();
+                if (parameters.watch)
+                    console.log("Watching : ", config.meteorDirectory);
+                else
+                    console.log("Meteor compilation complete!");
+
+                currentlyCompiling = false;
+
+                if (typeof nextFn === 'function')
+                    nextFn();
             });
         }
-        else
-            nextFn();
+        else {
+            if (typeof nextFn === 'function')
+                nextFn();
+        }
 
     }
 
-    compileSmallstackDataLayer(function () {
-        compileSuperSonicFiles(function () {
-            compileMeteorFiles(function () {
-                notifier("Compilation completed!");
-            });
-        });
+    // compileSmallstackDataLayer(function () {
+    //     compileSuperSonicFiles(function () {
+    compileMeteorFiles(function () {
+        done();
     });
-
-
-
-
-
-
-
+    //     });
+    // });
 }

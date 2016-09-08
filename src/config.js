@@ -4,15 +4,11 @@ var fs = require("fs-extra");
 var cliPackageJson = require(__dirname + "/../package.json");
 var config = {};
 
-if (fs.existsSync(process.cwd() + "/package.json")) {
-    config = require(process.cwd() + "/package.json");
-}
-
 
 /** 
  * Determines how a project can be found
  */
-config.projectFound = function (directory) {
+config.projectFound = function(directory) {
     try {
         if (directory === undefined)
             directory = config.getRootDirectory();
@@ -31,24 +27,29 @@ config.projectFound = function (directory) {
 //     return process.argv[2] === undefined || !_.contains(["create", "--help", "-h", "-v", "--version"], process.argv[2].toLowerCase());
 // }
 
-config.calledWithCreateProjectCommand = function () {
+config.calledWithCreateProjectCommand = function() {
     return process.argv[2] === "create" && process.argv[2] !== undefined;
 }
 
-config.supersonicProjectAvailable = function () {
+
+config.calledWithNonProjectCommand = function() {
+    return process.argv[2] === "compileNpmModule";
+}
+
+config.supersonicProjectAvailable = function() {
     return fs.existsSync(config.supersonicDirectory);
 }
 
-config.meteorProjectAvailable = function () {
+config.meteorProjectAvailable = function() {
     return fs.existsSync(config.meteorDirectory);
 }
 
-config.smallstackDirectoryAvailable = function () {
+config.smallstackDirectoryAvailable = function() {
     return fs.existsSync(config.smallstackDirectory);
 }
 
 
-config.getRootDirectory = function () {
+config.getRootDirectory = function() {
 
     var root = path.resolve("./");
     if (config.projectFound(root))
@@ -70,7 +71,8 @@ config.getRootDirectory = function () {
 config.cli = cliPackageJson;
 try {
     config.rootDirectory = config.getRootDirectory();
-    config.tmpDirectory = path.join(config.rootDirectory, "tmp");
+    config.tmpDirectory = path.join(config.rootDirectory !== undefined ? config.rootDirectory : "./", "tmp");
+    config.builtDirectory = path.join(config.rootDirectory, "built");
     config.smallstackDirectory = path.join(config.rootDirectory, "smallstack");
     if (fs.existsSync(path.join(config.rootDirectory, "app"))) {
         console.warn("Warning: Folder called 'app' found. Please consider renaming it to 'meteor' if you don't need the old grunt tasks anymore!");
@@ -87,6 +89,10 @@ try {
     config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
     config.pathToGeneratedDefinitions = config.meteorDirectory + "/typedefinitions";
     config.pathToGeneratedDefinitionsFile = path.join(config.pathToGeneratedDefinitions, "generated.d.ts");
+
+    if (fs.existsSync(config.rootDirectory + "/package.json")) {
+        _.extend(config, require(config.rootDirectory + "/package.json"));
+    }
 }
 catch (e) {
     // console.error(e);

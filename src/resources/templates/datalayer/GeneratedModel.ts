@@ -3,22 +3,30 @@
  */
 
 /// <reference path="<%= relativePathToTypeDefinitionsGen %>/smallstack.d.ts" />
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/meteor/meteor.d.ts" />
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/underscore/underscore.d.ts" />
 /// <reference path="<%= relativePathFromGeneratedModelToPackages %>/smallstack-collections/QueryObject.ts" />
 /// <reference path="<%= relativePathFromGeneratedModelToPackages %>/smallstack-collections/QueryOptions.ts" />
 
 /// <reference path="<%= relativePathFromGeneratedModelToModel %>" />
 <%
+
+// check for unknown properties
+functions.checkSchema(config.model.schema, config.model.name);
+	
 _.forEach(config.model.schema, function(schema) {
-    if (schema.type === "foreign" || schema.type === "foreign[]") {
+	
+
+	
+	if (schema.type === "foreign" || schema.type === "foreign[]") {	
         if (schema.collection === undefined)
             throw new Error("schema." + schema.name + " is of type foreign or foreign[] but doesn't have a collection!!!");
         if (others[schema.collection] === undefined)
             throw new Error("Type '" + schema.collection + "' is unknown!");
+			
+		if (others[schema.collection].modelClassName !== modelClassName) {
         %>
 /// <reference path="<%=functions.relativePath(modelsGeneratedDirectory,others[schema.collection].servicesDirectory + "/" + others[schema.collection].serviceClassName + ".ts")%>" /><%
-    }
+    	}
+	}
 });
 
 
@@ -49,21 +57,19 @@ function getSubTypes(schema) {
 	_.forEach(schema, function(schema) {
 		if (schema.name.indexOf(".") !== -1) {
 			var split = schema.name.split(".");
-			console.log("split : ", split);
 			addSubtype(subTypes, split, schema);
 		}
 	});
-	
-	console.log("subtypes : ", subTypes);
 	return subTypes;
 }
 
+// check model properties
 
 
 %>
 
 
-class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {%> extends <%=config.model.extends%><%}%><% if (config.model.implements !== undefined) {%> implements <%=config.model.implements%><%}%> {
+<% if(config.model.abstract === true) print("abstract "); %>class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {%> extends <%=config.model.extends%><%}%><% if (config.model.implements !== undefined) {%> implements <%=config.model.implements%><%}%> {
 	
 	// generated model properties
 	public id:string;
@@ -115,7 +121,10 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 		
 	}
 	
-	public static fromDocument(doc: any) {
+	public static fromDocument(doc: any): <%= modelClassName %> {
+		<% if(config.model.abstract === true) { %>
+		throw new Error("<%= generatedModelClassName %> is abstract and cannot be instanciated!");
+		<%} else {%>
 		var model = new <%= modelClassName %>();
 		if (doc._id !== undefined) {
 			model._isStored = true; 
@@ -125,15 +134,16 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 	 		%>model["<%=functions.getModelPropertyName(schema) %>"] = doc["<%=functions.getModelPropertyName(schema) %>"]; 
 		<%});
 		%>return model;
+		<% } %>
 	}
 	
-	public toDocument() {
+	public toDocument(identifierKey: string = "_id") {
 		var doc = {};
 		<% _.forEach(config.model.schema, function(schema) {
 	 		%>doc["<%=functions.getModelPropertyName(schema) %>"] = this["<%=functions.getModelPropertyName(schema) %>"]; 
 		<%});%>
 		if (this.isStored()) {
-			doc["_id"] = this.id;
+			doc[identifierKey] = this.id;
 		}
 		return doc;
 	}
@@ -202,6 +212,23 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 	public isStored(): boolean {
 		return this._isStored;
 	}
+    
+    <%    
+	_.forEach(config.service.securedmethods, function(method){
+        if (method.modelAware === true) {%>
+	public <%=method.name%>(<%=functions.arrayToCommaSeparatedString(method.parameters, true, true, false)%>callback?: (error: Meteor.Error, result: <%=method.returns%>) => void): void {
+		if (callback === undefined && Meteor.isClient)  {
+			var that = this;
+			callback = function(error: Meteor.Error, result: <%=method.returns%>) {
+				if (error)
+					NotificationService.instance().getStandardErrorPopup(error, "Could not execute action '<%=method.name%>' for <%=config.model.name%> with ID '" + that.id + "'!");
+				else
+					NotificationService.instance().notification.success("Successfully executed '<%=method.name%>' for <%=config.model.name%> with ID '" + that.id + "'!");
+			}
+		}
+        return <%=functions.getServiceName(config)%>.instance().<%=method.name%>(this.id, <%=functions.arrayToCommaSeparatedString(method.parameters,false, true, false)%>callback);
+	}					
+	<%}});%>
 	
 	
 	public delete(callback?:(error: Meteor.Error, numberOfRemovedDocuments:number) => void): number {
@@ -234,3 +261,5 @@ class <%= generatedModelClassName %><% if (config.model.extends !== undefined) {
 		return "<%= modelClassName %>";
 	}
 }
+
+smallstack.models["<%= modelClassName %>"] = <%= generatedModelClassName %>;

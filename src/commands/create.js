@@ -1,9 +1,11 @@
-module.exports = function (projectName) {
+module.exports = function (parameters) {
 
     var fs = require("fs-extra");
     var path = require("path");
     var _ = require("underscore");
     var exec = require('child_process').exec;
+
+    var projectName = parameters.name;
 
     var directory = path.join(process.cwd(), projectName);
 

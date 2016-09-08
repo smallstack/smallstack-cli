@@ -3,26 +3,20 @@ var fs = require("fs-extra");
 var config = require("../config");
 var templating = require("./templating");
 var moment = require('moment');
+var genFunctions = require('./generateSourcesFunctions');
 
 module.exports = {
     deploymentsFileDirectory: config.rootDirectory + "/deployment",
     deploymentsFileName: "deployments",
     deploymentsFileEnding: ".json",
 
-    getDeploymentsFilePath: function () {
+    getDeploymentsFilePath: function() {
         return path.join(this.deploymentsFileDirectory, this.deploymentsFileName + this.deploymentsFileEnding);
     },
-    getDeployments: function () {
-        var deploymentsFile = this.getDeploymentsFilePath();
-
-        // prepare
-        if (!fs.existsSync(deploymentsFile)) {
-            throw new Error("Deployments File (" + deploymentsFile + ") not found. Use 'smallstack deploy --createDefaults' to create a default one!");
-        }
-
-        return require(deploymentsFile);
+    getDeployments: function() {
+        return config.smallstack.environments;
     },
-    getDeployment: function (environment) {
+    getDeployment: function(environment) {
 
         var currentDeployment = this.getDeployments()[environment];
         if (currentDeployment === undefined)
@@ -32,7 +26,7 @@ module.exports = {
 
         return currentDeployment;
     },
-    apacheConfig: function (deployment) {
+    apacheConfig: function(deployment) {
 
         if (deployment === undefined)
             throw new Error("deployment is undefined!");
@@ -52,7 +46,7 @@ module.exports = {
         console.log("\n##############################################################################\n");
 
     },
-    createDefaults: function () {
+    createDefaults: function() {
 
         var deploymentsFilePath = this.getDeploymentsFilePath();
         console.log("Creating default deployments file:", deploymentsFilePath);
@@ -92,5 +86,19 @@ module.exports = {
             }
         }
         fs.writeFileSync(deploymentsFilePath, JSON.stringify(standardDeployment, null, 4));
+        console.log("Created File : ", deploymentsFilePath);
+        var mobileConfigTemplateFilePath = path.join(this.deploymentsFileDirectory, "/mobile-config-template.js");
+        fs.copySync(config.cliTemplatesPath + "/project/mobile-config-template.js", mobileConfigTemplateFilePath);
+        console.log("Created File : ", mobileConfigTemplateFilePath)
+    },
+    prepareMobile: function(deployment) {
+        var mobileTemplate = path.join(this.deploymentsFileDirectory, "mobile-config-template.js");
+        if (fs.existsSync(mobileTemplate)) {
+            templating.compileFileToFile(mobileTemplate, path.join(config.meteorDirectory, "mobile-config.js"), {
+                deployment: deployment,
+                projectName: config.name,
+                f: genFunctions
+            });
+        }
     }
 }

@@ -2,20 +2,25 @@
  * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY RE-COMPILE
  */
 
-/// <reference path="<%= relativePathFromGeneratedServiceToGeneratedDefinitionsFile %>" />
-/// <reference path="<%= relativePathToTypeDefinitionsGen %>/underscore/underscore.d.ts" />
+/// <reference path="<%= relativePathToTypeDefinitionsGen %>/smallstack.d.ts" />
+/// <reference path="<%= relativePathFromGeneratedServiceToPackages %>/smallstack-roles/RolesService.ts" />
 /// <reference path="<%= relativePathFromGeneratedServiceToPackages %>/smallstack-collections/QueryOptions.ts" />
 /// <reference path="<%= relativePathFromServiceToModel %>" />
+
+declare var SubsCache: any;
 
 
 class <%= generatedServiceClassName %> {
 	
-    private subscriptionManager: any;
-    private rolesService: any;
-    private collectionService: any;
+    public subscriptionManager: any;
+    protected rolesService: RolesService;
+    protected collectionService: CollectionService;
     
 	constructor() {
-        this.subscriptionManager = smallstack.ioc.get("subscriptionManager");
+        this.subscriptionManager = new SubsCache({
+            expireAter: 5,
+            cacheLimit: this.getSubscriptionCacheLimit()
+        });;
         this.rolesService = smallstack.ioc.get<RolesService>("rolesService");
         this.collectionService = smallstack.ioc.get<CollectionService>("collectionService");
         this.getCollection()["smallstackService"] = this;
@@ -36,84 +41,69 @@ class <%= generatedServiceClassName %> {
 	public getCollection(): Mongo.Collection<<%=modelClassName%>> {
 		return smallstack.collections["<%= collectionName %>"];
 	}
+
+    public getSubscriptionCacheLimit():number {
+        return 10;
+    }
     
     // generated service methods for queries
 	<% 
 		_.forEach(config.service.queries, function(query){ 
 			// scan selector for possible variables
-			var parameters = "";
-            var firstParameter = undefined;
-            var secondParameter = undefined;
-            var parameterArray = [];
-            var subscriptionOptions = "";
-			var parsedSelector = JSON.stringify(query.selector) || "{}";
-			if (query.selector !== undefined) {
-				var stringified = JSON.stringify(query.selector);
-				var match = stringified.match(/\"\:([a-zA-Z\[\]\:]{2,})\"/g);
-				if (match !== null)	{
-                    subscriptionOptions += "{";
-                    for (var p = 0; p < match.length; p++) {
-						var param = functions.trim(match[p],'":');
-                        var typeSplit = param.split(":");
-                        var paramName = typeSplit[0];
-                        var paramType = typeSplit[1] || "any";
-                        if (firstParameter === undefined)
-                            firstParameter = paramName;
-                        else if (secondParameter === undefined)
-                            secondParameter = paramName;
-                        parameterArray.push(paramName);
-						parameters += paramName + ": " + paramType;
-                        if (p !== (match.length - 1))
-                             parameters += ", ";
-						parsedSelector = parsedSelector.replace(match[p]," parameters." + paramName + " ");
-                        subscriptionOptions += "\"" + paramName + "\": parameters." + paramName + ", ";
-					};
-                    subscriptionOptions += "},";
-				}
-                 parsedSelector = parsedSelector.replace(/\"_currentLoggedInUser_\"/g,"Meteor.userId()");
-			}
+            var evaluatedQuery = functions.evaluateQuery(query);
             
             // one or many?
             var sorting = query.sorting !== undefined ? JSON.stringify(query.sorting) : "{}";
-            var mongoQuery = "smallstack.collections[\"" + collectionName + "\"].find(" + parsedSelector + ", selectorOptions)";
+            var mongoQuery = "smallstack.collections[\"" + collectionName + "\"].find(" + evaluatedQuery.parsedSelector + ", selectorOptions)";
             // if (query.returnOne === true)
             //     mongoQuery = "smallstack.collections[\"" + collectionName + "\"].findOne(" + parsedSelector + ")";
             
     
 	%>
-	public get<%= functions.capitalize(query.name) %>(parameters: {<%=parameters%>}, options?: QueryOptions): QueryObject<<%=modelClassName%>> {
+	public <%= query.name %>(parameters: {<%=evaluatedQuery.parameters%>}, options?: QueryOptions): QueryObject<<%=modelClassName%>> {
         var self = this;
-        var selectorOptions:any = {sort : <%=sorting%>, reactive: true};        
+        var selectorOptions:any = {sort : <%=sorting%>, reactive: (options && options.reactive === true)};        
         if (options && options.currentPage && options.entriesPerPage) selectorOptions.skip = ((options.currentPage - 1) * options.entriesPerPage);
         if (options && options.entriesPerPage) selectorOptions.limit = options.entriesPerPage;
         var cursor = <%= mongoQuery %>;
         return {
-            cursor : cursor,
-            subscribe : function($scope: any) {
-                return $scope.$meteorSubscribe("<%=query.name%>", parameters, selectorOptions);
+            cursor: cursor,
+            subscribe: (onReady?: (cursor) => void): void => {
+                self.subscriptionManager.subscribe("<%=query.name%>", parameters, selectorOptions).onReady(() => onReady(cursor));
+            }, 
+            val: (index) => {
+                if (index === undefined)<% if (config.customTransformMethod) {%>
+                    return self["<%=config.customTransformMethod%>"](cursor.fetch());<%
+                    } else {%>                 
+                    return cursor.fetch();<%}%>
+                else <% if (config.customTransformMethod) {%>
+                    return self["<%=config.customTransformMethod%>"]([cursor.fetch()[index]])[0];<%
+                    } else {%>
+                    return cursor.fetch()[index];<%}%>
             },
-            val : function(index) {
-                if (index === undefined)
-                    return cursor.fetch();
-                else 
-                    return cursor.fetch()[index];
-            },
-            expand: function($scope: any, foreignKeys:string[], callback?: () => void) {
-                self.collectionService.subscribeForeignKeys($scope, self.getCollection()["smallstackCollection"], cursor, foreignKeys, callback);
+            expand: (foreignKeys:string[], callback?: () => void) => {
+                self.collectionService.subscribeForeignKeys(self.getCollection()["smallstackCollection"], cursor, foreignKeys, callback);
             }
         }
 	}		
     
-    public get<%= functions.capitalize(query.name) %>Count(parameters : {<%=parameters%>}): number {
+    public get<%= functions.capitalize(query.name) %>Count(parameters : {<%=evaluatedQuery.parameters%>}): number {
         return (<any>Counts).get("count-<%=query.name%>");
 	}	
 	<% }) %>
 
 	<% 
-	_.forEach(config.service.securedmethods, function(method){%>
+	_.forEach(config.service.securedmethods, function(method){
+        var params = [];
+        if (method.modelAware === true) {
+            params.push("modelId:string");
+        }
+        if (method.parameters)
+            params = _.union(params, _.clone(method.parameters))
+        %>
         
-	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(method.parameters, false)%>, callback?: (error: Meteor.Error, result: any) => void): void {
-        Meteor.call("<%=collectionName%>-<%=method.name%>", <%=functions.convertMethodParametersToObject(method.parameters)%>, callback);
+	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(params, true)%>callback?: (error: Meteor.Error, result: <%=method.returns%>) => void): void {
+        Meteor.call("<%=collectionName%>-<%=method.name%>", <%=functions.convertMethodParametersToObject(params)%>, callback);
 	}					
 	<%});%>
     

@@ -4,13 +4,17 @@
 
 /// <reference path="../../typings/main.d.ts" />
 
-/// <reference path="../../classes/IOC.ts" />
+/// <reference path="../../classes/ioc.ts" />
 /// <reference path="../../interfaces/QueryOptions.ts" />
 
 /// <reference path="../services/<%=functions.getServiceName(config)%>.ts" />
 <%
+
+// check for unknown properties
+functions.checkSchema(config.model.schema, config.model.name);
+
 _.forEach(config.model.schema, function(schema) {
-    if (schema.type === "foreign" || schema.type === "foreign[]") {
+    if ((schema.type === "foreign" || schema.type === "foreign[]") && others[schema.collection].modelClassName !== modelClassName) {
         if (schema.collection === undefined)
             throw new Error("schema." + schema.name + " is of type foreign or foreign[] but doesn't have a collection!!!");
         if (others[schema.collection] === undefined)
@@ -63,7 +67,7 @@ function getSubTypes(schema) {
 %>
 
 
-class <%= modelClassName %> {
+<% if(config.model.abstract === true) print("abstract "); %>class <%= modelClassName %> {
 	
 	// generated model properties
 	public id:string;
@@ -115,7 +119,10 @@ class <%= modelClassName %> {
 		
 	}
 	
-	public static fromDocument(doc: any) {
+	public static fromDocument(doc: any): <%= modelClassName %> {
+		<% if(config.model.abstract === true) { %>
+		throw new Error("<%= generatedModelClassName %> is abstract and cannot be instanciated!");
+		<%} else {%>
 		var model = new <%= modelClassName %>();
 		if (doc._id !== undefined) {
 			model._isStored = true; 
@@ -125,6 +132,7 @@ class <%= modelClassName %> {
 	 		%>model["<%=functions.getModelPropertyName(schema) %>"] = doc["<%=functions.getModelPropertyName(schema) %>"]; 
 		<%});
 		%>return model;
+		<% } %>
 	}
 	
 	public toDocument() {
@@ -178,6 +186,14 @@ class <%= modelClassName %> {
 	public isStored(): boolean {
 		return this._isStored;
 	}
+    
+    <%    
+	_.forEach(config.service.securedmethods, function(method){
+        if (method.modelAware === true) {%>
+	public <%=method.name%>(<%=functions.arrayToCommaSeparatedString(method.parameters, true, true, false)%>callback?: (error: Error, result: <%=method.returns%>) => void): void {
+        return <%=functions.getServiceName(config)%>.instance().<%=method.name%>(this.id, <%=functions.arrayToCommaSeparatedString(method.parameters,false, true, false)%>callback);
+	}					
+	<%}});%>
 	
 	
 	public delete(callback?:(error: Error, numberOfRemovedDocuments:number) => void): void {
