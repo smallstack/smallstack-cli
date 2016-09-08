@@ -1,13 +1,13 @@
 {
   "name": "smallstack-cli",
-  "version": "0.3.0-SNAPSHOT",
+  "version": "0.3.0",
   "description": "Command Line Interface for Smallstack Projects",
   "author": {
     "email": "max@smallstack.io",
     "name": "Maximilian Friedmann",
-    "url": "http://smallstack.io"
+    "url": "https://smallstack.io"
   },
-  "homepage": "http://smallstack.io",
+  "homepage": "https://smallstack.io",
   "repository": {
     "type": "git",
     "url": "https://bitbucket.org/smallstack/smallstack-cli.git"
