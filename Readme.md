@@ -7,6 +7,7 @@
 ```
 
 ## How-to use
-- npm set registry http://npm.smallstack.io
-- npm adduser --registry http://npm.smallstack.io
 - npm install -g smallstack-cli
+
+## Documentation
+see https://smallstack.io/cli
