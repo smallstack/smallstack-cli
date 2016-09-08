@@ -385,7 +385,7 @@ functions.getAllQueryParameters = function getAllQueryParameters(query) {
 }
 
 functions.getByIdsGetter = function getByIdsGetter(modelClassName) {
-    return functions.lowerCaseFirst(functions.pluralize(modelClassName)) + "ByIds";
+    return "get" + functions.pluralize(modelClassName) + "ByIds";
 }
 
 functions.urlToJavaPackage = function urlToJavaPackage(url) {
@@ -401,6 +401,8 @@ functions.urlToJavaPackage = function urlToJavaPackage(url) {
 }
 
 functions.evaluateQuery = function evaluateQuery(query, userIdString) {
+    if (!query.name || query.name.indexOf("get") !== 0)
+        throw new Error("Query Name '" + query.name + "' should start with 'get'!");
     if (userIdString === undefined)
         userIdString = "Meteor.userId()";
     var parameters = "";

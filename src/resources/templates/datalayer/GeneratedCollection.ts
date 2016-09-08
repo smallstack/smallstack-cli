@@ -18,16 +18,16 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 	protected rolesService:RolesService;
 	
 	public static queries = {<% 
-		for(var q = 0; q < config.service.queries.length; q++) {%>
-		"<%=config.service.queries[q].name%>": {name : "<%=config.service.queries[q].name%>", parameters : {<% 
-		var parameters = functions.getAllQueryParameters(config.service.queries[q]);
+		_.forEach(config.service.queries, function(query, index) {%>
+		"<%=query.name%>": {name : "<%=query.name%>", parameters : {<% 
+		var parameters = functions.getAllQueryParameters(query);
 		for (var p = 0; p < parameters.length; p++) {
 			print(parameters[p] + " : \"" + parameters[p] + "\"");
 			if (p !== (parameters.length - 1))
 				print(", ");	
 		}		
-		%>}}<% if (q !== (config.service.queries.length - 1)) {%>,<%}		
-	};%>
+		%>}}<% if (index !== (config.service.queries.length - 1)) {%>,<%}		
+		});%>
 	}
 	
 	public static expandables = {<% 
