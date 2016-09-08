@@ -1,7 +1,6 @@
 // modules
 var logo = require("./src/functions/logo");
 var config = require("./src/config");
-// var commander = require('commander');
 var fs = require("fs-extra");
 var _ = require("underscore");
 var colors = require("colors");
@@ -47,11 +46,17 @@ _.each(parsedCommands, function (command) {
 // then execute
 if (allCommandsFine) {
     async.eachLimit(parsedCommands, 1, function (command, done) {
-        console.log("################################################################################");
-        console.log("##### Command : " + command.name);
-        console.log("##### Parameters : ", command.parameters);
-        console.log("################################################################################");
-        commands[command.name](command.parameters, done);
+        console.log(colors.gray("################################################################################"));
+        console.log(colors.gray("##### Command : " + command.name));
+        if (command.parameters !== undefined && _.keys(command.parameters).length > 0)
+            console.log(colors.gray("##### Parameters : ", command.parameters));
+        console.log(colors.gray("################################################################################\n"));
+        try {
+            commands[command.name](command.parameters, done);
+        }
+        catch (e) {
+            console.error(colors.red("ERROR:", e.message));
+        }
     }, function (error) {
         if (error)
             console.error(error);
