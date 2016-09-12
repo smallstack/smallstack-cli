@@ -46,18 +46,4 @@ module.exports = function () {
     helpEntry("generate", "", "generates all source files");
     helpEntry("clean", "", "removes all generated and compiled files");
     helpEntry("packages", "", "starts the package manager");
-
-
-    // commander.command("create <name>").action(create);
-    // commander.command("clean").action(cleaner);
-    // commander.command("jenkins").action(jenkins).option("--environment [env]");
-    // commander.command("deploy").action(deploy).option("--apache-config").option("--createDefaults").option("--environment [env]").option("--prepareMobile");
-    // commander.command("bundle").action(bundle);
-    // commander.command("generate").action(generate);
-    // commander.command("compile [smallstack|meteor|supersonic]").action(compile);
-    // commander.command("compileNpmModule").action(compileNpmModule);
-    // commander.command("supersonic").action(supersonicCreate);
-    // commander.command("showconfig").action(showConfig);
-    // commander.command("packages").action(packageUpdater).option("--mode [mode]").option("--path [path]");
-
 }

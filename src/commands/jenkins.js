@@ -11,7 +11,7 @@ var jenkinsTasks = require("../functions/jenkinsTasks");
 
 var jenkinsTemplatesPath = "app/packages/smallstack-core/generator/resources/templates/jenkins";
 
-module.exports = function (commander) {
+module.exports = function (params) {
 
     var deployments = deploymentFunctions.getDeployments();
 
@@ -21,35 +21,35 @@ module.exports = function (commander) {
             name: "environment",
             message: "Which environment",
             choices: _.keys(deployments),
-            when: commander.environment === undefined
+            when: params.environment === undefined
         },
         {
             type: "input",
             name: "jenkinsServer",
             message: "Jenkins Server",
             default: "jenkins.smallstack.io",
-            when: commander.jenkinsServer === undefined
+            when: params.jenkinsServer === undefined
         },
         {
             type: "input",
             name: "jenkinsUsername",
             message: "Jenkins Username",
-            when: commander.jenkinsUsername === undefined
+            when: params.jenkinsUsername === undefined
         },
         {
             type: "password",
             name: "jenkinsPassword",
             message: "Jenkins Password",
-            when: commander.jenkinsPassword === undefined
+            when: params.jenkinsPassword === undefined
         }
     ]
 
 
     inquirer.prompt(questions, function (answers) {
-        var environment = commander.environment || answers["environment"];
-        var jenkinsUsername = commander.jenkinsUsername || answers["jenkinsUsername"];
-        var jenkinsPassword = commander.jenkinsPassword || answers["jenkinsPassword"];
-        var jenkinsServer = commander.jenkinsServer || answers["jenkinsServer"];
+        var environment = params.environment || answers["environment"];
+        var jenkinsUsername = params.jenkinsUsername || answers["jenkinsUsername"];
+        var jenkinsPassword = params.jenkinsPassword || answers["jenkinsPassword"];
+        var jenkinsServer = params.jenkinsServer || answers["jenkinsServer"];
 
         var currentDeployment = deploymentFunctions.getDeployment(environment);
         var authString = jenkinsUsername + ":" + jenkinsPassword;

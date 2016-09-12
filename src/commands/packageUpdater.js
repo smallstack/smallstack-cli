@@ -7,13 +7,13 @@ var exec = require("../functions/exec");
 var path = require("path");
 var DecompressZip = require("decompress-zip");
 
-module.exports = function (commander, done) {
+module.exports = function (params, done) {
 
 
     // properties
     var smallstackZipFilePath = "smallstack";
-    var smallstackMode = commander.mode;
-    var smallstackPath = commander.path;
+    var smallstackMode = params.mode;
+    var smallstackPath = params.path;
 
     var questions = [
         {
