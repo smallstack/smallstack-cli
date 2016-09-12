@@ -1,11 +1,4 @@
-var path = require("path");
-var fs = require("fs-extra");
-var inquirer = require("inquirer");
-var _ = require("underscore");
-var commander = require("commander");
-var deploymentFunctions = require("../functions/deployment");
 var config = require("../config");
-var DockerDeployment = require("../functions/deployments/DockerDeployment");
 var AWS = require('aws-sdk');
 
 
