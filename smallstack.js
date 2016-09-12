@@ -25,7 +25,6 @@ commands.compileNpmModule = require("./src/commands/compileNpmModule");
 commands.gitflow = require("./src/commands/gitflow");
 commands.signAndroid = require("./src/commands/signAndroid");
 commands.upload = require("./src/commands/upload");
-commands.loadtest = require("./src/commands/loadtest");
 commands.convert = require("./src/commands/convert");
 
 // show a nice logo
