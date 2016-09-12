@@ -1,6 +1,6 @@
 {
   "name": "smallstack-cli",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Command Line Interface for Smallstack Projects",
   "author": {
     "email": "max@smallstack.io",
@@ -32,7 +32,6 @@
     "inquirer": "^0.11.4",
     "lodash": "^3.10.1",
     "moment": "^2.11.2",
-    "nightmare": "^2.6.0",
     "node-notifier": "^4.5.0",
     "node-watch": "^0.4.0",
     "nodejs-fs-utils": "^1.0.26",
