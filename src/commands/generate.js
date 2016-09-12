@@ -212,32 +212,6 @@ module.exports = function (params, done) {
         data.others = configuration;
         data.general = config;
 
-        // extending queries if byId and byIds are missing
-        // var byIdsName = genFunctions.getByIdsGetter(data.modelClassName);
-        // var byIdName = genFunctions.lowerCaseFirst(data.modelClassName) + "ById";
-
-        // var byIdsFound = _.find(data.config.service.queries, function (query) { return query.name === byIdsName; })
-        // var byIdFound = _.find(data.config.service.queries, function (query) { return query.name === byIdName; })
-
-        // if (!byIdsFound) {
-        //     if (data.config.service === undefined)
-        //         data.config.service = {};
-        //     if (data.config.service.queries === undefined)
-        //         data.config.service.queries = [];
-        //     data.config.service.queries.push({
-        //         "name": byIdsName,
-        //         "selector": {
-        //             "_id": { $in: ":ids:string[]" }
-        //         }
-        //     });
-        // }
-        // if (!byIdFound)
-        //     data.config.service.queries.push({
-        //         "name": byIdName,
-        //         "selector": {
-        //             "_id": ":id:string"
-        //         }
-        //     });
 
         // process collections
         if (data.config.collection.skipGeneration === true)
