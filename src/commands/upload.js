@@ -1,6 +1,6 @@
 var config = require("../config");
 var AWS = require('aws-sdk');
-
+var fs = require("fs-extra");
 
 module.exports = function (parameters, done) {
 
