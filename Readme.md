@@ -6,6 +6,8 @@
 |___/|_| |_| |_| \__,_||_||_||___/ \__| \__,_| \___||_|\_\
 ```
 
+[![Build Status](https://travis-ci.org/smallstack/smallstack-cli.svg?branch=develop)](https://travis-ci.org/smallstack/smallstack-cli)
+
 ## How-to use
 - npm install -g smallstack-cli
 
