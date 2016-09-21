@@ -8,7 +8,7 @@ module.exports = function (parameters) {
     if (isSmallstack())
         console.log("starting gitflow operations for smallstack framework...")
 
-    if (parameters.changeVersion || parameters.toVersion) {
+    if (parameters.toVersion) {
         if (!parameters.toVersion) {
             throw new Error("You must provide the version to change to via --toVersion=x.x.x!");
         }
@@ -20,6 +20,9 @@ module.exports = function (parameters) {
                     replaceString(dir + "/package.js", /version([ :"']*)([0-9.\-A-Z]*)(['",]*)/, "version: \"" + parameters.toVersion + "\",");
                 }
             });
+            exec("git commit -a -m \"changing version to " + parameters.toVersion + "\"");
+        } else if (exists("./package.json")) {
+            exec("npm version -f --git-tag-version=false " + parameters.toVersion);
             exec("git commit -a -m \"changing version to " + parameters.toVersion + "\"");
         }
     }
