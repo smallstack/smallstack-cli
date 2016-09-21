@@ -8,3 +8,9 @@ script:
 notifications:
   slack: $SLACK_TOKEN
   on_success: change
+deploy:
+  provider: npm
+  email: "max@smallstack.io"
+  api_key: $NPM_API_KEY
+  on:
+    tags: true
