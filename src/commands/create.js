@@ -7,6 +7,9 @@ module.exports = function (parameters) {
 
     var projectName = parameters.name;
 
+    if (!projectName)
+        throw new Error("Please provide a project name via --name!");
+
     var directory = path.join(process.cwd(), projectName);
 
     if (fs.existsSync(directory))
@@ -25,7 +28,7 @@ module.exports = function (parameters) {
         packageJSONContent.version = projectVersion;
         packageJSONContent.smallstack = {};
         fs.writeJSONSync(path.join(directory, "package.json"), packageJSONContent);
-        
+
         // create default .gitignore
         fs.copySync(__dirname + "/../resources/templates/project/default.gitignore", path.join(directory, ".gitignore"));
         console.log(' |-- Done\n');
@@ -54,7 +57,7 @@ module.exports = function (parameters) {
                 throw new Error("Aborting since meteor application could not be created!");
             });
             process.on('close', function (code) {
-                fs.renameSync(path.join(directory, "app"), path.join(directory, "meteor"));                
+                fs.renameSync(path.join(directory, "app"), path.join(directory, "meteor"));
                 console.log(' |-- Done\n');
             });
         }
