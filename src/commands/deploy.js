@@ -3,7 +3,6 @@ var fs = require("fs-extra");
 var inquirer = require("inquirer");
 var _ = require("underscore");
 var deploymentFunctions = require("../functions/deployment");
-var DockerDeployment = require("../functions/deployments/DockerDeployment");
 var config = require("../config");
 var request = require("request");
 var Spinner = require('cli-spinner').Spinner;
