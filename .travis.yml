@@ -5,6 +5,9 @@ install:
     - npm install -g
 script:
     - smallstack help
+notifications:
+  slack: $SLACK_TOKEN
+  on_success: change
 deploy:
   provider: npm
   email: "max@smallstack.io"
