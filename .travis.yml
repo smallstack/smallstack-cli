@@ -7,6 +7,7 @@ script:
     - smallstack help
 deploy:
   provider: npm
+  email: "max@smallstack.io"
   api_key: $NPM_API_KEY
   on:
     tags: true
