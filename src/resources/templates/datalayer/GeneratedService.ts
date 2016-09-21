@@ -103,6 +103,8 @@ class <%= generatedServiceClassName %> {
         %>
         
 	public <%=method.name%>(<%=functions.convertMethodParametersToTypescriptMethodParameters(params, true)%>callback?: (error: Meteor.Error, result: <%=method.returns%>) => void): void {
+        if (smallstack.ioc.isRegistered("analyticsService"))
+            smallstack.ioc.get<AnalyticsService>("analyticsService").event("<%=method.name%>", { category: "methodcall"});
         Meteor.call("<%=collectionName%>-<%=method.name%>", <%=functions.convertMethodParametersToObject(params)%>, callback);
 	}					
 	<%});%>

@@ -30,6 +30,9 @@ commands.convert = require("./src/commands/convert");
 // show a nice logo
 logo();
 
+// update check
+require("./src/functions/updateCheck")();
+
 var parsedCommands = parseArguments(process.argv);
 
 // first check all commands
