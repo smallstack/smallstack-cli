@@ -5,3 +5,8 @@ install:
     - npm install -g
 script:
     - smallstack help
+deploy:
+  provider: npm
+  api_key: $NPM_API_KEY
+  on:
+    tags: true
