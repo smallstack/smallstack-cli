@@ -29,7 +29,11 @@ module.exports = function () {
     content += "\tproject: \"" + config.version + "\",\n";
     content += "\tcompileDate: " + new Date().getTime() + ",\n";
     content += "\tprojectName: \"" + config.name + "\"\n";
-    content += "}";
+    content += "}\n\nif (Meteor.isClient) {\n";
+    content += "\tconsole.log('smallstack: ' + versions.smallstack);\n";
+    content += "\tconsole.log(versions.projectName + ': ' + versions.project);\n";
+    content += "\tconsole.log('compile time: ' + moment(versions.compileDate).format());\n";
+    content += "\tconsole.log(' ');\n}";
 
     fs.ensureDirSync(path.join(config.meteorDirectory, "shared"));
     fs.writeFileSync(path.join(config.meteorDirectory, "shared", "versions.ts"), content);

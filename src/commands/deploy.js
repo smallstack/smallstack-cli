@@ -2,7 +2,6 @@ var path = require("path");
 var fs = require("fs-extra");
 var inquirer = require("inquirer");
 var _ = require("underscore");
-var deploymentFunctions = require("../functions/deployment");
 var config = require("../config");
 var request = require("request");
 var Spinner = require('cli-spinner').Spinner;
