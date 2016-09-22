@@ -51,7 +51,7 @@ if (allCommandsFine) {
         console.log(colors.gray("################################################################################"));
         console.log(colors.gray("##### Command : " + command.name));
         if (command.parameters !== undefined && _.keys(command.parameters).length > 0)
-            console.log(colors.gray("##### Parameters : ", command.parameters));
+            console.log(colors.gray("##### Parameters : ", JSON.stringify(command.parameters)));
         console.log(colors.gray("################################################################################\n"));
         try {
             commands[command.name](command.parameters, done);
