@@ -61,7 +61,7 @@ if (allCommandsFine) {
         }
     }, function (error) {
         if (error)
-            console.error(error);
+            console.error(colors.red(error));
         else "Finished!";
     });
 }
