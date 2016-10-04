@@ -121,6 +121,8 @@ module.exports = function (parameters, done) {
                                 else {
                                     if (body && body.message)
                                         console.log(body.message);
+                                    else 
+                                        console.log("Deploy command triggered!")
                                 }
                                 spinner.stop(true);
                                 done();
