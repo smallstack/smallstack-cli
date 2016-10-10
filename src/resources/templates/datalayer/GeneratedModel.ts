@@ -246,15 +246,37 @@ function getSubTypes(schema) {
 	
 	public update(callback?:(error: Meteor.Error, numberOfSavedDocuments:number) => void): number {
 		if (callback === undefined && Meteor.isClient)  {
-			var that = this;
-			callback = function(error: Meteor.Error, numberOfSavedDocuments:number) {
+			callback = (error: Meteor.Error, numberOfSavedDocuments:number) => {
 				if (error)
-					NotificationService.instance().getStandardErrorPopup(error, "Could not update <%=config.model.name%> with ID '" + that.id + "'!");
+					NotificationService.instance().getStandardErrorPopup(error, "Could not update <%=config.model.name%> with ID '" + this.id + "'!");
 				else
-					NotificationService.instance().notification.success("Successfully updated <%=config.model.name%> with ID '" + that.id + "'!");
+					NotificationService.instance().notification.success("Successfully updated <%=config.model.name%> with ID '" + this.id + "'!");
 			}
 		}
 		return <%=functions.getServiceName(config)%>.instance().update<%=config.model.name%>(<any> this, callback);
+	}
+	
+	public save(callback?:(error: Meteor.Error, savedId:string) => void): string {
+		if (this.isStored())
+			throw new Meteor.Error("400", "Model is already saved!");
+		if (callback === undefined && Meteor.isClient)  {
+			callback = (error: Meteor.Error, savedId:string) => {
+				if (error)
+					NotificationService.instance().getStandardErrorPopup(error, "Could not save <%=config.model.name%>!");
+				else {
+					this.id = savedId;
+					this._isStored = true;
+					NotificationService.instance().notification.success("Successfully saved <%=config.model.name%>!");
+				}
+			}
+		}
+		if (Meteor.isClient)
+			<%=functions.getServiceName(config)%>.instance().save<%=config.model.name%>(<any> this, callback);
+		if (Meteor.isServer) {
+			this.id = <%=functions.getServiceName(config)%>.instance().save<%=config.model.name%>(<any> this, callback);
+			this._isStored = true;
+			return this.id;
+		}		
 	}
 	
 	public getModelName() {
