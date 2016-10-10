@@ -42,8 +42,7 @@ module.exports = function (parameters, done) {
                     choices: function () {
                         var projectKeys = [];
                         _.each(projects, function (project) {
-                            if (project.type === "developer")
-                                projectKeys.push({ name: project.name, value: project.id });
+                            projectKeys.push({ name: project.name, value: project.id });
                         });
                         return projectKeys;
                     },
@@ -121,7 +120,7 @@ module.exports = function (parameters, done) {
                                 else {
                                     if (body && body.message)
                                         console.log(body.message);
-                                    else 
+                                    else
                                         console.log("Deploy command triggered!")
                                 }
                                 spinner.stop(true);
