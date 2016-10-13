@@ -50,12 +50,12 @@ module.exports = function (parameters, done) {
                 },
                 {
                     type: "list",
-                    name: "environmentId",
-                    message: "Which environment",
+                    name: "instanceId",
+                    message: "Which instance",
                     choices: function (answers) {
                         var doneAsync = this.async();
                         request({
-                            url: apiUrl + "/environments?projectId=" + answers.projectId,
+                            url: apiUrl + "/instances?projectId=" + answers.projectId,
                             headers: {
                                 "x-smallstack-apikey": apiKey
                             }
@@ -63,36 +63,36 @@ module.exports = function (parameters, done) {
                             if (error)
                                 console.error(error);
                             else {
-                                var environments = JSON.parse(body);
-                                if (!(environments instanceof Array) || environments.length === 0)
-                                    throw new Error("No environments found for this project! Please go to https://smallstack.io and create one!");
+                                var instances = JSON.parse(body);
+                                if (!(instances instanceof Array) || instances.length === 0)
+                                    throw new Error("No instances found for this project! Please go to https://smallstack.io and create one!");
 
-                                var environmentKeys = [];
-                                _.each(environments, function (environment) {
-                                    environmentKeys.push({ name: environment.name, value: environment.id });
+                                var instaceObjects = [];
+                                _.each(instances, function (instance) {
+                                    instaceObjects.push({ name: instance.id, value: instance.id });
                                 });
-                                doneAsync(environmentKeys);
+                                doneAsync(instaceObjects);
                             }
                         });
                     },
-                    when: parameters.environmentId === undefined
+                    when: parameters.instanceId === undefined
                 }
             ], function (answers) {
 
                 request({
-                    method: "POST",
-                    url: apiUrl + "/deployments?environmentId=" + answers.environmentId,
+                    method: "GET",
+                    url: apiUrl + "/instances/" + answers.instanceId + "/bundleupload",
                     headers: {
                         "x-smallstack-apikey": apiKey
                     }
                 }, function (error, response, body) {
                     if (error)
-                        console.error("Error while getting creating deployment : ", error);
+                        console.error("Error while getting getting upload url:", error);
                     else {
                         var data = JSON.parse(body);
                         if (!data || !data.signedUrl)
                             throw new Error("Could not get signed S3 url!");
-
+                            
                         var spinner = new Spinner('%s uploading file...');
                         spinner.start();
                         fs.createReadStream(filePath).pipe(request.put({
@@ -110,7 +110,7 @@ module.exports = function (parameters, done) {
                             spinner.setSpinnerTitle("%s deploying...");
                             request({
                                 method: "GET",
-                                url: apiUrl + "/deployments/" + data.deploymentId + "/deploy",
+                                url: apiUrl + "/instances/" + answers.instanceId + "/update",
                                 headers: {
                                     "x-smallstack-apikey": apiKey
                                 }
@@ -121,7 +121,7 @@ module.exports = function (parameters, done) {
                                     if (body && body.message)
                                         console.log(body.message);
                                     else
-                                        console.log("Deploy command triggered!")
+                                        console.log("Update command triggered!")
                                 }
                                 spinner.stop(true);
                                 done();
