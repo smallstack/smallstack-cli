@@ -207,4 +207,8 @@ class <%= generatedCollectionClassName %> implements SmallstackCollection<<%=mod
 	public getServiceName(): string {
 		return "<%=functions.lowerCaseFirst(serviceClassName)%>";
 	}
+
+	public getQueries():{[queryName: string]: any} {
+		return <%= generatedCollectionClassName %>.queries;
+	}
 }
