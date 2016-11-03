@@ -5,6 +5,7 @@ var _ = require("underscore");
 var config = require("../config");
 var request = require("request");
 var Spinner = require('cli-spinner').Spinner;
+var bundleJob = require("./bundle");
 
 module.exports = function (parameters, done) {
 
@@ -79,55 +80,58 @@ module.exports = function (parameters, done) {
                 }
             ], function (answers) {
 
-                request({
-                    method: "GET",
-                    url: apiUrl + "/instances/" + answers.instanceId + "/bundleupload",
-                    headers: {
-                        "x-smallstack-apikey": apiKey
-                    }
-                }, function (error, response, body) {
-                    if (error)
-                        console.error("Error while getting getting upload url:", error);
-                    else {
-                        var data = JSON.parse(body);
-                        if (!data || !data.signedUrl)
-                            throw new Error("Could not get signed S3 url!");
-                            
-                        var spinner = new Spinner('%s uploading file...');
-                        spinner.start();
-                        fs.createReadStream(filePath).pipe(request.put({
-                            url: data.signedUrl,
-                            headers: {
-                                "Content-Length": fs.statSync(filePath)["size"]
-                            }
-                        }, function (error, response, body) {
-                            if (error)
-                                console.error(error);
-                            else {
-                                console.log(body);
-                                console.log("File Upload Completed!");
-                            }
-                            spinner.setSpinnerTitle("%s deploying...");
-                            request({
-                                method: "GET",
-                                url: apiUrl + "/instances/" + answers.instanceId + "/update",
+                bundleJob({}, function () {
+
+                    request({
+                        method: "GET",
+                        url: apiUrl + "/instances/" + answers.instanceId + "/bundleupload",
+                        headers: {
+                            "x-smallstack-apikey": apiKey
+                        }
+                    }, function (error, response, body) {
+                        if (error)
+                            console.error("Error while getting getting upload url:", error);
+                        else {
+                            var data = JSON.parse(body);
+                            if (!data || !data.signedUrl)
+                                throw new Error("Could not get signed S3 url!");
+
+                            var spinner = new Spinner('%s uploading file...');
+                            spinner.start();
+                            fs.createReadStream(filePath).pipe(request.put({
+                                url: data.signedUrl,
                                 headers: {
-                                    "x-smallstack-apikey": apiKey
+                                    "Content-Length": fs.statSync(filePath)["size"]
                                 }
                             }, function (error, response, body) {
                                 if (error)
                                     console.error(error);
                                 else {
-                                    if (body && body.message)
-                                        console.log(body.message);
-                                    else
-                                        console.log("Update command triggered!")
+                                    console.log(body);
+                                    console.log("File Upload Completed!");
                                 }
-                                spinner.stop(true);
-                                done();
-                            });
-                        }));
-                    }
+                                spinner.setSpinnerTitle("%s deploying...");
+                                request({
+                                    method: "GET",
+                                    url: apiUrl + "/instances/" + answers.instanceId + "/update",
+                                    headers: {
+                                        "x-smallstack-apikey": apiKey
+                                    }
+                                }, function (error, response, body) {
+                                    if (error)
+                                        console.error(error);
+                                    else {
+                                        if (body && body.message)
+                                            console.log(body.message);
+                                        else
+                                            console.log("Update command triggered!")
+                                    }
+                                    spinner.stop(true);
+                                    done();
+                                });
+                            }));
+                        }
+                    });
                 });
             });
         }
