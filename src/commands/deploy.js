@@ -6,20 +6,16 @@ var config = require("../config");
 var request = require("request");
 var Spinner = require('cli-spinner').Spinner;
 var bundleJob = require("./bundle");
+var SmallstackApi = require("../functions/smallstackApi");
 
 module.exports = function (parameters, done) {
 
+    var smallstackApi = new SmallstackApi(parameters);
+
     // some defaults
-    var apiUrl = parameters.apiUrl || "https://smallstack.io/api";
-    var apiKey = parameters.apiKey || process.env.SMALLSTACK_API_KEY;
+    var apiUrl = smallstackApi.url;
+    var apiKey = smallstackApi.key;
     var filePath = config.builtDirectory + "/meteor.tar.gz";
-    if (!apiKey) {
-        console.info("ERROR: Please provide an API Key");
-        console.info("\t* via SMALLSTACK_API_KEY environment variable");
-        console.info("\t* via --apiKey parameter\n");
-        console.info("If you don't have an api key, please generate one in your profile at https://smallstack.io/profile\n\n");
-        return;
-    }
 
     // getting available projects
     request({
