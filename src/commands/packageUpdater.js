@@ -64,7 +64,7 @@ module.exports = function (params, done) {
 }
 
 function readPackages(smallstackPath) {
-    return glob.sync(smallstackPath + "/smallstack-*");
+    return glob.sync(path.resolve(path.join(config.rootDirectory, smallstackPath)) + "/smallstack-*");
 }
 
 function persistLocalConfiguration(smallstackPath) {
@@ -141,36 +141,3 @@ function downloadAndExtractVersion(parameters, version, doneCallback) {
         }).pipe(fs.createWriteStream(targetFileName));
     });
 }
-
-// function persistPackageConfiguration(smallstackMode, smallstackPath) {
-
-//     if (smallstackPath === undefined)
-//         throw Error("Smallstack Mode is set to 'zip' but no smallstack.path is given!");
-//     console.log("zip path :", path.resolve(smallstackPath));
-
-//     var destinationPath = path.join(config.meteorDirectory, "packages");
-
-//     // clean packages directory
-//     fs.emptyDirSync(destinationPath);
-
-//     // unzip file
-//     var unzipper = new DecompressZip(smallstackPath);
-//     unzipper.on('error', function (err) {
-//         console.log('Caught an error', err);
-//     });
-
-//     unzipper.on('extract', function (log) {
-//         console.log('Finished extracting');
-//     });
-
-//     unzipper.on('progress', function (fileIndex, fileCount) {
-//         console.log('Extracted file ' + (fileIndex + 1) + ' of ' + fileCount);
-//     });
-
-//     unzipper.extract({
-//         path: destinationPath,
-//         filter: function (file) {
-//             return file.type !== "SymbolicLink";
-//         }
-//     });
-// }
