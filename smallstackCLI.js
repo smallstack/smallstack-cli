@@ -42,7 +42,6 @@ _.each(parsedCommands, function (command) {
         console.error("Command not found : '" + command.name + "'");
         allCommandsFine = false;
     }
-
 });
 
 // then execute
@@ -58,11 +57,17 @@ if (allCommandsFine) {
         }
         catch (e) {
             console.error(colors.red("ERROR:", e.message));
+            process.exit(1);
         }
     }, function (error) {
-        if (error)
+        if (error) {
             console.error(colors.red(error));
-        else "Finished!";
+            process.exit(1);
+        }
+        else {
+            console.log(colors.green("Success!"));
+            process.exit(0);
+        }
     });
 }
 
