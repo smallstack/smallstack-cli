@@ -1,5 +1,11 @@
 module.exports = function (parameters, done) {
 
+    if (parameters.skipBundle) {
+        console.log("Skipping building bundle...");
+        done();
+        return;
+    }
+
     var config = require('../config')
     var path = require("path");
     var _ = require("underscore");
