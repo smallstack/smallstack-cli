@@ -97,7 +97,12 @@ function getSubTypes(schema) {
 		<% for(var s = 0; s < config.model.schema.length; s++) {
 		if (config.model.schema[s].allowedValues !== undefined) {
 			%>"<%=config.model.schema[s].name%>": { <%for(var a = 0; a < config.model.schema[s].allowedValues.length; a++){
-	 			%>"<%=config.model.schema[s].allowedValues[a].toUpperCase()%>": "<%=config.model.schema[s].allowedValues[a]%>"<% if (a !== (config.model.schema[s].allowedValues.length - 1)) {%>,<%}
+	 			%>"<% if (config.model.schema[s].type === "string") print(config.model.schema[s].allowedValues[a].toUpperCase()); else print(config.model.schema[s].allowedValues[a])%>": <% 
+				 if (config.model.schema[s].type === "string") 
+				 	print("\"" + config.model.schema[s].allowedValues[a] + "\"");
+				else
+					print(config.model.schema[s].allowedValues[a]);
+				if (a !== (config.model.schema[s].allowedValues.length - 1)) {%>,<%}
 				};
 			 %>}<% if (s !== (config.model.schema.length - 1)) {%>,
 		<%}

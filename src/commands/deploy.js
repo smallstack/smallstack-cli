@@ -76,7 +76,7 @@ module.exports = function (parameters, done) {
                 }
             ], function (answers) {
 
-                bundleJob({}, function () {
+                bundleJob({ skipBundle: parameters.skipBundle }, function () {
 
                     request({
                         method: "GET",

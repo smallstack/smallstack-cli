@@ -141,7 +141,10 @@ functions.checkSchema = function checkSchema(schema, modelName) {
 functions.toArrayString = function toArrayString(arr) {
     var out = "[";
     for (var i = 0; i < arr.length; i++) {
-        out += "\"" + arr[i] + "\"";
+        if (typeof arr[i] === "string")
+            out += "\"" + arr[i] + "\"";
+        else
+            out += arr[i];
         if (i !== (arr.length - 1))
             out += ", ";
     };
