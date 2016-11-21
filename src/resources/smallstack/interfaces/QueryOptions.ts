@@ -1,4 +1,4 @@
-interface QueryOptions {
+export interface QueryOptions {
     currentPage?: number;
     entriesPerPage?: number;
 }

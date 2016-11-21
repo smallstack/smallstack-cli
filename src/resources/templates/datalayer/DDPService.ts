@@ -2,16 +2,16 @@
  * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY CODE GENERATION
  */
 
-/// <reference path="../../typings/main.d.ts" />
-/// <reference path="../../interfaces/DataBridge.ts" />
-/// <reference path="../../interfaces/QueryOptions.ts" />
+/// <reference path="../../typings/index.d.ts" />
 
-/// <reference path="../models/<%=modelClassName%>.ts" />
+import { IOC } from "../../classes/IOC";
+import { DataBridge } from "../../interfaces/DataBridge";
+import { QueryOptions } from "../../interfaces/QueryOptions";
+import { <%=modelClassName%> } from "../models/<%=modelClassName%>";
 
-
-class <%= serviceClassName %> {
+export class <%= serviceClassName %> {
 	
-    private dataBridge:DataBridge;
+    private dataBridge: DataBridge;
     
 	constructor() {
       this.dataBridge = IOC.instance().get<DataBridge>("dataBridge");
@@ -64,7 +64,7 @@ class <%= serviceClassName %> {
             //     mongoQuery = "smallstack.collections[\"" + collectionName + "\"].findOne(" + parsedSelector + ")";
             
 	%>
-	public get<%= functions.capitalize(query.name) %>(parameters: {<%=parameters%>}, options: QueryOptions, callback: (error:Error, models:<%=modelClassName%>[]) => void): void {
+	public <%=query.name%>(parameters: {<%=parameters%>}, options: QueryOptions, callback: (error:Error, models:<%=modelClassName%>[]) => void): void {
         var self = this;
         var selectorOptions:any = {sort : <%=sorting%>};        
         if (options && options.currentPage && options.entriesPerPage) selectorOptions.skip = ((options.currentPage - 1) * options.entriesPerPage);
@@ -90,7 +90,7 @@ class <%= serviceClassName %> {
         }); 
     }	
     
-    public get<%= functions.capitalize(query.name) %>Count(parameters : {<%=parameters%>}, callback:(error: Error, count: number) => void): void {
+    public <%= query.name %>Count(parameters : {<%=parameters%>}, callback:(error: Error, count: number) => void): void {
         return this.dataBridge.getCountForQuery("<%=query.name%>", parameters, callback);
 	}	
 	<% }) 

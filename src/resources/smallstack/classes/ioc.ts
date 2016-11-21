@@ -3,7 +3,7 @@
  * A very simple ioc
  * @class IOC
  */
-class IOC {
+export class IOC {
     private container: { [id: string]: Object } = {};
 
     private static _instance: IOC;

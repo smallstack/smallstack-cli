@@ -2,12 +2,11 @@
  * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY CODE GENERATION
  */
 
-/// <reference path="../../typings/main.d.ts" />
+/// <reference path="../../typings/index.d.ts" />
 
-/// <reference path="../../classes/ioc.ts" />
-/// <reference path="../../interfaces/QueryOptions.ts" />
-
-/// <reference path="../services/<%=functions.getServiceName(config)%>.ts" />
+import { IOC } from "../../classes/IOC";
+import { QueryOptions } from "../../interfaces/QueryOptions";
+import { <%=functions.getServiceName(config)%> } from "../services/<%=functions.getServiceName(config)%>";
 <%
 
 // check for unknown properties
@@ -20,8 +19,8 @@ _.forEach(config.model.schema, function(schema) {
         if (others[schema.collection] === undefined)
             throw new Error("Type '" + schema.collection + "' is unknown!");
         %>
-/// <reference path="../services/<%=others[schema.collection].serviceClassName%>.ts" />
-/// <reference path="<%=others[schema.collection].modelClassName%>.ts" /><%
+import { <%=others[schema.collection].serviceClassName%> } from "../services/<%=others[schema.collection].serviceClassName%>";
+import { <%=others[schema.collection].modelClassName%> } from "../models/<%=others[schema.collection].modelClassName%>";<%
     }
 });
 
@@ -67,7 +66,7 @@ function getSubTypes(schema) {
 %>
 
 
-<% if(config.model.abstract === true) print("abstract "); %>class <%= modelClassName %> {
+export <% if(config.model.abstract === true) print("abstract "); %>class <%= modelClassName %> {
 	
 	// generated model properties
 	public id:string;

@@ -1,10 +1,9 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "es2015",
         "noImplicitAny": true,
         "removeComments": true,
         "preserveConstEnums": true,
-        "out": "smallstack.js",
         "sourceMap": true
     },
     "files": [

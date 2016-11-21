@@ -1,6 +1,6 @@
 /// <reference path="NotificationService.ts" />
 
-interface DataBridge {
+export interface DataBridge {
     // connection related
     onConnectionReady(fn: () => void);
 
