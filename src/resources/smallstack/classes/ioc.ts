@@ -18,7 +18,7 @@ export class IOC {
         this.container[id] = value;
         console.log("ioc -> registered : " + id);
     }
-    
+
     /**
     * Gets a service/factory by id
     * 
@@ -32,7 +32,17 @@ export class IOC {
         else
             throw new Error("Could not find an ioc instance for id : '" + id + "'!");
     }
-    
+
+    /**
+    * Gets a service/factory by id
+    * 
+    * @param {string} id The identifier of the service/factory to get
+    * @return {object} The instance/constructor of the service/factory
+    */
+    public static get<T>(id: string): T {
+        return IOC.instance().get<T>(id);
+    }
+
     /**
     * Checks for availability of a service/factory
     * 

@@ -346,6 +346,15 @@ module.exports = function (params, done) {
         //     config: config
         // });
 
+
+        // generate DDP-IOC file 
+        console.log("generating DDP-IOC file ...");
+        processTemplate(config.datalayerTemplatesPath + "/DDP-generated-services-instances.ts", path.join(config.smallstackDirectory, "ddp-connector/service-registrations.ts"), {
+            roots: roots,
+            functions: genFunctions,
+            config: config
+        });
+
         // generate server-counts file
         console.log("generating server-counts.ts file ...");
         processTemplate(config.datalayerTemplatesPath + "/server-counts.ts", path.join(serverMethodsPath, "server-counts.ts"), {
