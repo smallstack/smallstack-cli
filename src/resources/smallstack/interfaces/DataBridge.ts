@@ -1,6 +1,7 @@
-/// <reference path="NotificationService.ts" />
 
-interface DataBridge {
+import { NotificationService } from "./NotificationService";
+
+export interface DataBridge {
     // connection related
     onConnectionReady(fn: () => void);
 
@@ -28,7 +29,8 @@ interface DataBridge {
     setBaseUrl(url: string): void;
     getAbsoluteUrl(path: string): string;
 
-    // AWS S3 related
+    // AWS S3 / Media related
+    getMediaUrl(mediaId: string, mediaFormatName: string);
     setS3BucketName(s3BucketName: string): void;
     setS3Region(s3Region: string): void;
 

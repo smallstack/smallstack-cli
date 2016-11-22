@@ -2,28 +2,34 @@
  * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY CODE GENERATION
  */
 
-/// <reference path="../../typings/main.d.ts" />
+declare var _:any;
 
-/// <reference path="../../classes/ioc.ts" />
-/// <reference path="../../interfaces/QueryOptions.ts" />
-
-/// <reference path="../services/<%=functions.getServiceName(config)%>.ts" />
-<%
+import { IOC } from "../../classes/IOC";
+import { QueryOptions } from "../../interfaces/QueryOptions";
+import { <%=functions.getServiceName(config)%> } from "../services/<%=functions.getServiceName(config)%>";<%
 
 // check for unknown properties
 functions.checkSchema(config.model.schema, config.model.name);
 
+var foreignModels = [];
+var foreignServices = [];
 _.forEach(config.model.schema, function(schema) {
     if ((schema.type === "foreign" || schema.type === "foreign[]") && others[schema.collection].modelClassName !== modelClassName) {
         if (schema.collection === undefined)
             throw new Error("schema." + schema.name + " is of type foreign or foreign[] but doesn't have a collection!!!");
         if (others[schema.collection] === undefined)
             throw new Error("Type '" + schema.collection + "' is unknown!");
-        %>
-/// <reference path="../services/<%=others[schema.collection].serviceClassName%>.ts" />
-/// <reference path="<%=others[schema.collection].modelClassName%>.ts" /><%
+        if (foreignServices.indexOf(others[schema.collection].serviceClassName) === -1)
+			foreignServices.push(others[schema.collection].serviceClassName);
+        if (foreignModels.indexOf(others[schema.collection].modelClassName) === -1)
+			foreignModels.push(others[schema.collection].modelClassName);
     }
 });
+
+_.forEach(foreignModels, function(foreignModel) {%>
+import { <%=foreignModel%> } from "../models/<%=foreignModel%>";<%});
+_.forEach(foreignServices, function(foreignService) {%>
+import { <%=foreignService%> } from "../services/<%=foreignService%>";<%});
 
 
 var enumsFound = false;
@@ -53,12 +59,10 @@ function getSubTypes(schema) {
 	_.forEach(schema, function(schema) {
 		if (schema.name.indexOf(".") !== -1) {
 			var split = schema.name.split(".");
-			console.log("split : ", split);
 			addSubtype(subTypes, split, schema);
 		}
 	});
 	
-	console.log("subtypes : ", subTypes);
 	return subTypes;
 }
 
@@ -67,7 +71,7 @@ function getSubTypes(schema) {
 %>
 
 
-<% if(config.model.abstract === true) print("abstract "); %>class <%= modelClassName %> {
+export <% if(config.model.abstract === true) print("abstract "); %>class <%= modelClassName %> {
 	
 	// generated model properties
 	public id:string;
@@ -88,8 +92,8 @@ function getSubTypes(schema) {
 	 %>	
 	
 	// internal properties
-	private _hasSubDocuments:boolean = <%=foreignKeysFound%>;
-	private _isStored:boolean = false;
+	public _hasSubDocuments:boolean = <%=foreignKeysFound%>;
+	public _isStored:boolean = false;
 	
 	<% if (enumsFound) {%>
 	// generated enums
