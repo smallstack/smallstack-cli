@@ -1,6 +1,6 @@
 
 
-interface Notifier {
+export interface Notifier {
     info(message: string): void;
     success(message: string): void;
     debug(message: string): void;

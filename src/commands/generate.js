@@ -339,12 +339,12 @@ module.exports = function (params, done) {
             pathToGeneratedDefinitions: config.pathToGeneratedDefinitions
         });
 
-        console.log("generating ddp definitions.d.ts file ...");
-        processTemplate(config.datalayerTemplatesPath + "/ddp-connector.d.ts", path.join(config.smallstackDirectory, "ddp-connector.d.ts"), {
-            roots: roots,
-            functions: genFunctions,
-            config: config
-        });
+        // console.log("generating ddp definitions.d.ts file ...");
+        // processTemplate(config.datalayerTemplatesPath + "/ddp-connector.d.ts", path.join(config.smallstackDirectory, "ddp-connector.d.ts"), {
+        //     roots: roots,
+        //     functions: genFunctions,
+        //     config: config
+        // });
 
         // generate server-counts file
         console.log("generating server-counts.ts file ...");

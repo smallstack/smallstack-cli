@@ -1,8 +1,7 @@
-/// <reference path="Notifier.ts" />
 
+import { Notifier } from "./Notifier";
 
-
-interface NotificationService {
+export interface NotificationService {
 
 	console: Notifier;
 	popup: Notifier;

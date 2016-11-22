@@ -1,4 +1,5 @@
-/// <reference path="NotificationService.ts" />
+
+import { NotificationService } from "./NotificationService";
 
 export interface DataBridge {
     // connection related

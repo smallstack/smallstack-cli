@@ -2,7 +2,7 @@
  * THIS FILE IS AUTO-GENERATED AND WILL BE REPLACED ON ANY CODE GENERATION
  */
 
-/// <reference path="../../typings/index.d.ts" />
+var _ = require("underscore");
 
 import { IOC } from "../../classes/IOC";
 import { DataBridge } from "../../interfaces/DataBridge";
@@ -53,34 +53,33 @@ export class <%= serviceClassName %> {
 					};
                     subscriptionOptions += "},";
 				}
-                 parsedSelector = parsedSelector.replace(/\"_currentLoggedInUser_\"/g," self.dataBridge.getCurrentUserId()");
+                 parsedSelector = parsedSelector.replace(/\"_currentLoggedInUser_\"/g," this.dataBridge.getCurrentUserId()");
 			}
             
             // one or many?
             var sorting = query.sorting !== undefined ? JSON.stringify(query.sorting) : "{}";
             // old : var mongoQuery = "this.dataBridge.getCollectionByName(\"" + collectionName + "\").find(" + parsedSelector + ", selectorOptions)";
-            var mongoQuery = "self.dataBridge.getCollectionByName(\"" + collectionName + "\").reactiveQuery(" + parsedSelector + ").result";
+            var mongoQuery = "this.dataBridge.getCollectionByName(\"" + collectionName + "\")";
             // if (query.returnOne === true)
             //     mongoQuery = "smallstack.collections[\"" + collectionName + "\"].findOne(" + parsedSelector + ")";
             
 	%>
 	public <%=query.name%>(parameters: {<%=parameters%>}, options: QueryOptions, callback: (error:Error, models:<%=modelClassName%>[]) => void): void {
-        var self = this;
         var selectorOptions:any = {sort : <%=sorting%>};        
         if (options && options.currentPage && options.entriesPerPage) selectorOptions.skip = ((options.currentPage - 1) * options.entriesPerPage);
         if (options && options.entriesPerPage) selectorOptions.limit = options.entriesPerPage;
         
-        console.debug("Subscribing to : <%=query.name%>");
-        this.dataBridge.subscribe("<%=query.name%>", parameters, selectorOptions, function(error:Error, subscribed:boolean) {
+        this.dataBridge.notificationService.console.debug("Subscribing to : <%=query.name%>");
+        this.dataBridge.subscribe("<%=query.name%>", parameters, selectorOptions, (error:Error, subscribed:boolean) => {
             if (subscribed) {
-                console.debug("Successfully subscribed!");
+                this.dataBridge.notificationService.console.debug("Successfully subscribed!");
                 var results = <%= mongoQuery %>;
-                console.debug("Query Result is : ", results);
+                this.dataBridge.notificationService.console.debug("Query Result is : " + JSON.stringify(results, null, 2));
                 var convertedObjects:<%=modelClassName%>[] = [];
-                _.each(results, function(result){
+                _.each(results, (result) => {
                     convertedObjects.push(<%=modelClassName%>.fromDocument(result));
                 });
-                console.debug("Converted Result is : ", convertedObjects);
+                this.dataBridge.notificationService.console.debug("Converted Result is : " + JSON.stringify(convertedObjects, null, 2));
                 callback(undefined, convertedObjects);
             }
             else {
