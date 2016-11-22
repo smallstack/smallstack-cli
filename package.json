@@ -41,7 +41,7 @@
     "request": "^2.74.0",
     "semver": "^5.3.0",
     "sync-request": "^3.0.1",
-    "typings": "0.6.9",
+    "typings-core": "2.0.0",
     "underscore": "^1.8.3",
     "underscore.string": "^3.3.4"
   }
