@@ -1,6 +1,0 @@
-<% 
-if (deployment.smallstack.version === "develop" || deployment.smallstack.version === "master") { 
-%>smallstack packages --mode local --path ../smallstack <% }
- 
-if (deployment.smallstack.version !== "develop" && deployment.smallstack.version !== "master") { 
-%>smallstack packages --mode zip --path /var/lib/jenkins/smallstack/smallstack-<%=deployment.smallstack.version%>.zip <% } %>
