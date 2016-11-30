@@ -8,7 +8,7 @@ var config = {};
 /** 
  * Determines how a project can be found
  */
-config.projectFound = function(directory) {
+config.projectFound = function (directory) {
     try {
         if (directory === undefined)
             directory = config.getRootDirectory();
@@ -27,29 +27,29 @@ config.projectFound = function(directory) {
 //     return process.argv[2] === undefined || !_.contains(["create", "--help", "-h", "-v", "--version"], process.argv[2].toLowerCase());
 // }
 
-config.calledWithCreateProjectCommand = function() {
+config.calledWithCreateProjectCommand = function () {
     return process.argv[2] === "create" && process.argv[2] !== undefined;
 }
 
 
-config.calledWithNonProjectCommand = function() {
+config.calledWithNonProjectCommand = function () {
     return process.argv[2] === "compileNpmModule";
 }
 
-config.supersonicProjectAvailable = function() {
+config.supersonicProjectAvailable = function () {
     return fs.existsSync(config.supersonicDirectory);
 }
 
-config.meteorProjectAvailable = function() {
+config.meteorProjectAvailable = function () {
     return fs.existsSync(config.meteorDirectory);
 }
 
-config.smallstackDirectoryAvailable = function() {
+config.smallstackDirectoryAvailable = function () {
     return fs.existsSync(config.smallstackDirectory);
 }
 
 
-config.getRootDirectory = function() {
+config.getRootDirectory = function () {
 
     var root = path.resolve("./");
     if (config.projectFound(root))
@@ -84,7 +84,7 @@ try {
     config.pathToTypeDefinitions = path.join(config.meteorDirectory, "packages/smallstack-core/typedefinitions");
     config.supersonicDirectory = path.join(config.rootDirectory, "supersonic");
     config.packagesDirectory = path.join(config.meteorDirectory, "packages");
-    config.cliResourcesPath = path.join(__dirname, "resources");
+    config.cliResourcesPath = path.join(config.packagesDirectory, "smallstack-core", "resources");
     config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
     config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
     config.pathToGeneratedDefinitions = config.meteorDirectory + "/typedefinitions";
