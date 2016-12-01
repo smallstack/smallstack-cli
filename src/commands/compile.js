@@ -80,7 +80,7 @@ module.exports = function (parameters, done) {
             var meteorBuiltPath = path.join(config.tmpDirectory, "meteorbuilt");
             fs.removeSync(meteorBuiltPath);
             console.log("compiling meteor");
-            compiler.compileTypescriptFiles(config.meteorDirectory, { outDir: meteorBuiltPath, consolePrefix: "[meteor]    " }, function () {
+            compiler.compileTypescriptFiles(config.meteorDirectory, { outDir: meteorBuiltPath, consolePrefix: "[meteor]    " , excludes: ["**/smallstack-core/resources/**"]}, function () {
 
                 // cut of global scope
                 console.log("removing global scope for meteor...");

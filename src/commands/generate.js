@@ -70,7 +70,13 @@ module.exports = function (params, done) {
                 generatorLog("found schema extending for : " + jsonContent.extends);
                 if (extendings[jsonContent.extends] === undefined)
                     extendings[jsonContent.extends] = {};
-                _.extend(extendings[jsonContent.extends], jsonContent);
+                // console.log("before extendings[jsonContent.extends]: ", JSON.stringify(extendings[jsonContent.extends], null, 2));
+                lodash.merge(extendings[jsonContent.extends], jsonContent, function (a, b) {
+                    if (_.isArray(a)) {
+                        return a.concat(b);
+                    }
+                });
+                // console.log("after  extendings[jsonContent.extends]: ", JSON.stringify(extendings[jsonContent.extends], null, 2));
                 return;
             }
 

@@ -16,10 +16,11 @@ var compiler = {
             throw new Error("Cannot compile non-existing directory : " + path.resolve(directory));
 
         console.log("searching typescript files in directory:", directory);
+        var ignores = ["**/node_modules/**"].concat(options.excludes);
         var allTSFiles = glob.sync("**/*.ts", {
             cwd: directory,
             follow: true,
-            ignore: "**/node_modules/**"
+            ignore: ignores
         });
 
         var filtered = "";
