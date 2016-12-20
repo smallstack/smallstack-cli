@@ -31,7 +31,8 @@ commands.convert = require("./src/commands/convert");
 logo();
 
 // update check
-require("./src/functions/updateCheck")();
+var updateCheck = require("./src/functions/updateCheck");
+updateCheck.doCheck();
 
 var parsedCommands = parseArguments(process.argv);
 
@@ -45,7 +46,11 @@ _.each(parsedCommands, function (command) {
 });
 
 // then execute
-if (allCommandsFine) {
+if (parsedCommands.length === 0 || !allCommandsFine) {
+    commands.help();
+    updateCheck.showResult();
+}
+else if (allCommandsFine) {
     async.eachLimit(parsedCommands, 1, function (command, done) {
         console.log(colors.gray("################################################################################"));
         console.log(colors.gray("##### Command : " + command.name));
@@ -57,20 +62,22 @@ if (allCommandsFine) {
         }
         catch (e) {
             console.error(colors.red("ERROR:", e.message));
-            process.exit(1);
+            updateCheck.showResult(function () {
+                process.exit(1);
+            });
         }
     }, function (error) {
         if (error) {
             console.error(colors.red(error));
-            process.exit(1);
+            updateCheck.showResult(function () {
+                process.exit(1);
+            });
         }
         else {
             console.log(colors.green("Success!"));
-            process.exit(0);
+            updateCheck.showResult(function () {
+                process.exit(0);
+            });
         }
     });
-}
-
-if (parsedCommands.length === 0 || !allCommandsFine) {
-    commands.help();
 }
