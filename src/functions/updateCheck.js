@@ -11,12 +11,16 @@ module.exports = {
         try {
             var url = "https://raw.githubusercontent.com/smallstack/smallstack-cli/master/package.json";
             this.request = request(url, function (error, response, body) {
-                var packageJSON = JSON.parse(body);
-                if (semver.lt(config.cli.version, packageJSON.version)) {
-                    checker.newVersion = packageJSON.version
+                if (error)
+                    console.log("Error while checking for updates: ", error);
+                else {
+                    var packageJSON = JSON.parse(body);
+                    if (semver.lt(config.cli.version, packageJSON.version)) {
+                        checker.newVersion = packageJSON.version
+                    }
+                    if (checker.asyncCallback)
+                        checker.asyncCallback();
                 }
-                if (checker.asyncCallback)
-                    checker.asyncCallback();
             });
         } catch (e) {
             console.error("Error while checking for updates :", e);
