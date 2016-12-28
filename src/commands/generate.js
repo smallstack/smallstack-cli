@@ -380,7 +380,8 @@ module.exports = function (params, done) {
 
         notifier("Generating Source Code completed!");
 
-        done();
+        if (typeof done === "function")
+            done();
     });
 }
 
