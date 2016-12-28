@@ -21,6 +21,7 @@ module.exports = function (toDir, done) {
     typings.install({
         cwd: config.smallstackDirectory
     }).then(function () {
-        done();
+        if (typeof done === "function")
+            done()
     });
 }
