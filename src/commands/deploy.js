@@ -57,24 +57,26 @@ module.exports = function (parameters, done) {
                                 "x-smallstack-apikey": apiKey
                             }
                         }, function (error, response, body) {
-                            if (error)
+                            if (error) {
                                 console.error(error);
+                                doneAsync(error);
+                            }
                             else {
                                 var instances = JSON.parse(body);
                                 if (!(instances instanceof Array) || instances.length === 0)
                                     throw new Error("No instances found for this project! Please go to https://smallstack.io and create one!");
 
-                                var instaceObjects = [];
+                                var instanceObjects = [];
                                 _.each(instances, function (instance) {
-                                    instaceObjects.push({ name: instance.id, value: instance.id });
+                                    instanceObjects.push({ name: instance.id, value: instance.id });
                                 });
-                                doneAsync(instaceObjects);
+                                doneAsync(undefined, instanceObjects);
                             }
                         });
                     },
                     when: parameters.instanceId === undefined
                 }
-            ], function (answers) {
+            ]).then(function (answers) {
 
                 bundleJob({ skipBundle: parameters.skipBundle }, function () {
 
