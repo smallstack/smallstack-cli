@@ -1,5 +1,5 @@
-var notifier = require('node-notifier');
-var path = require("path");
+// var notifier = require('node-notifier');
+// var path = require("path");
 
 module.exports = function(message) {
 
