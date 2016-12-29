@@ -2,7 +2,8 @@ module.exports = function (parameters, done) {
 
     if (parameters.skipBundle) {
         console.log("Skipping building bundle...");
-        done();
+        if (typeof done === "function")
+            done();
         return;
     }
 
@@ -22,7 +23,8 @@ module.exports = function (parameters, done) {
     exec("meteor build " + path.relative(config.meteorDirectory, config.builtDirectory) + " --architecture os.linux.x86_64 --server-only", {
         cwd: config.meteorDirectory,
         finished: function () {
-            done();
+            if (typeof done === "function")
+                done();
         }
     });
 
