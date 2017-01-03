@@ -44,7 +44,6 @@ module.exports = function (params, done) {
     ]
 
     inquirer.prompt(questions).then(function (answers) {
-        console.log(answers);
         smallstackMode = answers.smallstack.mode || smallstackMode;
         // if (answers["smallstack.path"])
         //     smallstackPath = path.join(config.rootDirectory, answers["smallstack.path"]);
