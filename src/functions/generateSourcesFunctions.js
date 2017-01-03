@@ -37,8 +37,12 @@ functions.getSchemaType = function getSchemaType(type) {
             return "[Object]";
     }
 
-    if (!functions.isPrimitiveType(type))
-        return type;
+    if (!functions.isPrimitiveType(type)) {
+        if (type.indexOf("[]") === -1)
+            return "Generated" + type + ".getSchema()";
+        else 
+            return "[Generated" + type.replace("[]","") + ".getSchema()]";
+    }
 
     throw new Error("Can't convert '" + type + "' to a schema type!");
 
@@ -114,12 +118,17 @@ functions.getJavascriptType = function getJavascriptType(type) {
 functions.checkSchema = function checkSchema(schema, modelName) {
     for (var i = 0; i < schema.length; i++) {
         for (var key in schema[i]) {
+
+            // upgrade checks
+            if (key === "collection")
+                throw new Error("UPDATE NOTICE: Please rename 'schema." + schema[i].name + ".collection' to schema.'" + schema[i].name + ".foreignType' and use the name of the Type instead of the collection name! sorry...");
+
             switch (key) {
                 case "name":
                 case "type":
                 case "decimal":
                 case "optional":
-                case "collection":
+                case "foreignType":
                 case "allowedValues":
                 case "defaultValue":
                 case "blackbox":
@@ -225,9 +234,9 @@ functions.getForeignModelGetterName = function getForeignModelGetterName(schema,
 
     if (real) {
         if (schema.type === "foreign")
-            return "get" + others[schema.collection].modelClassName + "ById";
+            return "get" + others[schema.foreignType].modelClassName + "ById";
         else
-            return "get" + functions.capitalize((pluralizer(others[schema.collection].modelClassName)) + "ByIds");
+            return "get" + functions.capitalize((pluralizer(others[schema.foreignType].modelClassName)) + "ByIds");
     }
     else {
         if (schema.type === "foreign")
@@ -338,10 +347,12 @@ functions.trim = function trim(str, characters) {
 }
 
 functions.getServiceName = function getServiceName(type) {
-    if (type.service.name)
+    if (type.service && type.service.name)
         return type.service.name;
-    else
+    else if (type.collection && type.collection.name)
         return functions.capitalize(type.collection.name) + "Service";
+    else
+        return functions.capitalize(type.model.name) + "Service";
 }
 
 functions.singularize = function singularize(plural) {
