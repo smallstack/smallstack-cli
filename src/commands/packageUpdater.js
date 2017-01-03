@@ -38,20 +38,21 @@ module.exports = function (params, done) {
             message: 'relative path from project root to local smallstack directory :',
             default: "../smallstack",
             when: function (answers) {
-                return answers["smallstack.mode"] === "local" && smallstackPath === undefined;
+                return answers.smallstack.mode === "local" && smallstackPath === undefined;
             }
         }
     ]
 
-    inquirer.prompt(questions, function (answers) {
-        smallstackMode = answers["smallstack.mode"] || smallstackMode;
+    inquirer.prompt(questions).then(function (answers) {
+        console.log(answers);
+        smallstackMode = answers.smallstack.mode || smallstackMode;
         // if (answers["smallstack.path"])
         //     smallstackPath = path.join(config.rootDirectory, answers["smallstack.path"]);
         // else
         //     smallstackPath = answers["smallstack.path"] || smallstackPath;
         switch (smallstackMode) {
             case "local":
-                persistLocalConfiguration(answers["smallstack.path"] || smallstackPath);
+                persistLocalConfiguration(answers.smallstack.path || smallstackPath);
                 done();
                 break;
             case "projectVersion":
