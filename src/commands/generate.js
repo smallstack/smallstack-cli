@@ -46,8 +46,6 @@ module.exports = function (params, done) {
             var dataLayerPath = config.datalayerPath;
             fs.ensureDirSync(dataLayerPath);
 
-
-
             // display some information
             console.log(generatorLog("Root Directory:      ", config.rootDirectory));
             console.log(generatorLog("Meteor Directory:    ", config.meteorDirectory));
@@ -61,9 +59,6 @@ module.exports = function (params, done) {
             if (allSmallstackFiles.length === 0) {
                 console.log(generatorLog("Aborting! No *.smallstack.json files found!"));
             }
-
-
-
 
             _.each(allSmallstackFiles, function (smallstackFile) {
                 smallstackFile = path.resolve(config.meteorDirectory, smallstackFile);
@@ -107,7 +102,10 @@ module.exports = function (params, done) {
 
                 var id = jsonContent.model.name;
 
+
                 // fill the configuration
+                if (configuration[id] !== undefined)
+                    throw new Error("Configuration for ID '" + id + "' already exists!!!");
                 configuration[id] = {};
                 configuration[id].root = roots[rootDirectory];
 
