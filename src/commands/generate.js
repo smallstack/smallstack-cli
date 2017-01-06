@@ -8,9 +8,11 @@ var capitalize = require("underscore.string/capitalize");
 
 var templating = require("../functions/templating");
 var notifier = require("../functions/notifier");
+var exec = require("../functions/exec");
 
 module.exports = function (params, done) {
 
+    var forcedGenerationMode = params.forcedGeneration === true;
 
     // own stuff
     var genFunctions = require("../functions/generateSourcesFunctions");
@@ -41,11 +43,15 @@ module.exports = function (params, done) {
             var pathFromServerMethodToDefinitionsFile = path.relative(serverMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
             var pathFromClientMethodToDefinitionsFile = path.relative(clientMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
 
+            var dataLayerPath = config.datalayerPath;
+            fs.ensureDirSync(dataLayerPath);
+
 
 
             // display some information
-            console.log(generatorLog("Root Directory:   ", config.rootDirectory));
-            console.log(generatorLog("Meteor Directory: ", config.meteorDirectory));
+            console.log(generatorLog("Root Directory:      ", config.rootDirectory));
+            console.log(generatorLog("Meteor Directory:    ", config.meteorDirectory));
+            console.log(generatorLog("DataLayer Directory: ", dataLayerPath));
             console.log("\n");
 
             var allSmallstackFiles = glob.sync("**/*.smallstack.json", {
@@ -84,26 +90,33 @@ module.exports = function (params, done) {
 
 
                 // generate files and directories            
-                var rootDirectory = path.dirname("" + smallstackFile);
+                var rootDirectory = dataLayerPath;
+                if (jsonContent.generatorOptions && jsonContent.generatorOptions.destination === "local")
+                    rootDirectory = path.dirname("" + smallstackFile);
                 console.log("root directory : ", rootDirectory);
                 if (roots[rootDirectory] === undefined) {
                     roots[rootDirectory] = {};
                     roots[rootDirectory].services = [];
                     roots[rootDirectory].models = [];
                     roots[rootDirectory].collections = [];
+                    if (jsonContent.generatorOptions && jsonContent.generatorOptions.destination === "local")
+                        roots[rootDirectory].packagesPathRelative = path.relative(rootDirectory, config.meteorPackagesDirectory).replace(/\\/g, "/");
+                    else
+                        roots[rootDirectory].packagesPathRelative = "../packages";
                 }
 
                 var id = jsonContent.model.name;
 
                 // fill the configuration
                 configuration[id] = {};
+                configuration[id].root = roots[rootDirectory];
 
                 // generals
                 configuration[id].config = jsonContent;
                 configuration[id].filename = smallstackFile;
                 if (jsonContent.collection)
                     configuration[id].collectionName = jsonContent.collection.name;
-                configuration[id].rootDirectory = path.dirname(smallstackFile);
+                configuration[id].rootDirectory = rootDirectory;
                 configuration[id].generatedDirectory = path.join(configuration[id].rootDirectory, "generated");
 
                 // model variables
@@ -111,8 +124,8 @@ module.exports = function (params, done) {
                 configuration[id].modelsGeneratedDirectory = path.join(configuration[id].generatedDirectory, "models");
                 configuration[id].modelClassName = capitalize(jsonContent.model.name);
                 configuration[id].generatedModelClassName = "Generated" + configuration[id].modelClassName;
-                configuration[id].relativePathFromModelToGeneratedModel = path.relative(configuration[id].modelsDirectory, configuration[id].modelsGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedModelClassName + ".ts";
-                configuration[id].relativePathFromGeneratedModelToModel = path.relative(configuration[id].modelsGeneratedDirectory, configuration[id].modelsDirectory).replace(/\\/g, "/") + "/" + configuration[id].modelClassName + ".ts";
+                configuration[id].relativePathFromModelToGeneratedModel = path.relative(configuration[id].modelsDirectory, configuration[id].modelsGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedModelClassName;
+                configuration[id].relativePathFromGeneratedModelToModel = path.relative(configuration[id].modelsGeneratedDirectory, configuration[id].modelsDirectory).replace(/\\/g, "/") + "/" + configuration[id].modelClassName;
                 configuration[id].relativePathFromGeneratedModelToPackages = path.relative(configuration[id].modelsGeneratedDirectory, config.packagesDirectory).replace(/\\/g, "/");
                 roots[configuration[id].rootDirectory].models.push(configuration[id].modelClassName);
 
@@ -121,12 +134,13 @@ module.exports = function (params, done) {
                 configuration[id].collectionsGeneratedDirectory = path.join(configuration[id].generatedDirectory, "collections");
                 configuration[id].collectionClassName = capitalize(configuration[id].collectionName) + "Collection";
                 configuration[id].generatedCollectionClassName = "Generated" + configuration[id].collectionClassName;
-                configuration[id].relativePathFromCollectionToGeneratedCollection = path.relative(configuration[id].collectionsDirectory, configuration[id].collectionsGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedCollectionClassName + ".ts";
-                configuration[id].relativePathFromCollectionToModel = path.relative(configuration[id].collectionsGeneratedDirectory, configuration[id].modelsDirectory).replace(/\\/g, "/") + "/" + configuration[id].modelClassName + ".ts";
-                configuration[id].relativePathFromCollectionToGeneratedModel = path.relative(configuration[id].collectionsGeneratedDirectory, configuration[id].modelsGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedModelClassName + ".ts";
+                configuration[id].relativePathFromCollectionToGeneratedCollection = path.relative(configuration[id].collectionsDirectory, configuration[id].collectionsGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedCollectionClassName;
+                configuration[id].relativePathFromCollectionToModel = path.relative(configuration[id].collectionsGeneratedDirectory, configuration[id].modelsDirectory).replace(/\\/g, "/") + "/" + configuration[id].modelClassName;
+                configuration[id].relativePathFromCollectionToGeneratedModel = path.relative(configuration[id].collectionsGeneratedDirectory, configuration[id].modelsGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedModelClassName;
                 configuration[id].relativePathFromGeneratedCollectionToCollectionService = path.relative(configuration[id].collectionsGeneratedDirectory, path.join(config.packagesDirectory, "smallstack-collections")).replace(/\\/g, "/") + "/CollectionService.ts";
                 configuration[id].relativePathFromGeneratedCollectionToSmallstackCollection = path.relative(configuration[id].collectionsGeneratedDirectory, path.join(config.packagesDirectory, "smallstack-collections")).replace(/\\/g, "/") + "/SmallstackCollection.ts";
-                if (jsonContent.collection && jsonContent.collection.skipGeneration !== true)
+                configuration[id].skipCollectionGeneration = !jsonContent.collection || jsonContent.collection.skipGeneration === true;
+                if (!configuration[id].skipCollectionGeneration)
                     roots[configuration[id].rootDirectory].collections.push(configuration[id].collectionClassName);
 
 
@@ -135,12 +149,13 @@ module.exports = function (params, done) {
                 configuration[id].servicesGeneratedDirectory = path.join(configuration[id].generatedDirectory, "services");
                 configuration[id].serviceClassName = genFunctions.getServiceName(jsonContent);
                 configuration[id].generatedServiceClassName = "Generated" + configuration[id].serviceClassName;
-                configuration[id].relativePathFromServiceToGeneratedService = path.relative(configuration[id].servicesDirectory, configuration[id].servicesGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedServiceClassName + ".ts";
-                configuration[id].relativePathFromServiceToModel = path.relative(configuration[id].servicesGeneratedDirectory, configuration[id].modelsDirectory).replace(/\\/g, "/") + "/" + configuration[id].modelClassName + ".ts";
+                configuration[id].relativePathFromServiceToGeneratedService = path.relative(configuration[id].servicesDirectory, configuration[id].servicesGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedServiceClassName;
+                configuration[id].relativePathFromServiceToModel = path.relative(configuration[id].servicesGeneratedDirectory, configuration[id].modelsDirectory).replace(/\\/g, "/") + "/" + configuration[id].modelClassName;
                 configuration[id].relativePathFromGeneratedServiceToPackages = path.relative(configuration[id].servicesGeneratedDirectory, config.packagesDirectory).replace(/\\/g, "/");
                 configuration[id].relativePathFromGeneratedServiceToGeneratedDefinitionsFile = path.relative(configuration[id].servicesGeneratedDirectory, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
-                configuration[id].relativePathFromGeneratedModelToService = path.relative(configuration[id].modelsGeneratedDirectory, configuration[id].servicesDirectory).replace(/\\/g, "/") + "/" + configuration[id].serviceClassName + ".ts";
-                if (jsonContent.service && jsonContent.service.skipGeneration !== true)
+                configuration[id].relativePathFromGeneratedModelToService = path.relative(configuration[id].modelsGeneratedDirectory, configuration[id].servicesDirectory).replace(/\\/g, "/") + "/" + configuration[id].serviceClassName;
+                configuration[id].skipServiceGeneration = !jsonContent.service || jsonContent.service.skipGeneration === true;
+                if (!configuration[id].skipServiceGeneration)
                     roots[configuration[id].rootDirectory].services.push(configuration[id].serviceClassName);
 
 
@@ -231,7 +246,7 @@ module.exports = function (params, done) {
                     generatorLog("  | - generating collection");
                     processTemplate(config.datalayerTemplatesPath + "/GeneratedCollection.ts", data.collectionsGeneratedDirectory + "/" + data.generatedCollectionClassName + ".ts", data);
                     var collectionImpl = data.collectionsDirectory + "/" + data.collectionClassName + ".ts";
-                    if (!fs.existsSync(collectionImpl))
+                    if (!fs.existsSync(collectionImpl) || forcedGenerationMode)
                         processTemplate(config.datalayerTemplatesPath + "/Collection.ts", collectionImpl, data);
                 }
 
@@ -242,16 +257,8 @@ module.exports = function (params, done) {
                     generatorLog("  | - generating service");
                     processTemplate(config.datalayerTemplatesPath + "/GeneratedService.ts", data.servicesGeneratedDirectory + "/" + data.generatedServiceClassName + ".ts", data);
                     var serviceImpl = data.servicesDirectory + "/" + data.serviceClassName + ".ts";
-                    if (!fs.existsSync(serviceImpl))
+                    if (!fs.existsSync(serviceImpl) || forcedGenerationMode)
                         processTemplate(config.datalayerTemplatesPath + "/Service.ts", serviceImpl, data);
-                }
-
-                // process ddp services
-                if (!data.config.service || data.config.service.skipDDPGeneration === true)
-                    generatorLog("  | - skipping generating ddp service since service.skipDDPGeneration === true");
-                else {
-                    generatorLog("  | - generating ddp service");
-                    processTemplate(config.datalayerTemplatesPath + "/DDPService.ts", config.smallstackDirectory + "/ddp-connector/services/" + data.serviceClassName + ".ts", data);
                 }
 
                 // process models
@@ -261,16 +268,8 @@ module.exports = function (params, done) {
                     generatorLog("  | - generating model");
                     processTemplate(config.datalayerTemplatesPath + "/GeneratedModel.ts", data.modelsGeneratedDirectory + "/" + data.generatedModelClassName + ".ts", data);
                     var modelImpl = data.modelsDirectory + "/" + data.modelClassName + ".ts";
-                    if (!fs.existsSync(modelImpl))
+                    if (!fs.existsSync(modelImpl) || forcedGenerationMode)
                         processTemplate(config.datalayerTemplatesPath + "/Model.ts", modelImpl, data);
-                }
-
-                // process ddp models
-                if (data.config.model.skipDDPGeneration === true)
-                    generatorLog("  | - skipping generating model since model.skipDDPGeneration === true");
-                else {
-                    generatorLog("  | - generating ddp model");
-                    processTemplate(config.datalayerTemplatesPath + "/DDPModel.ts", config.smallstackDirectory + "/ddp-connector/models/" + data.modelClassName + ".ts", data);
                 }
 
                 // process secured methods
@@ -324,13 +323,13 @@ module.exports = function (params, done) {
             _.each(_.keys(roots), function (root) {
 
                 // generate services file
-                console.log("generating service instances file ...");
-                processTemplate(config.datalayerTemplatesPath + "/generated-services-instances.ts", root + "/generated-services-instances.ts", {
+                console.log("generating service register file ...");
+                processTemplate(config.datalayerTemplatesPath + "/RegisterServiceInstances.ts", root + "/RegisterServiceInstances.ts", {
                     services: roots[root].services,
                     functions: genFunctions,
-                    relativePathFromGenServicesToApp: path.relative(root, config.meteorDirectory).replace(/\\/g, "/")
+                    relativePathFromGenServicesToApp: path.relative(root, config.meteorDirectory).replace(/\\/g, "/"),
+                    packagesPathRelative: roots[root].packagesPathRelative
                 });
-
 
                 // generate .gitignore
                 console.log("generating .gitignore file ...");
@@ -338,33 +337,33 @@ module.exports = function (params, done) {
                     services: roots[root].services,
                     functions: genFunctions
                 });
+
+                // // generate package.json
+                // console.log("generating package.json file ...");
+                // processTemplate(config.datalayerTemplatesPath + "/datalayer_package.json", root + "/package.json", {});
+
+                // // generate tsconfig.json
+                // console.log("generating tsconfig.json file ...");
+                // processTemplate(config.datalayerTemplatesPath + "/datalayer_tsconfig.json", root + "/tsconfig.json", {});
             });
+
+            // generate package.json
+            console.log("generating package.json file ...");
+            processTemplate(config.datalayerTemplatesPath + "/datalayer_package.json", config.datalayerPath + "/package.json", {});
+
+            // generate tsconfig.json
+            console.log("generating tsconfig.json file ...");
+            processTemplate(config.datalayerTemplatesPath + "/datalayer_tsconfig.json", config.datalayerPath + "/tsconfig.json", {});
 
             // generate definitions file
-            console.log("generating global definitions.d.ts file ...");
-            processTemplate(config.datalayerTemplatesPath + "/definitions.d.ts", config.pathToGeneratedDefinitionsFile, {
-                roots: roots,
-                relativePathFromDefToPackages: path.relative(config.pathToGeneratedDefinitions, config.packagesDirectory).replace(/\\/g, "/"),
-                functions: genFunctions,
-                config: config,
-                pathToGeneratedDefinitions: config.pathToGeneratedDefinitions
-            });
-
-            // console.log("generating ddp definitions.d.ts file ...");
-            // processTemplate(config.datalayerTemplatesPath + "/ddp-connector.d.ts", path.join(config.smallstackDirectory, "ddp-connector.d.ts"), {
+            // console.log("generating global definitions.d.ts file ...");
+            // processTemplate(config.datalayerTemplatesPath + "/definitions.d.ts", config.pathToGeneratedDefinitionsFile, {
             //     roots: roots,
+            //     relativePathFromDefToPackages: path.relative(config.pathToGeneratedDefinitions, config.packagesDirectory).replace(/\\/g, "/"),
             //     functions: genFunctions,
-            //     config: config
+            //     config: config,
+            //     pathToGeneratedDefinitions: config.pathToGeneratedDefinitions
             // });
-
-
-            // generate DDP-IOC file 
-            console.log("generating DDP-IOC file ...");
-            processTemplate(config.datalayerTemplatesPath + "/DDP-generated-services-instances.ts", path.join(config.smallstackDirectory, "ddp-connector/service-registrations.ts"), {
-                roots: roots,
-                functions: genFunctions,
-                config: config
-            });
 
             // generate server-counts file
             console.log("generating server-counts.ts file ...");
@@ -377,9 +376,21 @@ module.exports = function (params, done) {
 
             // generate typesystem file
             console.log("generating typesystem.ts file ...");
-            processTemplate(config.datalayerTemplatesPath + "/typesystem.ts", path.join(config.packagesDirectory, "smallstack-typesystem", "generated.ts"), {
+            processTemplate(config.datalayerTemplatesPath + "/typesystem.ts", path.join(config.datalayerPath, "generated-typesystem.ts"), {
                 functions: genFunctions,
                 configuration: _.values(configuration)
+            });
+
+            // installing npm dependencies
+            // _.each(_.keys(roots), function (root) {
+            //     console.log("installing npm dependencies for: " + root);
+            //     exec("npm install", {
+            //         cwd: root
+            //     });
+            // });
+            console.log("installing npm dependencies for: " + config.datalayerPath);
+            exec("npm install", {
+                cwd: config.datalayerPath
             });
 
 

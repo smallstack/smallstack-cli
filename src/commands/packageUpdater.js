@@ -77,6 +77,10 @@ function persistLocalConfiguration(smallstackPath) {
     fs.removeSync(config.meteorPackagesDirectory);
     console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.meteorPackagesDirectory);
     fs.ensureSymlinkSync(absoluteSmallstackPath, config.meteorPackagesDirectory);
+
+    fs.removeSync(config.meteorDatalayerPath);
+    console.log("creating symlink: " + config.datalayerPath + " -> " + config.meteorDatalayerPath);
+    fs.ensureSymlinkSync(config.datalayerPath, config.meteorDatalayerPath);
 }
 
 function downloadAndExtractVersion(parameters, version, doneCallback) {

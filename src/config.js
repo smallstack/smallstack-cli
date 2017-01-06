@@ -75,18 +75,19 @@ try {
     config.builtDirectory = path.join(config.rootDirectory, "built");
     config.smallstackDirectory = path.join(config.rootDirectory, "smallstack");
     if (fs.existsSync(path.join(config.rootDirectory, "app"))) {
-        console.warn("Warning: Folder called 'app' found. Please consider renaming it to 'meteor' if you don't need the old grunt tasks anymore!");
-        config.meteorDirectory = path.join(config.rootDirectory, "app");
+        throw new Error("Folder called 'app' found. Please consider renaming it to 'meteor' if you don't need the old grunt tasks anymore!");
     }
     else
         config.meteorDirectory = path.join(config.rootDirectory, "meteor");
 
-    config.pathToTypeDefinitions = path.join(config.meteorDirectory, "packages/smallstack-core/typedefinitions");
+    config.pathToTypeDefinitions = path.join(config.meteorDirectory, "packages", "smallstack-core", "typedefinitions");
     config.supersonicDirectory = path.join(config.rootDirectory, "supersonic");
     config.packagesDirectory = path.join(config.smallstackDirectory, "packages");
-    config.meteorPackagesDirectory = path.join(config.meteorDirectory, "imports/smallstack");
+    config.meteorPackagesDirectory = path.join(config.meteorDirectory, "imports", "smallstack", "packages");
     config.cliResourcesPath = path.join(config.packagesDirectory, "resources");
     config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
+    config.datalayerPath = path.join(config.smallstackDirectory, "datalayer");
+    config.meteorDatalayerPath = path.join(config.meteorDirectory, "imports", "smallstack", "datalayer");
     config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
     config.pathToGeneratedDefinitions = config.meteorDirectory + "/typedefinitions";
     config.pathToGeneratedDefinitionsFile = path.join(config.pathToGeneratedDefinitions, "generated.d.ts");
