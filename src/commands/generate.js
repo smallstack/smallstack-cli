@@ -15,6 +15,7 @@ module.exports = function (params, done) {
     var forcedGenerationMode = params.forcedGeneration === true;
 
     // own stuff
+    require("../functions/compile.version")();
     var genFunctions = require("../functions/generateSourcesFunctions");
     var copySmallstackFiles = require("../functions/copySmallstackFiles");
     var config = require("../config");
@@ -48,21 +49,19 @@ module.exports = function (params, done) {
 
             // display some information
             console.log(generatorLog("Root Directory:      ", config.rootDirectory));
-            console.log(generatorLog("Meteor Directory:    ", config.meteorDirectory));
             console.log(generatorLog("DataLayer Directory: ", dataLayerPath));
             console.log("\n");
 
-            var allSmallstackFiles = glob.sync("**/*.smallstack.json", {
-                cwd: config.meteorDirectory,
+            var allSmallstackFiles = glob.sync("smallstack/**/*.smallstack.json", {
+                cwd: config.rootDirectory,
                 follow: true
             });
-            if (allSmallstackFiles.length === 0) {
-                console.log(generatorLog("Aborting! No *.smallstack.json files found!"));
-            }
+            if (allSmallstackFiles.length === 0)
+                throw new Error("Aborting! No *.smallstack.json files found!");
 
             _.each(allSmallstackFiles, function (smallstackFile) {
-                smallstackFile = path.resolve(config.meteorDirectory, smallstackFile);
-                console.log(generatorLog("preparing : " + smallstackFile));
+                smallstackFile = path.resolve(config.rootDirectory, smallstackFile);
+                console.log(generatorLog("preparing :       " + smallstackFile));
 
                 // read in data          
                 var content = fs.readFileSync(smallstackFile);
@@ -95,10 +94,11 @@ module.exports = function (params, done) {
                     roots[rootDirectory].models = [];
                     roots[rootDirectory].collections = [];
                     if (jsonContent.generatorOptions && jsonContent.generatorOptions.destination === "local")
-                        roots[rootDirectory].packagesPathRelative = path.relative(rootDirectory, config.meteorPackagesDirectory).replace(/\\/g, "/");
+                        roots[rootDirectory].packagesPathRelative = path.relative(rootDirectory, config.packagesDirectory).replace(/\\/g, "/");
                     else
                         roots[rootDirectory].packagesPathRelative = "../packages";
                 }
+                console.log("relative path : ", roots[rootDirectory].packagesPathRelative);
 
                 var id = jsonContent.model.name;
 
