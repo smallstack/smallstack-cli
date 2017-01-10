@@ -11,7 +11,8 @@ module.exports = function () {
     // smallstack version
     var versionCheckFile = path.join(config.rootDirectory, "smallstack", "packages", "package.json");
     if (!fs.existsSync(versionCheckFile)) {
-        throw new Error("Version cannot be persisted since file does not exist : " + versionCheckFile);
+        console.warn("Version cannot be persisted since file does not exist : " + versionCheckFile);
+        return;
     }
     var versionCheckFileContent = require(versionCheckFile);
     var version = versionCheckFileContent.version;
