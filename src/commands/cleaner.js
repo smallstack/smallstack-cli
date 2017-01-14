@@ -9,13 +9,13 @@ module.exports = function (parameters, done) {
     var notifier = require("../functions/notifier");
 
     // delete meteor/built
-    removeDirOrFile(path.join(config.meteorDirectory, "built"));
+    // removeDirOrFile(path.join(config.meteorDirectory, "built"));
 
     // delete smallstackFolder
-    removeDirOrFile(config.smallstackDirectory);
+    // removeDirOrFile(config.smallstackDirectory);
 
     // delete node_modules (since we once had one in the project root)
-    removeDirOrFile(path.join(config.rootDirectory, "node_modules"));
+    // removeDirOrFile(path.join(config.rootDirectory, "node_modules"));
 
     // delete tmp folder
     removeDirOrFile(config.tmpDirectory);
@@ -35,27 +35,27 @@ module.exports = function (parameters, done) {
     });
 
     // delete all generated js files
-    var compiledJsFiles = glob.sync("**/*.ts", {
-        cwd: config.meteorDirectory,
-        follow: true
-    });
-    _.each(compiledJsFiles, function (file) {
-        file = path.join(config.meteorDirectory, file);
-        if (file.indexOf("node_modules") === -1) {
-            if (file.indexOf(".d.ts") === -1) {
-                file = file.replace(".ts", ".js");
-                removeDirOrFile(file);
-                file = file.replace(".js", ".js.map");
-                removeDirOrFile(file);
-            }
-        }
-    });
+    // var compiledJsFiles = glob.sync("**/*.ts", {
+    //     cwd: config.meteorDirectory,
+    //     follow: true
+    // });
+    // _.each(compiledJsFiles, function (file) {
+    //     file = path.join(config.meteorDirectory, file);
+    //     if (file.indexOf("node_modules") === -1) {
+    //         if (file.indexOf(".d.ts") === -1) {
+    //             file = file.replace(".ts", ".js");
+    //             removeDirOrFile(file);
+    //             file = file.replace(".js", ".js.map");
+    //             removeDirOrFile(file);
+    //         }
+    //     }
+    // });
 
-    console.log("Deleting : app/built");
-    removeDirOrFile("app/built");
+    // console.log("Deleting : app/built");
+    // removeDirOrFile("app/built");
 
-    console.log("Deleting : tmp");
-    removeDirOrFile("tmp");
+    // console.log("Deleting : tmp");
+    // removeDirOrFile("tmp");
 
     notifier("Cleaning completed!");
     done();
