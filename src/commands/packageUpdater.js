@@ -55,42 +55,32 @@ module.exports = function (params, done) {
                 done();
                 break;
             case "projectVersion":
-                downloadAndExtractVersion(params, config.smallstack.version, done);
-                break;
+                throw new Error("Currently not supported!");
+            // downloadAndExtractVersion(params, config.smallstack.version, done);
+            // break;
             default:
                 throw new Error(smallstackMode + " is an unknown way of getting smallstack packages!");
         }
     });
 }
 
-function readPackages(smallstackPath) {
-    return glob.sync(path.resolve(path.join(config.rootDirectory, smallstackPath)) + "/smallstack-*");
-}
-
 function persistLocalConfiguration(smallstackPath) {
     if (smallstackPath === undefined)
         throw Error("No smallstack.path is given!");
 
-    fs.ensureDirSync(config.packagesDirectory);
-    fs.emptyDirSync(config.packagesDirectory);
+    var absoluteSmallstackPath = path.resolve(config.rootDirectory, smallstackPath);
 
-    var localPackagesContent = {};
-    _.each(readPackages(smallstackPath), function (availablePackage) {
-        localPackagesContent[path.basename(availablePackage)] = {
-            "path": path.relative(config.meteorDirectory, availablePackage).replace(/\\/g, "/")
-        }
-    });
-    if (_.keys(localPackagesContent).length === 0)
-        throw new Error("No smallstack packages found in destination : " + path.resolve(smallstackPath));
-    else
-        console.log("Found " + _.keys(localPackagesContent).length + " smallstack packages in " + path.resolve(smallstackPath));
+    fs.removeSync(config.packagesDirectory);
+    console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.packagesDirectory);
+    fs.ensureSymlinkSync(absoluteSmallstackPath, config.packagesDirectory);
 
-    var localMGPFile = config.meteorDirectory + "/local-packages.json";
-    fs.createFileSync(localMGPFile);
-    fs.writeFileSync(localMGPFile, JSON.stringify(localPackagesContent, null, 2));
-    exec("mgp link", {
-        cwd: config.meteorDirectory
-    });
+    fs.removeSync(config.meteorPackagesDirectory);
+    console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.meteorPackagesDirectory);
+    fs.ensureSymlinkSync(absoluteSmallstackPath, config.meteorPackagesDirectory);
+
+    fs.removeSync(config.meteorDatalayerPath);
+    console.log("creating symlink: " + config.datalayerPath + " -> " + config.meteorDatalayerPath);
+    fs.ensureSymlinkSync(config.datalayerPath, config.meteorDatalayerPath);
 }
 
 function downloadAndExtractVersion(parameters, version, doneCallback) {
