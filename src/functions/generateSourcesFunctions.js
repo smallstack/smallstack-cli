@@ -304,7 +304,7 @@ functions.lowerCaseFirst = function lowerCaseFirst(str) {
 
 
 functions.relativePath = function relativePath(pathA, pathB) {
-    return path.relative(pathA, pathB).replace(/\\/g, "/");
+    return path.normalize(path.relative(pathA, pathB)).replace(/\\/g, "/");
 }
 
 functions.isPrimitiveType = function isPrimitiveType(typeAsString) {
