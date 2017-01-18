@@ -1,5 +1,3 @@
-
-
 var path = require("path");
 var pluralizer = require("pluralize");
 var _ = require("underscore");
@@ -40,8 +38,8 @@ functions.getSchemaType = function getSchemaType(type) {
     if (!functions.isPrimitiveType(type)) {
         if (type.indexOf("[]") === -1)
             return "Generated" + type + ".getSchema()";
-        else 
-            return "[Generated" + type.replace("[]","") + ".getSchema()]";
+        else
+            return "[Generated" + type.replace("[]", "") + ".getSchema()]";
     }
 
     throw new Error("Can't convert '" + type + "' to a schema type!");
@@ -225,20 +223,17 @@ functions.getForeignModelGetterName = function getForeignModelGetterName(schema,
     if (schema.type === "foreign[]") {
         if (!functions.endsWith(schema.name, "Ids"))
             throw new Error("model.schema." + schema.name + " is of type foreign[] but doesn't end with 'Ids'!");
-    }
-    else if (schema.type === "foreign") {
+    } else if (schema.type === "foreign") {
         if (!functions.endsWith(schema.name, "Id"))
             throw new Error("model.schema." + schema.name + " is of type foreign but doesn't end with 'Id'!");
-    }
-    else throw new Error("'" + schema.type + "' is not a known foreign key!");
+    } else throw new Error("'" + schema.type + "' is not a known foreign key!");
 
     if (real) {
         if (schema.type === "foreign")
             return "get" + others[schema.foreignType].modelClassName + "ById";
         else
             return "get" + functions.capitalize((pluralizer(others[schema.foreignType].modelClassName)) + "ByIds");
-    }
-    else {
+    } else {
         if (schema.type === "foreign")
             return "get" + functions.capitalize(schema.name.replace("Id", ""));
         else
@@ -304,7 +299,10 @@ functions.lowerCaseFirst = function lowerCaseFirst(str) {
 
 
 functions.relativePath = function relativePath(pathA, pathB) {
-    return path.normalize(path.relative(pathA, pathB)).replace(/\\/g, "/");
+    var relativePath = path.normalize(path.relative(pathA, pathB)).replace(/\\/g, "/");
+    if (relativePath.indexOf("..") !== 0)
+        relativePath = "./" + relativePath;
+    return relativePath;
 }
 
 functions.isPrimitiveType = function isPrimitiveType(typeAsString) {
