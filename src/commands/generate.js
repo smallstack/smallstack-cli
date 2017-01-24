@@ -69,7 +69,7 @@ module.exports = function (params, done) {
 
                 // "just" extending?
                 if (jsonContent.extends !== undefined) {
-                    generatorLog("found schema extending for : " + jsonContent.extends);
+                    console.log(generatorLog("found schema extending for : " + jsonContent.extends));
                     if (extendings[jsonContent.extends] === undefined)
                         extendings[jsonContent.extends] = {};
                     // console.log("before extendings[jsonContent.extends]: ", JSON.stringify(extendings[jsonContent.extends], null, 2));
@@ -166,18 +166,19 @@ module.exports = function (params, done) {
 
             // evaluate extends
             _.each(_.values(configuration), function (data) {
+                if (data.modelClassName) {
+                    console.log(generatorLog("evaluating extends for : " + data.modelClassName));
 
-                console.log(generatorLog("evaluating extends for : " + data.modelClassName));
-
-                if (extendings[data.collectionName] !== undefined) {
-                    generatorLog("Extending type " + data.collectionName);
-                    generatorLog("Before : ", data.config);
-                    lodash.merge(data.config, extendings[data.collectionName], function (a, b) {
-                        if (_.isArray(a)) {
-                            return a.concat(b);
-                        }
-                    });
-                    generatorLog("After  : ", data.config);
+                    if (extendings[data.modelClassName] !== undefined) {
+                        console.log(generatorLog("Extending type " + data.modelClassName));
+                        console.log(generatorLog("Before : ", JSON.stringify(data.config, null, 2)));
+                        lodash.mergeWith(data.config, extendings[data.modelClassName], function (a, b) {
+                            if (_.isArray(a)) {
+                                return a.concat(b);
+                            }
+                        });
+                        console.log(generatorLog("After  : ", JSON.stringify(data.config, null, 2)));
+                    }
                 }
             });
 
@@ -208,8 +209,7 @@ module.exports = function (params, done) {
                             console.warn(generatorLog("No method return type given for method '" + meth.name + "', using 'any'!"));
                             meth.returns = "any";
                             method.returns = "any";
-                        }
-                        else
+                        } else
                             method.returns = meth.returns;
                         if (meth.visibility === undefined) {
                             console.warn(generatorLog("No method visibility type given for method '" + meth.name + "', using 'server'!"));
@@ -431,8 +431,7 @@ function processTemplate(from, to, replacers) {
         //     var content = lodash.template(template);
         //     fs.createFileSync(to);
         //     fs.writeFileSync(to, content(replacers));
-    }
-    catch (e) {
+    } catch (e) {
         console.log(e);
         throw new Error("Exception while processing template : \n\tfrom  : " + from + "\n\tto    : " + to + "\n\terror : " + e);
     }
@@ -443,4 +442,3 @@ function checkJson(variable, errorMessage) {
     if (variable === undefined || variable === null)
         errors.push(errorMessage);
 }
-
