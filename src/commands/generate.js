@@ -171,13 +171,13 @@ module.exports = function (params, done) {
 
                     if (extendings[data.modelClassName] !== undefined) {
                         console.log(generatorLog("Extending type " + data.modelClassName));
-                        console.log(generatorLog("Before : ", JSON.stringify(data.config, null, 2)));
+                        // console.log(generatorLog("Before : ", JSON.stringify(data.config, null, 2)));
                         lodash.mergeWith(data.config, extendings[data.modelClassName], function (a, b) {
                             if (_.isArray(a)) {
                                 return a.concat(b);
                             }
                         });
-                        console.log(generatorLog("After  : ", JSON.stringify(data.config, null, 2)));
+                        // console.log(generatorLog("After  : ", JSON.stringify(data.config, null, 2)));
                     }
                 }
             });
