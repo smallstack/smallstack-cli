@@ -101,6 +101,8 @@ module.exports = function (params, done) {
                 console.log("relative path : ", roots[rootDirectory].packagesPathRelative);
 
                 var id = jsonContent.model.name;
+                if (id === undefined || id === null || id === "")
+                    throw new Error("Please provide a model.name!");
 
 
                 // fill the configuration
