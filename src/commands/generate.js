@@ -15,7 +15,7 @@ module.exports = function (params, done) {
     var forcedGenerationMode = params.forcedGeneration === true;
 
     // own stuff
-    require("../functions/compile.version")();
+    // require("../functions/compile.version")();
     var genFunctions = require("../functions/generateSourcesFunctions");
     var copySmallstackFiles = require("../functions/copySmallstackFiles");
     var config = require("../config");
@@ -27,6 +27,7 @@ module.exports = function (params, done) {
 
     // copy smallstack files
     copySmallstackFiles(undefined, function () {
+
 
         try {
 
@@ -40,9 +41,6 @@ module.exports = function (params, done) {
             var sharedMethodsPath = path.join(config.meteorDirectory, "shared/functions");
             var serverMethodsPath = path.join(config.meteorDirectory, "server/functions");
             var clientMethodsPath = path.join(config.meteorDirectory, "client/functions");
-            var pathFromSharedMethodToDefinitionsFile = path.relative(sharedMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
-            var pathFromServerMethodToDefinitionsFile = path.relative(serverMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
-            var pathFromClientMethodToDefinitionsFile = path.relative(clientMethodsPath, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
 
             var dataLayerPath = config.datalayerPath;
             fs.ensureDirSync(dataLayerPath);
@@ -52,10 +50,15 @@ module.exports = function (params, done) {
             console.log(generatorLog("DataLayer Directory: ", dataLayerPath));
             console.log("\n");
 
-            var allSmallstackFiles = glob.sync("smallstack/**/*.smallstack.json", {
+            var allSmallstackFiles = [];
+            allSmallstackFiles = allSmallstackFiles.concat(glob.sync("smallstack/datalayer/**/*.smallstack.json", {
                 cwd: config.rootDirectory,
                 follow: true
-            });
+            }));
+            allSmallstackFiles = allSmallstackFiles.concat(glob.sync("meteor/node_modules/smallstack/**/*.smallstack.json", {
+                cwd: config.rootDirectory,
+                follow: true
+            }));
             if (allSmallstackFiles.length === 0)
                 throw new Error("Aborting! No *.smallstack.json files found!");
 
@@ -96,7 +99,7 @@ module.exports = function (params, done) {
                     if (jsonContent.generatorOptions && jsonContent.generatorOptions.destination === "local")
                         roots[rootDirectory].packagesPathRelative = path.relative(rootDirectory, config.packagesDirectory).replace(/\\/g, "/");
                     else
-                        roots[rootDirectory].packagesPathRelative = "../packages";
+                        roots[rootDirectory].packagesPathRelative = "../WHOOT";
                 }
                 console.log("relative path : ", roots[rootDirectory].packagesPathRelative);
 
@@ -152,16 +155,10 @@ module.exports = function (params, done) {
                 configuration[id].relativePathFromServiceToGeneratedService = path.relative(configuration[id].servicesDirectory, configuration[id].servicesGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedServiceClassName;
                 configuration[id].relativePathFromServiceToModel = path.relative(configuration[id].servicesGeneratedDirectory, configuration[id].modelsDirectory).replace(/\\/g, "/") + "/" + configuration[id].modelClassName;
                 configuration[id].relativePathFromGeneratedServiceToPackages = path.relative(configuration[id].servicesGeneratedDirectory, config.packagesDirectory).replace(/\\/g, "/");
-                configuration[id].relativePathFromGeneratedServiceToGeneratedDefinitionsFile = path.relative(configuration[id].servicesGeneratedDirectory, config.pathToGeneratedDefinitionsFile).replace(/\\/g, "/");
                 configuration[id].relativePathFromGeneratedModelToService = path.relative(configuration[id].modelsGeneratedDirectory, configuration[id].servicesDirectory).replace(/\\/g, "/") + "/" + configuration[id].serviceClassName;
                 configuration[id].skipServiceGeneration = !jsonContent.service || jsonContent.service.skipGeneration === true;
                 if (!configuration[id].skipServiceGeneration)
                     roots[configuration[id].rootDirectory].services.push(configuration[id].serviceClassName);
-
-
-                // shared variables			
-                configuration[id].relativePathToTypeDefinitions = path.relative(configuration[id].collectionsDirectory, config.pathToTypeDefinitions).replace(/\\/g, "/");
-                configuration[id].relativePathToTypeDefinitionsGen = path.relative(configuration[id].collectionsGeneratedDirectory, config.pathToTypeDefinitions).replace(/\\/g, "/");
 
             });
 
@@ -196,9 +193,6 @@ module.exports = function (params, done) {
                         method.sharedMethodsPath = sharedMethodsPath;
                         method.serverMethodsPath = serverMethodsPath;
                         method.clientMethodsPath = clientMethodsPath;
-                        method.pathFromSharedMethodToDefinitionsFile = pathFromSharedMethodToDefinitionsFile;
-                        method.pathFromServerMethodToDefinitionsFile = pathFromServerMethodToDefinitionsFile;
-                        method.pathFromClientMethodToDefinitionsFile = pathFromClientMethodToDefinitionsFile;
                         method.methodName = data.collectionName + "-" + meth.name;
                         var params = [];
                         if (meth.modelAware)
@@ -355,23 +349,12 @@ module.exports = function (params, done) {
             console.log("generating tsconfig.json file ...");
             processTemplate(config.datalayerTemplatesPath + "/datalayer_tsconfig.json", config.datalayerPath + "/tsconfig.json", {});
 
-            // generate definitions file
-            // console.log("generating global definitions.d.ts file ...");
-            // processTemplate(config.datalayerTemplatesPath + "/definitions.d.ts", config.pathToGeneratedDefinitionsFile, {
-            //     roots: roots,
-            //     relativePathFromDefToPackages: path.relative(config.pathToGeneratedDefinitions, config.packagesDirectory).replace(/\\/g, "/"),
-            //     functions: genFunctions,
-            //     config: config,
-            //     pathToGeneratedDefinitions: config.pathToGeneratedDefinitions
-            // });
-
             // generate server-counts file
             console.log("generating server-counts.ts file ...");
             processTemplate(config.datalayerTemplatesPath + "/server-counts.ts", path.join(serverMethodsPath, "server-counts.ts"), {
                 functions: genFunctions,
                 config: config,
-                configuration: _.values(configuration),
-                pathFromServerMethodToDefinitionsFile: pathFromServerMethodToDefinitionsFile
+                configuration: _.values(configuration)
             });
 
             // generate typesystem file

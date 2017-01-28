@@ -70,17 +70,21 @@ function persistLocalConfiguration(smallstackPath) {
 
     var absoluteSmallstackPath = path.resolve(config.rootDirectory, smallstackPath);
 
-    fs.removeSync(config.packagesDirectory);
-    console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.packagesDirectory);
-    fs.ensureSymlinkSync(absoluteSmallstackPath, config.packagesDirectory);
+    // fs.removeSync(config.packagesDirectory);
+    // console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.packagesDirectory);
+    // fs.ensureSymlinkSync(absoluteSmallstackPath, config.packagesDirectory);
 
-    fs.removeSync(config.meteorPackagesDirectory);
-    console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.meteorPackagesDirectory);
-    fs.ensureSymlinkSync(absoluteSmallstackPath, config.meteorPackagesDirectory);
+    // fs.removeSync(config.meteorPackagesDirectory);
+    // console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.meteorPackagesDirectory);
+    // fs.ensureSymlinkSync(absoluteSmallstackPath, config.meteorPackagesDirectory);
 
-    fs.removeSync(config.meteorDatalayerPath);
-    console.log("creating symlink: " + config.datalayerPath + " -> " + config.meteorDatalayerPath);
-    fs.ensureSymlinkSync(config.datalayerPath, config.meteorDatalayerPath);
+    // fs.removeSync(config.meteorDatalayerPath);
+    // console.log("creating symlink: " + config.datalayerPath + " -> " + config.meteorDatalayerPath);
+    // fs.ensureSymlinkSync(config.datalayerPath, config.meteorDatalayerPath);
+
+    // fs.removeSync(config.smallstackMeteorPackageTargetDirectory);
+    // console.log("creating symlink: " + config.smallstackMeteorPackageSourceDirectory + " -> " + config.smallstackMeteorPackageTargetDirectory);
+    // fs.ensureSymlinkSync(config.smallstackMeteorPackageSourceDirectory, config.smallstackMeteorPackageTargetDirectory);
 }
 
 function downloadAndExtractVersion(parameters, version, doneCallback) {
