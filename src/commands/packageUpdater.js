@@ -73,7 +73,7 @@ function persistLocalConfiguration(smallstackPath) {
     if (smallstackPath === undefined)
         throw Error("No smallstack.path is given!");
 
-    var absoluteSmallstackPath = path.resolve(config.rootDirectory, smallstackPath);
+    var absoluteSmallstackPath = path.resolve(config.rootDirectory, smallstackPath, "dist", "bundles");
 
     fs.ensureDirSync(config.datalayerPath);
 
