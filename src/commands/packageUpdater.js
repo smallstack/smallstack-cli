@@ -16,14 +16,19 @@ module.exports = function (params, done) {
     var smallstackMode = params.mode;
     var smallstackPath = params.path;
 
-    var packageModes = [{ name: "local checkout", value: "local" }];
-    if (!config.smallstack.version)
+    var packageModes = [{
+        name: "local checkout",
+        value: "local"
+    }];
+    if (!config.smallstack || !config.smallstack.version)
         console.error(colors.red("ERROR: No smallstack.version defined in project's package.json!\n"));
     else
-        packageModes.unshift({ name: "use project version (" + config.smallstack.version + ")", value: "projectVersion" });
+        packageModes.unshift({
+            name: "use project version (" + config.smallstack.version + ")",
+            value: "projectVersion"
+        });
 
-    var questions = [
-        {
+    var questions = [{
             name: "smallstack.mode",
             type: 'list',
             message: 'Which version shall be used? ',
@@ -56,8 +61,8 @@ module.exports = function (params, done) {
                 break;
             case "projectVersion":
                 throw new Error("Currently not supported!");
-            // downloadAndExtractVersion(params, config.smallstack.version, done);
-            // break;
+                // downloadAndExtractVersion(params, config.smallstack.version, done);
+                // break;
             default:
                 throw new Error(smallstackMode + " is an unknown way of getting smallstack packages!");
         }
@@ -70,17 +75,23 @@ function persistLocalConfiguration(smallstackPath) {
 
     var absoluteSmallstackPath = path.resolve(config.rootDirectory, smallstackPath);
 
-    // fs.removeSync(config.packagesDirectory);
-    // console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.packagesDirectory);
-    // fs.ensureSymlinkSync(absoluteSmallstackPath, config.packagesDirectory);
+    fs.ensureDirSync(config.datalayerPath);
+
+    fs.removeSync(config.meteorSmallstackDirectory);
+    console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.meteorSmallstackDirectory);
+    fs.ensureSymlinkSync(absoluteSmallstackPath, config.meteorSmallstackDirectory);
+
+    fs.removeSync(config.datalayerSmallstackDirectory);
+    console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.datalayerSmallstackDirectory);
+    fs.ensureSymlinkSync(absoluteSmallstackPath, config.datalayerSmallstackDirectory);
 
     // fs.removeSync(config.meteorPackagesDirectory);
     // console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.meteorPackagesDirectory);
     // fs.ensureSymlinkSync(absoluteSmallstackPath, config.meteorPackagesDirectory);
 
-    // fs.removeSync(config.meteorDatalayerPath);
-    // console.log("creating symlink: " + config.datalayerPath + " -> " + config.meteorDatalayerPath);
-    // fs.ensureSymlinkSync(config.datalayerPath, config.meteorDatalayerPath);
+    fs.removeSync(config.meteorDatalayerPath);
+    console.log("creating symlink: " + config.datalayerPath + " -> " + config.meteorDatalayerPath);
+    fs.ensureSymlinkSync(config.datalayerPath, config.meteorDatalayerPath);
 
     // fs.removeSync(config.smallstackMeteorPackageTargetDirectory);
     // console.log("creating symlink: " + config.smallstackMeteorPackageSourceDirectory + " -> " + config.smallstackMeteorPackageTargetDirectory);

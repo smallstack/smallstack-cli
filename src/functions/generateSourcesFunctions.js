@@ -278,6 +278,13 @@ functions.getSchemaForType = function getSchemaForType(type, others) {
     return undefined;
 }
 
+functions.getPackagesPathRelative = function (modulePath, relativePath, package) {
+    if (relativePath)
+        return modulePath + relativePath + package;
+    else
+        return "smallstack";
+}
+
 functions.getMongoUpdateJson = function getMongoUpdateJson(schema) {
     var out = "{ $set : {";
 

@@ -29,6 +29,25 @@ module.exports = function (params, done) {
     copySmallstackFiles(undefined, function () {
 
 
+        // generate package.json
+        console.log("generating datalayer package.json file ...");
+        processTemplate(config.datalayerTemplatesPath + "/datalayer_package.json", config.datalayerPath + "/package.json", {});
+
+        // generate tsconfig.json
+        console.log("generating tsconfig.json file ...");
+        processTemplate(config.datalayerTemplatesPath + "/datalayer_tsconfig.json", config.datalayerPath + "/tsconfig.json", {});
+
+        // generate rollup.config.js
+        console.log("generating rollup.config.js file ...");
+        processTemplate(config.datalayerTemplatesPath + "/datalayer_rollup.config.js", config.datalayerPath + "/rollup.config.js", {});
+
+        // install dependencies
+        console.log("installing npm dependencies for: " + config.datalayerPath);
+        exec("npm install", {
+            cwd: config.datalayerPath
+        });
+
+
         try {
 
             ////////////////////////////////////////////////////////////////////// prepare 
@@ -51,14 +70,14 @@ module.exports = function (params, done) {
             console.log("\n");
 
             var allSmallstackFiles = [];
-            allSmallstackFiles = allSmallstackFiles.concat(glob.sync("smallstack/datalayer/**/*.smallstack.json", {
+            allSmallstackFiles = allSmallstackFiles.concat(glob.sync("datalayer/**/*.smallstack.json", {
                 cwd: config.rootDirectory,
                 follow: true
             }));
-            allSmallstackFiles = allSmallstackFiles.concat(glob.sync("meteor/node_modules/smallstack/**/*.smallstack.json", {
-                cwd: config.rootDirectory,
-                follow: true
-            }));
+            // allSmallstackFiles = allSmallstackFiles.concat(glob.sync("meteor/node_modules/smallstack/**/*.smallstack.json", {
+            //     cwd: config.rootDirectory,
+            //     follow: true
+            // }));
             if (allSmallstackFiles.length === 0)
                 throw new Error("Aborting! No *.smallstack.json files found!");
 
@@ -96,10 +115,21 @@ module.exports = function (params, done) {
                     roots[rootDirectory].services = [];
                     roots[rootDirectory].models = [];
                     roots[rootDirectory].collections = [];
-                    if (jsonContent.generatorOptions && jsonContent.generatorOptions.destination === "local")
-                        roots[rootDirectory].packagesPathRelative = path.relative(rootDirectory, config.packagesDirectory).replace(/\\/g, "/");
-                    else
-                        roots[rootDirectory].packagesPathRelative = "../WHOOT";
+                    if (jsonContent.generatorOptions && jsonContent.generatorOptions.destination === "local") {
+                        // check where the root of the smallstack folder is
+                        var relative = "../";
+                        for (var tryIt = 0; tryIt < 5; tryIt++) {
+                            if (config.smallstackFound(path.resolve(path.join(rootDirectory, relative)))) {
+                                roots[rootDirectory].packagesPathRelative = relative;
+                                break;
+                            } else {
+                                relative += "../";
+                            }
+                        }
+                        if (roots[rootDirectory].packagesPathRelative === undefined)
+                            throw new Error("Could not find relative path to smallstack framework from " + rootDirectory);
+                    } else
+                        roots[rootDirectory].packagesPathRelative = undefined;
                 }
                 console.log("relative path : ", roots[rootDirectory].packagesPathRelative);
 
@@ -129,7 +159,7 @@ module.exports = function (params, done) {
                 configuration[id].generatedModelClassName = "Generated" + configuration[id].modelClassName;
                 configuration[id].relativePathFromModelToGeneratedModel = path.relative(configuration[id].modelsDirectory, configuration[id].modelsGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedModelClassName;
                 configuration[id].relativePathFromGeneratedModelToModel = path.relative(configuration[id].modelsGeneratedDirectory, configuration[id].modelsDirectory).replace(/\\/g, "/") + "/" + configuration[id].modelClassName;
-                configuration[id].relativePathFromGeneratedModelToPackages = path.relative(configuration[id].modelsGeneratedDirectory, config.packagesDirectory).replace(/\\/g, "/");
+                // configuration[id].relativePathFromGeneratedModelToPackages = path.relative(configuration[id].modelsGeneratedDirectory, config.packagesDirectory).replace(/\\/g, "/");
                 roots[configuration[id].rootDirectory].models.push(configuration[id].modelClassName);
 
                 // collection variables
@@ -140,8 +170,8 @@ module.exports = function (params, done) {
                 configuration[id].relativePathFromCollectionToGeneratedCollection = path.relative(configuration[id].collectionsDirectory, configuration[id].collectionsGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedCollectionClassName;
                 configuration[id].relativePathFromCollectionToModel = path.relative(configuration[id].collectionsGeneratedDirectory, configuration[id].modelsDirectory).replace(/\\/g, "/") + "/" + configuration[id].modelClassName;
                 configuration[id].relativePathFromCollectionToGeneratedModel = path.relative(configuration[id].collectionsGeneratedDirectory, configuration[id].modelsGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedModelClassName;
-                configuration[id].relativePathFromGeneratedCollectionToCollectionService = path.relative(configuration[id].collectionsGeneratedDirectory, path.join(config.packagesDirectory, "smallstack-collections")).replace(/\\/g, "/") + "/CollectionService.ts";
-                configuration[id].relativePathFromGeneratedCollectionToSmallstackCollection = path.relative(configuration[id].collectionsGeneratedDirectory, path.join(config.packagesDirectory, "smallstack-collections")).replace(/\\/g, "/") + "/SmallstackCollection.ts";
+                // configuration[id].relativePathFromGeneratedCollectionToCollectionService = path.relative(configuration[id].collectionsGeneratedDirectory, path.join(config.packagesDirectory, "smallstack-collections")).replace(/\\/g, "/") + "/CollectionService.ts";
+                // configuration[id].relativePathFromGeneratedCollectionToSmallstackCollection = path.relative(configuration[id].collectionsGeneratedDirectory, path.join(config.packagesDirectory, "smallstack-collections")).replace(/\\/g, "/") + "/SmallstackCollection.ts";
                 configuration[id].skipCollectionGeneration = !jsonContent.collection || jsonContent.collection.skipGeneration === true;
                 if (!configuration[id].skipCollectionGeneration)
                     roots[configuration[id].rootDirectory].collections.push(configuration[id].collectionClassName);
@@ -154,7 +184,7 @@ module.exports = function (params, done) {
                 configuration[id].generatedServiceClassName = "Generated" + configuration[id].serviceClassName;
                 configuration[id].relativePathFromServiceToGeneratedService = path.relative(configuration[id].servicesDirectory, configuration[id].servicesGeneratedDirectory).replace(/\\/g, "/") + "/" + configuration[id].generatedServiceClassName;
                 configuration[id].relativePathFromServiceToModel = path.relative(configuration[id].servicesGeneratedDirectory, configuration[id].modelsDirectory).replace(/\\/g, "/") + "/" + configuration[id].modelClassName;
-                configuration[id].relativePathFromGeneratedServiceToPackages = path.relative(configuration[id].servicesGeneratedDirectory, config.packagesDirectory).replace(/\\/g, "/");
+                // configuration[id].relativePathFromGeneratedServiceToPackages = path.relative(configuration[id].servicesGeneratedDirectory, config.packagesDirectory).replace(/\\/g, "/");
                 configuration[id].relativePathFromGeneratedModelToService = path.relative(configuration[id].modelsGeneratedDirectory, configuration[id].servicesDirectory).replace(/\\/g, "/") + "/" + configuration[id].serviceClassName;
                 configuration[id].skipServiceGeneration = !jsonContent.service || jsonContent.service.skipGeneration === true;
                 if (!configuration[id].skipServiceGeneration)
@@ -341,13 +371,19 @@ module.exports = function (params, done) {
                 // processTemplate(config.datalayerTemplatesPath + "/datalayer_tsconfig.json", root + "/tsconfig.json", {});
             });
 
-            // generate package.json
-            console.log("generating package.json file ...");
-            processTemplate(config.datalayerTemplatesPath + "/datalayer_package.json", config.datalayerPath + "/package.json", {});
 
-            // generate tsconfig.json
-            console.log("generating tsconfig.json file ...");
-            processTemplate(config.datalayerTemplatesPath + "/datalayer_tsconfig.json", config.datalayerPath + "/tsconfig.json", {});
+            // generate services file
+            console.log("generating index.ts file ...");
+            _.each(_.keys(roots), (root) => {
+                if (root === config.datalayerPath) {
+                    processTemplate(config.datalayerTemplatesPath + "/datalayer_index.ts", root + "/index.ts", {
+                        services: roots[root].services,
+                        models: roots[root].models,
+                        collections: roots[root].collections,
+                        functions: genFunctions
+                    });
+                }
+            });
 
             // generate server-counts file
             console.log("generating server-counts.ts file ...");
@@ -371,8 +407,9 @@ module.exports = function (params, done) {
             //         cwd: root
             //     });
             // });
-            console.log("installing npm dependencies for: " + config.datalayerPath);
-            exec("npm install", {
+
+            console.log("compiling datalayer for: " + config.datalayerPath);
+            exec("npm run build", {
                 cwd: config.datalayerPath
             });
 

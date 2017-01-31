@@ -49,8 +49,7 @@ _.each(parsedCommands, function (command) {
 if (parsedCommands.length === 0 || !allCommandsFine) {
     commands.help();
     updateCheck.showResult();
-}
-else if (allCommandsFine) {
+} else if (allCommandsFine) {
     async.eachLimit(parsedCommands, 1, function (command, done) {
         console.log(colors.gray("################################################################################"));
         console.log(colors.gray("##### Command : " + command.name));
@@ -59,9 +58,10 @@ else if (allCommandsFine) {
         console.log(colors.gray("################################################################################\n"));
         try {
             commands[command.name](command.parameters, done);
-        }
-        catch (e) {
+        } catch (e) {
             console.error(colors.red("ERROR:", e.message));
+            if (command.parameters.debug)
+                throw e;
             updateCheck.showResult(function () {
                 process.exit(1);
             });
@@ -72,8 +72,7 @@ else if (allCommandsFine) {
             updateCheck.showResult(function () {
                 process.exit(1);
             });
-        }
-        else {
+        } else {
             console.log(colors.green("Success!"));
             updateCheck.showResult(function () {
                 process.exit(0);
