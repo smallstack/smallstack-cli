@@ -93,7 +93,7 @@ try {
         config.datalayerSmallstackDirectory = path.join(config.datalayerPath, "node_modules", "smallstack");
     }
     if (config.isProjectEnvironment()) {
-        config.cliResourcesPath = path.join(config.meteorSmallstackDirectory, "resources");
+        config.cliResourcesPath = path.join(config.datalayerSmallstackDirectory, "resources");
         config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
         config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
     }

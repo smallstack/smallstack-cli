@@ -74,6 +74,7 @@ function persistLocalConfiguration(smallstackPath) {
         throw Error("No smallstack.path is given!");
 
     var absoluteSmallstackPath = path.resolve(config.rootDirectory, smallstackPath, "dist", "bundles");
+    var absoluteDatalayerPath = path.resolve(config.datalayerPath, "dist", "bundles");
 
     fs.ensureDirSync(config.datalayerPath);
 
@@ -90,8 +91,8 @@ function persistLocalConfiguration(smallstackPath) {
     // fs.ensureSymlinkSync(absoluteSmallstackPath, config.meteorPackagesDirectory);
 
     fs.removeSync(config.meteorDatalayerPath);
-    console.log("creating symlink: " + config.datalayerPath + " -> " + config.meteorDatalayerPath);
-    fs.ensureSymlinkSync(config.datalayerPath, config.meteorDatalayerPath);
+    console.log("creating symlink: " + absoluteDatalayerPath + " -> " + config.meteorDatalayerPath);
+    fs.ensureSymlinkSync(absoluteDatalayerPath, config.meteorDatalayerPath);
 
     // fs.removeSync(config.smallstackMeteorPackageTargetDirectory);
     // console.log("creating symlink: " + config.smallstackMeteorPackageSourceDirectory + " -> " + config.smallstackMeteorPackageTargetDirectory);
