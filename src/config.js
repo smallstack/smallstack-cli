@@ -12,15 +12,6 @@ config.projectFound = function (directory) {
     try {
         if (directory === undefined)
             directory = config.getRootDirectory();
-        // TODO: find better ways to determine if this is a root directory
-
-        // var packageJSONPath = path.join(directory, "package.json");
-        // if (!fs.existsSync(packageJSONPath))
-        //     return false
-        // var packageJSONContent = require(packageJSONPath);
-        // if (packageJSONContent["smallstack"] !== undefined)
-        //     return true;
-
         var meteorPackagesFilePath = path.join(directory, "meteor", ".meteor", "packages");
         return fs.existsSync(meteorPackagesFilePath);
     } catch (e) {
@@ -39,9 +30,13 @@ config.smallstackFound = function (directory) {
     }
 }
 
-// config.calledWithNonProjectCommands = function () {
-//     return process.argv[2] === undefined || !_.contains(["create", "--help", "-h", "-v", "--version"], process.argv[2].toLowerCase());
-// }
+config.isSmallstackEnvironment = function () {
+    return config.smallstackFound(config.rootDirectory);
+}
+
+config.isProjectEnvironment = function () {
+    return config.projectFound(config.rootDirectory);
+}
 
 config.calledWithCreateProjectCommand = function () {
     return process.argv[2] === "create" && process.argv[2] !== undefined;
@@ -68,46 +63,45 @@ config.smallstackDirectoryAvailable = function () {
 config.getRootDirectory = function () {
 
     var root = path.resolve("./");
-    if (config.projectFound(root))
-        return root;
-
     try {
         for (var tryIt = 0; tryIt < 15; tryIt++) {
-            root = path.resolve(path.join(root, "../"));
-
             if (config.projectFound(root))
                 return root;
+            if (config.smallstackFound(root))
+                return root;
+
+            root = path.resolve(path.join(root, "../"));
         }
     } catch (e) {}
-
-    throw new Error("No root directory found!");
 }
 
 
 config.cli = cliPackageJson;
 try {
     config.rootDirectory = config.getRootDirectory();
-    // config.tmpDirectory = path.join(config.rootDirectory !== undefined ? config.rootDirectory : "./", "tmp");
-    // config.builtDirectory = path.join(config.rootDirectory, "built");
-    // config.smallstackDirectory = path.join(config.rootDirectory, "smallstack");
-    if (fs.existsSync(path.join(config.rootDirectory, "app"))) {
-        throw new Error("Folder called 'app' found. Please consider renaming it to 'meteor' if you don't need the old grunt tasks anymore!");
-    } else
-        config.meteorDirectory = path.join(config.rootDirectory, "meteor");
 
-    config.supersonicDirectory = path.join(config.rootDirectory, "supersonic");
-    // config.packagesDirectory = path.join(config.smallstackDirectory, "packages");
-    config.meteorSmallstackDirectory = path.join(config.meteorDirectory, "node_modules", "smallstack");
-    config.meteorDatalayerPath = path.join(config.meteorDirectory, "node_modules", "smallstack-datalayer");
-    // config.smallstackMeteorPackageTargetDirectory = path.join(config.meteorDirectory, "packages", "smallstack");
-    // config.smallstackMeteorPackageSourceDirectory = path.join(config.packagesDirectory, "meteor-package");
-    if (config.meteorSmallstackDirectory) {
+    if (config.rootDirectory && config.isProjectEnvironment()) {
+        if (fs.existsSync(path.join(config.rootDirectory, "app"))) {
+            throw new Error("Folder called 'app' found. Please consider renaming it to 'meteor' if you don't need the old grunt tasks anymore!");
+        } else
+            config.meteorDirectory = path.join(config.rootDirectory, "meteor");
+
+        config.supersonicDirectory = path.join(config.rootDirectory, "supersonic");
+        config.meteorSmallstackDirectory = path.join(config.meteorDirectory, "node_modules", "smallstack");
+        config.meteorDatalayerPath = path.join(config.meteorDirectory, "node_modules", "smallstack-datalayer");
+        config.datalayerPath = path.join(config.rootDirectory, "datalayer");
+        config.datalayerSmallstackDirectory = path.join(config.datalayerPath, "node_modules", "smallstack");
+    }
+    if (config.isProjectEnvironment()) {
         config.cliResourcesPath = path.join(config.meteorSmallstackDirectory, "resources");
         config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
         config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
     }
-    config.datalayerPath = path.join(config.rootDirectory, "datalayer");
-    config.datalayerSmallstackDirectory = path.join(config.datalayerPath, "node_modules", "smallstack");
+    if (config.isSmallstackEnvironment()) {
+        config.cliResourcesPath = path.join(config.rootDirectory, "resources");
+        config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
+        config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
+    }
 
     if (fs.existsSync(config.rootDirectory + "/package.json")) {
         _.extend(config, require(config.rootDirectory + "/package.json"));

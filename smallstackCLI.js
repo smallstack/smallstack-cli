@@ -30,6 +30,14 @@ commands.convert = require("./src/commands/convert");
 // show a nice logo
 logo();
 
+// display some information
+console.log("Root Directory:      ", config.rootDirectory);
+if (config.isSmallstackEnvironment())
+    console.log("Environment:          Smallstack Framework");
+if (config.isProjectEnvironment())
+    console.log("Environment:          Smallstack Project");
+console.log("\n");
+
 // update check
 var updateCheck = require("./src/functions/updateCheck");
 updateCheck.doCheck();
