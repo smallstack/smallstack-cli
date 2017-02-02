@@ -86,6 +86,7 @@ try {
         } else
             config.meteorDirectory = path.join(config.rootDirectory, "meteor");
 
+        config.builtDirectory = path.join(config.rootDirectory, "built");
         config.supersonicDirectory = path.join(config.rootDirectory, "supersonic");
         config.meteorSmallstackDirectory = path.join(config.meteorDirectory, "node_modules", "smallstack");
         config.meteorDatalayerPath = path.join(config.meteorDirectory, "node_modules", "smallstack-datalayer");

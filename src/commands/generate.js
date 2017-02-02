@@ -296,10 +296,17 @@ module.exports = function (params, done) {
             //     });
             // });
 
-            console.log("compiling datalayer for: " + config.datalayerPath);
-            exec("npm run build", {
+
+            // install dependencies
+            console.log("installing npm dependencies for datalayer: " + config.datalayerPath);
+            exec("npm install", {
                 cwd: config.datalayerPath
             });
+
+            // console.log("compiling datalayer for: " + config.datalayerPath);
+            // exec("npm run build", {
+            //     cwd: config.datalayerPath
+            // });
         }
 
 
@@ -383,13 +390,6 @@ function prepareDataLayerDirectory() {
     // generate rollup.config.js
     console.log("generating datalayer rollup.config.js file ...");
     processTemplate(config.datalayerTemplatesPath + "/datalayer_rollup.config.js", config.datalayerPath + "/rollup.config.js", {});
-
-    // install dependencies
-    console.log("installing npm dependencies for datalayer: " + config.datalayerPath);
-    exec("npm install", {
-        cwd: config.datalayerPath
-    });
-
 }
 
 function getMethodsPath(rootDirectory, clientServerBoth) {
