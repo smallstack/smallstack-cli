@@ -37,9 +37,9 @@ functions.getSchemaType = function getSchemaType(type) {
 
     if (!functions.isPrimitiveType(type)) {
         if (type.indexOf("[]") === -1)
-            return "Generated" + type + ".getSchema()";
+            return type + ".getSchema()";
         else
-            return "[Generated" + type.replace("[]", "") + ".getSchema()]";
+            return "[" + type.replace("[]", "") + ".getSchema()]";
     }
 
     throw new Error("Can't convert '" + type + "' to a schema type!");

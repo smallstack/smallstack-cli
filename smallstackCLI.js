@@ -26,6 +26,7 @@ commands.gitflow = require("./src/commands/gitflow");
 commands.signAndroid = require("./src/commands/signAndroid");
 commands.upload = require("./src/commands/upload");
 commands.convert = require("./src/commands/convert");
+commands.syncproject = require("./src/commands/syncproject");
 
 // show a nice logo
 logo();
