@@ -24,7 +24,7 @@ config.smallstackFound = function (directory) {
         if (!fs.existsSync(packageJSONPath))
             return false;
         var packageJSONContent = require(packageJSONPath);
-        return packageJSONContent["name"] === "smallstack";
+        return packageJSONContent["name"] === "@smallstack/core";
     } catch (e) {
         return false;
     }
@@ -80,28 +80,31 @@ config.cli = cliPackageJson;
 try {
     config.rootDirectory = config.getRootDirectory();
 
-    if (config.rootDirectory && config.isProjectEnvironment()) {
-        if (fs.existsSync(path.join(config.rootDirectory, "app"))) {
-            throw new Error("Folder called 'app' found. Please consider renaming it to 'meteor' if you don't need the old grunt tasks anymore!");
-        } else
+    if (config.rootDirectory) {
+        if (config.isProjectEnvironment()) {
+            config.builtDirectory = path.join(config.rootDirectory, "built");
             config.meteorDirectory = path.join(config.rootDirectory, "meteor");
+            config.meteorSmallstackCoreDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/core");
+            config.meteorSmallstackMeteorDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/meteor");
+            config.meteorDatalayerPath = path.join(config.meteorDirectory, "node_modules", "@smallstack/datalayer");
+            config.datalayerPath = path.join(config.rootDirectory, "datalayer");
+            config.datalayerSmallstackDirectory = path.join(config.datalayerPath, "node_modules", "@smallstack/core");
+            config.cliResourcesPath = path.join(config.datalayerSmallstackDirectory, "resources");
+            config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
+            config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
 
-        config.builtDirectory = path.join(config.rootDirectory, "built");
-        config.supersonicDirectory = path.join(config.rootDirectory, "supersonic");
-        config.meteorSmallstackDirectory = path.join(config.meteorDirectory, "node_modules", "smallstack");
-        config.meteorDatalayerPath = path.join(config.meteorDirectory, "node_modules", "smallstack-datalayer");
-        config.datalayerPath = path.join(config.rootDirectory, "datalayer");
-        config.datalayerSmallstackDirectory = path.join(config.datalayerPath, "node_modules", "smallstack");
-    }
-    if (config.isProjectEnvironment()) {
-        config.cliResourcesPath = path.join(config.datalayerSmallstackDirectory, "resources");
-        config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
-        config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
-    }
-    if (config.isSmallstackEnvironment()) {
-        config.cliResourcesPath = path.join(config.rootDirectory, "resources");
-        config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
-        config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
+            if (fs.existsSync(path.join(config.rootDirectory, "nativescript-app"))) {
+                config.nativescriptDirectory = path.join(config.rootDirectory, "nativescript-app");
+                config.nativescriptSmallstackCoreDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/core");
+                config.nativescriptSmallstackNativescriptDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/nativescript");
+                config.nativescriptDatalayerDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/datalayer");
+            }
+        }
+        if (config.isSmallstackEnvironment()) {
+            config.cliResourcesPath = path.join(config.rootDirectory, "resources");
+            config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
+            config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
+        }
     }
 
     if (fs.existsSync(config.rootDirectory + "/package.json")) {

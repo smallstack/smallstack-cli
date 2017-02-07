@@ -282,7 +282,7 @@ functions.getPackagesPathRelative = function (modulePath, relativePath, package)
     if (relativePath)
         return modulePath + relativePath + package;
     else
-        return "smallstack";
+        return "@smallstack/core";
 }
 
 functions.getMongoUpdateJson = function getMongoUpdateJson(schema) {
@@ -423,7 +423,7 @@ functions.evaluateQuery = function evaluateQuery(query, userIdString) {
     if (!query.name || query.name.indexOf("get") !== 0)
         throw new Error("Query Name '" + query.name + "' should start with 'get'!");
     if (userIdString === undefined)
-        userIdString = "Meteor.userId()";
+        userIdString = "this.dataBridge.getCurrentUserId()";
     var parameters = "";
     var firstParameter = undefined;
     var secondParameter = undefined;
