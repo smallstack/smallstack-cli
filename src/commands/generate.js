@@ -71,7 +71,8 @@ module.exports = function (params, done) {
             allSmallstackFiles = allSmallstackFiles.concat(glob.sync("**/*.smallstack.json", {
                 cwd: config.rootDirectory,
                 follow: true,
-                absolute: true
+                absolute: true,
+                ignore: "**/dist/**"
             }));
 
         if (allSmallstackFiles.length === 0)
