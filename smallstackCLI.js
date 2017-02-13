@@ -35,8 +35,9 @@ logo();
 console.log("Root Directory:      ", config.rootDirectory);
 if (config.isSmallstackEnvironment())
     console.log("Environment:          Smallstack Framework");
-if (config.isProjectEnvironment())
+else if (config.isProjectEnvironment())
     console.log("Environment:          Smallstack Project");
+else throw new Error("No usable environment found!");
 console.log("\n");
 
 // update check
