@@ -20,11 +20,11 @@ config.projectFound = function (directory) {
 }
 config.smallstackFound = function (directory) {
     try {
-        var packageJSONPath = path.join(directory, "package.json");
+        var packageJSONPath = path.join(directory, "modules", "core", "package.json");
         if (!fs.existsSync(packageJSONPath))
             return false;
         var packageJSONContent = require(packageJSONPath);
-        return packageJSONContent["name"] === "smallstack";
+        return packageJSONContent["name"] === "@smallstack/core";
     } catch (e) {
         return false;
     }
@@ -72,7 +72,9 @@ config.getRootDirectory = function () {
 
             root = path.resolve(path.join(root, "../"));
         }
-    } catch (e) {}
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 
