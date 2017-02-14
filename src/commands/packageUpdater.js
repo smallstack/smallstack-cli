@@ -69,34 +69,39 @@ module.exports = function (params, done) {
     });
 }
 
+function createSymlink(from, to) {
+    try {
+        fs.removeSync(to);
+        console.log("creating symlink: " + from + " -> " + to);
+        fs.ensureSymlinkSync(from, to);
+    } catch (e) {
+        console.error(e);
+    }
+}
+
 function persistLocalConfiguration(smallstackPath) {
     if (smallstackPath === undefined)
         throw Error("No smallstack.path is given!");
 
-    var absoluteSmallstackPath = path.resolve(config.rootDirectory, smallstackPath, "dist", "bundles");
+    var absoluteSmallstackCorePath = path.resolve(config.rootDirectory, smallstackPath, "modules", "core", "dist", "bundles");
+    var absoluteSmallstackMeteorPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor", "dist", "bundles");
+    var absoluteSmallstackNativescriptPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "nativescript", "dist", "bundles");
     var absoluteDatalayerPath = path.resolve(config.datalayerPath, "dist", "bundles");
 
-    fs.ensureDirSync(config.datalayerPath);
+    // meteor links
+    createSymlink(absoluteSmallstackCorePath, config.meteorSmallstackCoreDirectory);
+    createSymlink(absoluteSmallstackMeteorPath, config.meteorSmallstackMeteorDirectory);
 
-    fs.removeSync(config.meteorSmallstackDirectory);
-    console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.meteorSmallstackDirectory);
-    fs.ensureSymlinkSync(absoluteSmallstackPath, config.meteorSmallstackDirectory);
+    // datalayer
+    createSymlink(absoluteSmallstackCorePath, config.datalayerSmallstackDirectory);
+    createSymlink(absoluteDatalayerPath, config.meteorDatalayerPath);
 
-    fs.removeSync(config.datalayerSmallstackDirectory);
-    console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.datalayerSmallstackDirectory);
-    fs.ensureSymlinkSync(absoluteSmallstackPath, config.datalayerSmallstackDirectory);
+    if (config.nativescriptDirectory) {
+        createSymlink(absoluteSmallstackCorePath, config.nativescriptSmallstackCoreDirectory);
+        createSymlink(absoluteSmallstackNativescriptPath, config.nativescriptSmallstackNativescriptDirectory);
+        createSymlink(absoluteDatalayerPath, config.nativescriptDatalayerDirectory);
+    }
 
-    // fs.removeSync(config.meteorPackagesDirectory);
-    // console.log("creating symlink: " + absoluteSmallstackPath + " -> " + config.meteorPackagesDirectory);
-    // fs.ensureSymlinkSync(absoluteSmallstackPath, config.meteorPackagesDirectory);
-
-    fs.removeSync(config.meteorDatalayerPath);
-    console.log("creating symlink: " + absoluteDatalayerPath + " -> " + config.meteorDatalayerPath);
-    fs.ensureSymlinkSync(absoluteDatalayerPath, config.meteorDatalayerPath);
-
-    // fs.removeSync(config.smallstackMeteorPackageTargetDirectory);
-    // console.log("creating symlink: " + config.smallstackMeteorPackageSourceDirectory + " -> " + config.smallstackMeteorPackageTargetDirectory);
-    // fs.ensureSymlinkSync(config.smallstackMeteorPackageSourceDirectory, config.smallstackMeteorPackageTargetDirectory);
 }
 
 function downloadAndExtractVersion(parameters, version, doneCallback) {

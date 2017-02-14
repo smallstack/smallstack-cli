@@ -282,7 +282,7 @@ functions.getPackagesPathRelative = function (modulePath, relativePath, package)
     if (relativePath)
         return modulePath + relativePath + package;
     else
-        return "smallstack";
+        return "@smallstack/core";
 }
 
 functions.getMongoUpdateJson = function getMongoUpdateJson(schema) {
