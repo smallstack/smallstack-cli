@@ -49,7 +49,7 @@ config.smallstackFound = function (directory) {
 }
 
 config.npmPackageFound = function (directory) {
-    if (fs.existsSync(path.join(directory, ".meteor")))
+    if (fs.existsSync(path.join(directory, ".meteor")) || config.smallstackFound(directory))
         return false;
     var packageJSONPath = path.join(directory, "package.json");
     if (!fs.existsSync(packageJSONPath))
