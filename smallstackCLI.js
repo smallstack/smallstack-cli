@@ -37,6 +37,8 @@ if (config.isSmallstackEnvironment())
     console.log("Environment:          Smallstack Framework");
 else if (config.isProjectEnvironment())
     console.log("Environment:          Smallstack Project");
+else if (config.isNPMPackageEnvironment())
+    console.log("Environment:          NPM Package");
 else throw new Error("No usable environment found!");
 console.log("\n");
 
