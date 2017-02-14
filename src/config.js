@@ -18,13 +18,31 @@ config.projectFound = function (directory) {
         return false;
     }
 }
+
+
+function checkModule(path, name) {
+    if (!fs.existsSync(path))
+        return false;
+    var packageContent = require(path);
+    return packageContent["name"] === name;
+}
+
+
+
 config.smallstackFound = function (directory) {
     try {
-        var packageJSONPath = path.join(directory, "modules", "core", "package.json");
-        if (!fs.existsSync(packageJSONPath))
-            return false;
-        var packageJSONContent = require(packageJSONPath);
-        return packageJSONContent["name"] === "@smallstack/core";
+        // core module?
+        if (checkModule(path.join(directory, "package.json"), "@smallstack/core"))
+            return true;
+
+        // meteor module?
+        if (checkModule(path.join(directory, "package.json"), "@smallstack/meteor"))
+            return true;
+
+        // nativescript module?
+        if (checkModule(path.join(directory, "package.json"), "@smallstack/nativescript"))
+            return true;
+
     } catch (e) {
         return false;
     }
