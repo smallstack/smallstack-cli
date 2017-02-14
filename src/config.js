@@ -48,12 +48,26 @@ config.smallstackFound = function (directory) {
     }
 }
 
+config.npmPackageFound = function (directory) {
+    if (fs.existsSync(path.join(directory, ".meteor")))
+        return false;
+    var packageJSONPath = path.join(directory, "package.json");
+    if (!fs.existsSync(packageJSONPath))
+        return false;
+    var packageContent = require(packageJSONPath);
+    return packageContent["name"] !== undefined;
+}
+
 config.isSmallstackEnvironment = function () {
     return config.smallstackFound(config.rootDirectory);
 }
 
 config.isProjectEnvironment = function () {
     return config.projectFound(config.rootDirectory);
+}
+
+config.isNPMPackageEnvironment = function () {
+    return config.npmPackageFound(config.rootDirectory);
 }
 
 config.calledWithCreateProjectCommand = function () {
@@ -86,6 +100,8 @@ config.getRootDirectory = function () {
             if (config.projectFound(root))
                 return root;
             if (config.smallstackFound(root))
+                return root;
+            if (config.npmPackageFound(root))
                 return root;
 
             root = path.resolve(path.join(root, "../"));
