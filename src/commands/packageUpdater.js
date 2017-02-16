@@ -96,6 +96,13 @@ function persistLocalConfiguration(smallstackPath) {
     createSymlink(absoluteSmallstackCorePath, config.datalayerSmallstackDirectory);
     createSymlink(absoluteDatalayerPath, config.meteorDatalayerPath);
 
+    // nativescript module
+    createSymlink(absoluteSmallstackCorePath, path.resolve(config.rootDirectory, smallstackPath, "modules", "nativescript", "node_modules", "@smallstack", "core"));
+
+    // meteor module
+    createSymlink(absoluteSmallstackCorePath, path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor", "node_modules", "@smallstack", "core"));
+
+
     if (config.nativescriptDirectory) {
         createSymlink(absoluteSmallstackCorePath, config.nativescriptSmallstackCoreDirectory);
         createSymlink(absoluteSmallstackNativescriptPath, config.nativescriptSmallstackNativescriptDirectory);
