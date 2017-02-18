@@ -254,13 +254,13 @@ functions.getChecksForParameters = function getChecksForParameters(array, others
                 if (schemaTypeFound)
                     type = "smallstack.schemas[\"" + schemaTypeFound + "\"]";
                 else
-                    type = functions.getSchemaType(split[1]);
+                    type = functions.getTypescriptType(split[1]);
             } else {
                 name = array[i];
-                type = "String";
+                type = "string";
             }
 
-            out += "\t\tUtils.check(params." + name + ", " + type + ", \"" + name + "\"";
+            out += "\t\tUtils.check(params." + name + ", \"" + type + "\", \"" + name + "\"";
             if (callback)
                 out += ", callback";
             out += ");\n";
