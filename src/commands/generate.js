@@ -274,12 +274,14 @@ module.exports = function (params, done) {
         });
 
         // generate server-counts file
-        // console.log("generating server-counts.ts file ...");
-        // processTemplate(config.datalayerTemplatesPath + "/server-counts.ts", path.join(serverMethodsPath, "server-counts.ts"), {
-        //     functions: genFunctions,
-        //     config: config,
-        //     configuration: _.values(configuration)
-        // });
+        if (config.meteorDirectory) {
+            console.log("generating server-counts.ts file ...");
+            processTemplate(config.datalayerTemplatesPath + "/server-counts.ts", path.join(config.meteorDirectory, "server", "methods", "server-counts.ts"), {
+                functions: genFunctions,
+                config: config,
+                configuration: _.values(configuration)
+            });
+        }
 
         if (config.datalayerPath) {
             // generate typesystem file
