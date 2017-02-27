@@ -34,16 +34,15 @@ module.exports = function () {
         process.stdout.write("\n");
     }
 
+    console.log("Usage : command [options] [command [options] ...]");
     console.log(" ");
-    console.log("Command Line Usage : command [options] [command [options] ...]");
-    console.log(" ");
-    console.log("     Example: smallstack clean generate compile --meteor");
+    console.log("     Example: smallstack clean setup generate compile --watch");
     console.log(" ");
     console.log("Available Commands : ");
     console.log(" ");
-    helpEntry("create", "", "creates a new project");
-    helpEntry("compile", ["--meteor", "--smallstack", "--supersonic"], "compiles the project");
-    helpEntry("generate", "", "generates all source files");
-    helpEntry("clean", "", "removes all generated and compiled files");
-    helpEntry("packages", "", "starts the package manager");
+    helpEntry("setup", "", "sets up/updates a smallstack project or smallstack module");
+    helpEntry("clean", "", "cleans generated and compiled files in a project or module");
+    helpEntry("generate", "", "generates source files from *.smallstack.json");
+    helpEntry("compile", ["--watch"], "compiles *.ts files in smallstack modules");
+    helpEntry("bundle", "", "bundles smallstack modules");
 }

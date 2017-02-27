@@ -72,7 +72,7 @@ module.exports = function (params, done) {
                 cwd: config.rootDirectory,
                 follow: true,
                 absolute: true,
-                ignore: "**/dist/**"
+                ignore: ["**/dist/**", "**/node_modules/**", "**/undone/**"]
             }));
 
         if (allSmallstackFiles.length === 0)
@@ -440,14 +440,15 @@ function evaluateSmallstackFile(smallstackFile, extendings, roots, configuration
     console.log("root directory : ", rootDirectory);
     if (roots[rootDirectory] === undefined) {
         roots[rootDirectory] = {};
+        roots[rootDirectory].rootDirectory = rootDirectory;
         roots[rootDirectory].services = [];
         roots[rootDirectory].models = [];
         roots[rootDirectory].collections = [];
         if (config.isSmallstackEnvironment() && (!additionalConfiguration || additionalConfiguration.generate === false)) {
             // check where the root of the smallstack folder is
             var relative = "../";
-            for (var tryIt = 0; tryIt < 5; tryIt++) {
-                if (config.smallstackFound(path.resolve(path.join(rootDirectory, relative)))) {
+            for (var tryIt = 0; tryIt < 10; tryIt++) {
+                if (config.smallstackModuleFound(path.resolve(path.join(rootDirectory, relative)))) {
                     roots[rootDirectory].packagesPathRelative = relative;
                     break;
                 } else {
@@ -459,7 +460,6 @@ function evaluateSmallstackFile(smallstackFile, extendings, roots, configuration
         } else
             roots[rootDirectory].packagesPathRelative = undefined;
     }
-    console.log("relative path : ", roots[rootDirectory].packagesPathRelative);
 
     var id = jsonContent.model.name;
     if (id === undefined || id === null || id === "")

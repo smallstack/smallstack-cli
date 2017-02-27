@@ -2,11 +2,17 @@ var fs = require("fs-extra");
 var _ = require("underscore");
 var glob = require("glob");
 var path = require("path");
+var config = require("../config");
+var notifier = require("../functions/notifier");
+var exec = require("../functions/exec");
 
 module.exports = function (parameters, done) {
 
-    var config = require("../config");
-    var notifier = require("../functions/notifier");
+    if (config.isSmallstackEnvironment()) {
+        cleanModuleFolder();
+        done();
+        return;
+    }
 
     // delete meteor/built
     // removeDirOrFile(path.join(config.meteorDirectory, "built"));
@@ -59,6 +65,19 @@ module.exports = function (parameters, done) {
 
     notifier("Cleaning completed!");
     done();
+}
+
+function cleanModuleFolder() {
+    removeDirOrFile(path.resolve(config.rootDirectory, "dist"));
+    exec("npm run clean", {
+        cwd: path.resolve(config.rootDirectory, "modules", "core")
+    });
+    exec("npm run clean", {
+        cwd: path.resolve(config.rootDirectory, "modules", "meteor")
+    });
+    exec("npm run clean", {
+        cwd: path.resolve(config.rootDirectory, "modules", "nativescript")
+    });
 }
 
 function removeDirOrFile(directoryOrFile) {

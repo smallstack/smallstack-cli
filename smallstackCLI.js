@@ -10,13 +10,13 @@ var parseArguments = require("./src/functions/parseArguments");
 
 // commands
 var commands = {};
-commands.help = require("./src/functions/help");
+commands.help = require("./src/commands/help");
 commands.generate = require("./src/commands/generate");
 commands.create = require("./src/commands/create");
 commands.supersonicCreate = require("./src/commands/supersonicCreate");
 commands.showConfig = require("./src/commands/showConfig");
 commands.compile = require("./src/commands/compile");
-commands.packages = require("./src/commands/packageUpdater");
+commands.setup = require("./src/commands/setup");
 commands.clean = require("./src/commands/cleaner");
 commands.bundle = require("./src/commands/bundle");
 commands.jenkins = require("./src/commands/jenkins");
@@ -32,14 +32,17 @@ commands.syncproject = require("./src/commands/syncproject");
 logo();
 
 // display some information
-console.log("Root Directory:      ", config.rootDirectory);
 if (config.isSmallstackEnvironment())
-    console.log("Environment:          Smallstack Framework");
+    console.log("Environment:     Smallstack Framework");
 else if (config.isProjectEnvironment())
-    console.log("Environment:          Smallstack Project");
+    console.log("Environment:     Smallstack Project");
 else if (config.isNPMPackageEnvironment())
-    console.log("Environment:          NPM Package");
-else throw new Error("No usable environment found!");
+    console.log("Environment:     NPM Package");
+else {
+    console.error(colors.red("ERROR: No suitable environment found! The smallstack CLI only works inside smallstack projects and smallstack module folders!"));
+    return;
+}
+console.log("Root Directory: ", config.getRootDirectory());
 console.log("\n");
 
 // update check
