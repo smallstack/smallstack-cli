@@ -31,24 +31,38 @@ function checkModule(path, name) {
 
 config.smallstackFound = function (directory) {
     try {
-        // core module?
-        if (checkModule(path.join(directory, "package.json"), "@smallstack/core"))
+        // core common module available?
+        if (checkModule(path.join(directory, "modules", "core", "common", "package.json"), "@smallstack/core-common"))
             return true;
+    } catch (e) {
+        return false;
+    }
+}
 
-        // meteor module?
-        if (checkModule(path.join(directory, "package.json"), "@smallstack/meteor"))
+config.smallstackModuleFound = function (directory) {
+    try {
+        if (checkModule(path.join(directory, "package.json"), "@smallstack/core-common"))
             return true;
-
-        // nativescript module?
-        if (checkModule(path.join(directory, "package.json"), "@smallstack/nativescript"))
+        if (checkModule(path.join(directory, "package.json"), "@smallstack/core-client"))
             return true;
-
+        if (checkModule(path.join(directory, "package.json"), "@smallstack/core-server"))
+            return true;
+        if (checkModule(path.join(directory, "package.json"), "@smallstack/meteor-common"))
+            return true;
+        if (checkModule(path.join(directory, "package.json"), "@smallstack/meteor-client"))
+            return true;
+        if (checkModule(path.join(directory, "package.json"), "@smallstack/meteor-server"))
+            return true;
+        if (checkModule(path.join(directory, "package.json"), "@smallstack/nativescript-client"))
+            return true;
     } catch (e) {
         return false;
     }
 }
 
 config.npmPackageFound = function (directory) {
+    if (!directory)
+        return false;
     if (fs.existsSync(path.join(directory, ".meteor")) || config.smallstackFound(directory))
         return false;
     var packageJSONPath = path.join(directory, "package.json");
@@ -107,7 +121,7 @@ config.getRootDirectory = function () {
             root = path.resolve(path.join(root, "../"));
         }
     } catch (e) {
-        console.error(e);
+        throw new Error("No suitable environment found! The smallstack CLI only works inside smallstack projects and smallstack module folders!");
     }
 }
 
@@ -120,8 +134,12 @@ try {
         if (config.isProjectEnvironment()) {
             config.builtDirectory = path.join(config.rootDirectory, "built");
             config.meteorDirectory = path.join(config.rootDirectory, "meteor");
-            config.meteorSmallstackCoreDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/core");
-            config.meteorSmallstackMeteorDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/meteor");
+            config.meteorSmallstackCoreClientDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/core-client");
+            config.meteorSmallstackCoreServerDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/core-server");
+            config.meteorSmallstackCoreCommonDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/core-common");
+            config.meteorSmallstackMeteorClientDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/meteor-client");
+            config.meteorSmallstackMeteorServerDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/meteor-server");
+            config.meteorSmallstackMeteorCommonDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/meteor-common");
             config.meteorDatalayerPath = path.join(config.meteorDirectory, "node_modules", "@smallstack/datalayer");
             config.datalayerPath = path.join(config.rootDirectory, "datalayer");
             config.datalayerSmallstackDirectory = path.join(config.datalayerPath, "node_modules", "@smallstack/core");
@@ -131,13 +149,13 @@ try {
 
             if (fs.existsSync(path.join(config.rootDirectory, "nativescript-app"))) {
                 config.nativescriptDirectory = path.join(config.rootDirectory, "nativescript-app");
-                config.nativescriptSmallstackCoreDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/core");
+                config.nativescriptSmallstackCoreDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/core-client");
                 config.nativescriptSmallstackNativescriptDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/nativescript");
                 config.nativescriptDatalayerDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/datalayer");
             }
         }
         if (config.isSmallstackEnvironment()) {
-            config.cliResourcesPath = path.join(config.rootDirectory, "resources");
+            config.cliResourcesPath = path.join(config.rootDirectory, "", "resources");
             config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
             config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
         }

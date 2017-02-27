@@ -2,6 +2,7 @@ var path = require("path");
 var pluralizer = require("pluralize");
 var _ = require("underscore");
 var _trim = require("underscore.string/trim");
+var fs = require("fs-extra");
 
 var functions = {};
 
@@ -278,11 +279,22 @@ functions.getSchemaForType = function getSchemaForType(type, others) {
     return undefined;
 }
 
-functions.getPackagesPathRelative = function (modulePath, relativePath, package) {
-    if (relativePath)
-        return modulePath + relativePath + package;
+functions.getPackagesPathRelative = function (currentRootDirectory, relativeFilePath, relativeModuleRootPath, importPathRelativeToModuleRoot, importPackage) {
+
+    var absoluteModulePath = path.resolve(currentRootDirectory, relativeModuleRootPath);
+    var packageJsonPath = path.resolve(absoluteModulePath, "package.json");
+
+    var asExternal = true;
+    if (fs.existsSync(packageJsonPath)) {
+        var jsonContent = require(packageJsonPath);
+        if (jsonContent.name === importPackage)
+            asExternal = false;
+    }
+
+    if (asExternal)
+        return importPackage;
     else
-        return "@smallstack/core";
+        return path.join(relativeFilePath, relativeModuleRootPath, importPathRelativeToModuleRoot).replace(/\\/g, "/");
 }
 
 functions.getMongoUpdateJson = function getMongoUpdateJson(schema) {
