@@ -373,15 +373,7 @@ function prepareDataLayerDirectory() {
     // generate package_bundle.json
     console.log("generating datalayer package_bundle.json file ...");
     processTemplate(config.datalayerTemplatesPath + "/datalayer_package_bundle.json", config.datalayerPath + "/package_bundle.json", {});
-
-    // generate browser.ts
-    console.log("generating datalayer browser.ts file ...");
-    processTemplate(config.datalayerTemplatesPath + "/datalayer_browser.ts", config.datalayerPath + "/browser.ts", {});
-
-    // generate server.ts
-    console.log("generating datalayer server.ts file ...");
-    processTemplate(config.datalayerTemplatesPath + "/datalayer_server.ts", config.datalayerPath + "/server.ts", {});
-
+    
     // generate tsconfig.json
     console.log("generating datalayer tsconfig.json file ...");
     processTemplate(config.datalayerTemplatesPath + "/datalayer_tsconfig.json", config.datalayerPath + "/tsconfig.json", {});
