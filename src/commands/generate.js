@@ -56,7 +56,7 @@ module.exports = function (params, done) {
 
             // also load types from smallstack framework
             _.each(glob.sync("**/*.smallstack.json", {
-                cwd: config.datalayerSmallstackDirectory,
+                cwd: config.smallstackDirectory,
                 follow: true,
                 absolute: true
             }), function (smallstackFile) {
