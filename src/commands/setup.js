@@ -189,21 +189,22 @@ function persistLocalConfiguration(smallstackPath) {
     createSymlink(absoluteDatalayerPath, config.meteorDatalayerPath);
 
     // datalayer
-    // createSymlink(absoluteSmallstackCorePath, config.datalayerSmallstackDirectory);
-    // createSymlink(absoluteDatalayerPath, config.meteorDatalayerPath);
+    createSymlink(absoluteModuleCoreCommonPath, config.datalayerSmallstackCoreCommonDirectory);
 
-    // // nativescript module
+    // nativescript module
     // createSymlink(absoluteSmallstackCoreClientPath, path.resolve(config.rootDirectory, smallstackPath, "modules", "nativescript", "node_modules", "@smallstack", "core-client"));
+    // createSymlink(absoluteModuleCoreCommonPath, path.resolve(config.rootDirectory, smallstackPath, "modules", "nativescript", "node_modules", "@smallstack", "core-common"));
+    // createSymlink(absoluteModuleNativescriptPath, path.resolve(config.rootDirectory, smallstackPath, "modules", "nativescript", "node_modules", "@smallstack", "nativescript"));
 
     // // meteor module
     // createSymlink(absoluteSmallstackCorePath, path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor", "node_modules", "@smallstack", "core"));
 
-
-    // if (config.nativescriptDirectory) {
-    //     createSymlink(absoluteSmallstackCoreClientPath, config.nativescriptSmallstackCoreDirectory);
-    //     createSymlink(absoluteSmallstackNativescriptPath, config.nativescriptSmallstackNativescriptDirectory);
-    //     createSymlink(absoluteDatalayerPath, config.nativescriptDatalayerDirectory);
-    // }
+    if (config.nativescriptDirectory) {
+        createSymlink(absoluteModuleCoreClientPath, config.nativescriptSmallstackCoreClientDirectory);
+        createSymlink(absoluteModuleCoreCommonPath, config.nativescriptSmallstackCoreCommonDirectory);
+        createSymlink(absoluteModuleNativescriptPath, config.nativescriptSmallstackNativescriptDirectory);
+        createSymlink(absoluteDatalayerPath, config.nativescriptDatalayerDirectory);
+    }
 
 }
 
