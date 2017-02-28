@@ -30,9 +30,12 @@ module.exports = function (params, done) {
     }, {
         name: "local file",
         value: "file"
+    }, {
+        name: "remote file (URL)",
+        value: "url"
     }];
     if (!config.smallstack || !config.smallstack.version)
-        console.error(colors.red("ERROR: No smallstack.version defined in project's package.json!\n"));
+        console.error(colors.gray("No smallstack.version defined in project's package.json!\n"));
     else
         packageModes.unshift({
             name: "use project version (" + config.smallstack.version + ")",
@@ -40,32 +43,40 @@ module.exports = function (params, done) {
         });
 
     var questions = [{
-            name: "smallstack.mode",
-            type: 'list',
-            message: 'Which version shall be used? ',
-            choices: packageModes,
-            when: function () {
-                return !smallstackMode;
-            }
-        },
-        {
-            name: "smallstack.path",
-            type: 'input',
-            message: 'relative path from project root to local smallstack directory :',
-            default: "../smallstack",
-            when: function (answers) {
-                return answers.smallstack.mode === "local" && smallstackPath === undefined;
-            }
-        },
-        {
-            name: "smallstack.filepath",
-            type: 'input',
-            message: 'relative path from project root to local file location :',
-            default: "smallstack-0.8.0.zip",
-            when: function (answers) {
-                return answers.smallstack.mode === "file";
-            }
+        name: "smallstack.mode",
+        type: 'list',
+        message: 'Which version shall be used? ',
+        choices: packageModes,
+        when: function () {
+            return !smallstackMode;
         }
+    },
+    {
+        name: "smallstack.path",
+        type: 'input',
+        message: 'relative path from project root to local smallstack directory :',
+        default: "../smallstack",
+        when: function (answers) {
+            return answers.smallstack.mode === "local" && smallstackPath === undefined;
+        }
+    },
+    {
+        name: "smallstack.filepath",
+        type: 'input',
+        message: 'relative path from project root to local file location :',
+        default: "smallstack-0.8.0.zip",
+        when: function (answers) {
+            return answers.smallstack.mode === "file";
+        }
+    },
+    {
+        name: "smallstack.url",
+        type: 'input',
+        message: 'please enter the url where to download smallstack from :',
+        when: function (answers) {
+            return answers.smallstack.mode === "url";
+        }
+    }
     ]
 
     inquirer.prompt(questions).then(function (answers) {
@@ -82,12 +93,21 @@ module.exports = function (params, done) {
                 break;
             case "projectVersion":
                 throw new Error("Currently not supported!");
-                // downloadAndExtractVersion(params, config.smallstack.version, done);
-                // break;
+            // downloadAndExtractVersion(params, config.smallstack.version, done);
+            // break;
             case "file":
                 var destinationPath = path.join(config.rootDirectory, "smallstack");
                 fs.emptyDirSync(destinationPath);
                 unzipSmallstackFile(path.join(config.rootDirectory, answers.smallstack.filepath), destinationPath, function () {
+                    persistLocalConfiguration(destinationPath);
+                    done();
+                });
+                break;
+            case "url":
+                var destinationPath = path.join(config.rootDirectory, "smallstack");
+                fs.emptyDirSync(destinationPath);
+                console.log("YEP, url")
+                downloadAndExtract(answers.smallstack.url, destinationPath, function () {
                     persistLocalConfiguration(destinationPath);
                     done();
                 });
@@ -202,22 +222,27 @@ function downloadAndExtractVersion(parameters, version, doneCallback) {
         var body = JSON.parse(body);
         if (!body.url)
             throw new Error("Response didn't include url parameter!");
-
-        fs.ensureDirSync(config.tmpDirectory);
-        var targetFileName = path.join(config.tmpDirectory, "smallstack-" + version + ".zip");
-
-        request({
-            method: "GET",
-            url: body.url
-        }, function (error, response, body) {
-            fs.ensureDirSync(config.packagesDirectory);
-            fs.emptyDirSync(config.packagesDirectory);
-
-            // unzip file
-            unzipSmallstackFile(targetFileName, config.packagesDirectory, doneCallback);
-
-        }).pipe(fs.createWriteStream(targetFileName));
+        downloadAndExtract(body.url, destination, doneCallback);
     });
+}
+
+
+function downloadAndExtract(url, destination, callback) {
+    fs.ensureDirSync(config.tmpDirectory);
+    var targetFileName = path.join(config.tmpDirectory, "smallstack.zip");
+    if (fs.existsSync(targetFileName))
+        fs.removeSync(targetFileName);
+    console.log("downloading '" + url + "' to '" + targetFileName + "' and extracting to " + destination);
+    request({
+        method: "GET",
+        url: url
+    }, function (error, response, body) {
+        fs.emptyDirSync(destination);
+
+        // unzip file
+        unzipSmallstackFile(targetFileName, destination, callback);
+
+    }).pipe(fs.createWriteStream(targetFileName));
 }
 
 
