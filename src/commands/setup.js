@@ -64,7 +64,7 @@ module.exports = function (params, done) {
         name: "smallstack.filepath",
         type: 'input',
         message: 'relative path from project root to local file location :',
-        default: "smallstack-0.8.0.zip",
+        default: "../smallstack/dist/smallstack-0.8.0.zip",
         when: function (answers) {
             return answers.smallstack.mode === "file";
         }
@@ -96,19 +96,16 @@ module.exports = function (params, done) {
             // downloadAndExtractVersion(params, config.smallstack.version, done);
             // break;
             case "file":
-                var destinationPath = path.join(config.rootDirectory, "smallstack");
-                fs.emptyDirSync(destinationPath);
-                unzipSmallstackFile(path.join(config.rootDirectory, answers.smallstack.filepath), destinationPath, function () {
-                    persistLocalConfiguration(destinationPath);
+                fs.emptyDirSync(config.smallstackDirectory);
+                unzipSmallstackFile(path.join(config.rootDirectory, answers.smallstack.filepath), config.smallstackDirectory, function () {
+                    persistLocalConfiguration(config.smallstackDirectory);
                     done();
                 });
                 break;
             case "url":
-                var destinationPath = path.join(config.rootDirectory, "smallstack");
-                fs.emptyDirSync(destinationPath);
-                console.log("YEP, url")
-                downloadAndExtract(answers.smallstack.url, destinationPath, function () {
-                    persistLocalConfiguration(destinationPath);
+                fs.emptyDirSync(config.smallstackDirectory);
+                downloadAndExtract(answers.smallstack.url, config.smallstackDirectory, function () {
+                    persistLocalConfiguration(config.smallstackDirectory);
                     done();
                 });
                 break;

@@ -135,6 +135,7 @@ try {
         if (config.isProjectEnvironment()) {
             config.builtDirectory = path.join(config.rootDirectory, "built");
             config.meteorDirectory = path.join(config.rootDirectory, "meteor");
+            config.smallstackDirectory = path.join(config.rootDirectory, "smallstack");
             config.meteorSmallstackCoreClientDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/core-client");
             config.meteorSmallstackCoreServerDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/core-server");
             config.meteorSmallstackCoreCommonDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/core-common");
@@ -144,7 +145,7 @@ try {
             config.meteorDatalayerPath = path.join(config.meteorDirectory, "node_modules", "@smallstack/datalayer");
             config.datalayerPath = path.join(config.rootDirectory, "datalayer");
             config.datalayerSmallstackDirectory = path.join(config.datalayerPath, "node_modules", "@smallstack/core");
-            config.cliResourcesPath = path.join(config.datalayerSmallstackDirectory, "resources");
+            config.cliResourcesPath = path.join(config.smallstackDirectory, "resources");
             config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
             config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
 

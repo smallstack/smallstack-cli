@@ -281,14 +281,16 @@ functions.getSchemaForType = function getSchemaForType(type, others) {
 
 functions.getPackagesPathRelative = function (currentRootDirectory, relativeFilePath, relativeModuleRootPath, importPathRelativeToModuleRoot, importPackage) {
 
-    var absoluteModulePath = path.resolve(currentRootDirectory, relativeModuleRootPath);
-    var packageJsonPath = path.resolve(absoluteModulePath, "package.json");
-
     var asExternal = true;
-    if (fs.existsSync(packageJsonPath)) {
-        var jsonContent = require(packageJsonPath);
-        if (jsonContent.name === importPackage)
-            asExternal = false;
+    if (relativeModuleRootPath !== undefined) {
+        var absoluteModulePath = path.resolve(currentRootDirectory, relativeModuleRootPath);
+        var packageJsonPath = path.resolve(absoluteModulePath, "package.json");
+
+        if (fs.existsSync(packageJsonPath)) {
+            var jsonContent = require(packageJsonPath);
+            if (jsonContent.name === importPackage)
+                asExternal = false;
+        }
     }
 
     if (asExternal)
