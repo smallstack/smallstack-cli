@@ -131,6 +131,7 @@ try {
     config.rootDirectory = config.getRootDirectory();
 
     if (config.rootDirectory) {
+        config.tmpDirectory = path.join(config.rootDirectory, "tmp");
         if (config.isProjectEnvironment()) {
             config.builtDirectory = path.join(config.rootDirectory, "built");
             config.meteorDirectory = path.join(config.rootDirectory, "meteor");
