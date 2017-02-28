@@ -144,14 +144,15 @@ try {
             config.meteorSmallstackMeteorCommonDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/meteor-common");
             config.meteorDatalayerPath = path.join(config.meteorDirectory, "node_modules", "@smallstack/datalayer");
             config.datalayerPath = path.join(config.rootDirectory, "datalayer");
-            config.datalayerSmallstackDirectory = path.join(config.datalayerPath, "node_modules", "@smallstack/core");
+            config.datalayerSmallstackCoreCommonDirectory = path.join(config.datalayerPath, "node_modules", "@smallstack/core-common");
             config.cliResourcesPath = path.join(config.smallstackDirectory, "resources");
             config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
             config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
 
             if (fs.existsSync(path.join(config.rootDirectory, "nativescript-app"))) {
                 config.nativescriptDirectory = path.join(config.rootDirectory, "nativescript-app");
-                config.nativescriptSmallstackCoreDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/core-client");
+                config.nativescriptSmallstackCoreClientDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/core-client");
+                config.nativescriptSmallstackCoreCommonDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/core-common");
                 config.nativescriptSmallstackNativescriptDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/nativescript");
                 config.nativescriptDatalayerDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/datalayer");
             }
