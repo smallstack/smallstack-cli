@@ -41,17 +41,6 @@ module.exports = function (parameters, done) {
             cwd: path.resolve(config.rootDirectory, "modules", "nativescript")
         });
 
-        // copy files together
-        fs.copySync(path.resolve(config.rootDirectory, "modules", "core", "client", "dist", "bundle"), path.resolve(config.rootDirectory, "dist", "modules", "core", "client"));
-        fs.copySync(path.resolve(config.rootDirectory, "modules", "core", "common", "dist", "bundle"), path.resolve(config.rootDirectory, "dist", "modules", "core", "common"));
-        fs.copySync(path.resolve(config.rootDirectory, "modules", "core", "server", "dist", "bundle"), path.resolve(config.rootDirectory, "dist", "modules", "core", "server"));
-
-        fs.copySync(path.resolve(config.rootDirectory, "modules", "meteor", "client", "dist", "bundle"), path.resolve(config.rootDirectory, "dist", "modules", "meteor", "client"));
-        fs.copySync(path.resolve(config.rootDirectory, "modules", "meteor", "common", "dist", "bundle"), path.resolve(config.rootDirectory, "dist", "modules", "meteor", "common"));
-        fs.copySync(path.resolve(config.rootDirectory, "modules", "meteor", "server", "dist", "bundle"), path.resolve(config.rootDirectory, "dist", "modules", "meteor", "server"));
-
-        fs.copySync(path.resolve(config.rootDirectory, "modules", "nativescript", "dist", "bundle"), path.resolve(config.rootDirectory, "dist", "modules", "nativescript"));
-
         modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core", "client", "package.json"));
         modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core", "server", "package.json"));
         modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core", "common", "package.json"));

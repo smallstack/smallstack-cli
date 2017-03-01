@@ -76,8 +76,7 @@ module.exports = function (params, done) {
         when: function (answers) {
             return answers.smallstack.mode === "url";
         }
-    }
-    ]
+    }];
 
     inquirer.prompt(questions).then(function (answers) {
         smallstackMode = answers.smallstack.mode || smallstackMode;
@@ -87,8 +86,9 @@ module.exports = function (params, done) {
         //     smallstackPath = answers["smallstack.path"] || smallstackPath;
         switch (smallstackMode) {
             case "local":
-                throw new Error("Currently not supported!");
-                persistLocalConfiguration(answers.smallstack.path || smallstackPath);
+                var localPath = path.join(answers.smallstack.path, "dist");
+                console.log("using local path : ", localPath);
+                persistLocalConfiguration(localPath);
                 done();
                 break;
             case "projectVersion":
