@@ -3,18 +3,16 @@ var path = require("path");
 var _ = require("underscore");
 var exec = require("../functions/exec");
 var config = require("../config");
+var glob = require("glob");
 
-module.exports = function (parameters) {
+module.exports = function (parameters, done) {
 
-    if (config.isNPMPackageEnvironment())
-        console.log("starting gitflow operations for NPM Package...");
+    if (config.isNPMPackageEnvironment() || config.isSmallstackEnvironment())
+        console.log("starting gitflow operations...");
     else
-        throw new Error("gitflow operantions not supported in this environment!");
+        throw new Error("gitflow operations not supported in this environment!");
 
     if (parameters.toVersion) {
-        if (!parameters.toVersion) {
-            throw new Error("You must provide the version to change to via --toVersion=x.x.x!");
-        }
 
         // if (isSmallstack()) {
         //     _.each(fs.readdirSync("."), function (dir) {
@@ -25,9 +23,23 @@ module.exports = function (parameters) {
         //     });
         //     exec("git commit -a -m \"changing version to " + parameters.toVersion + "\"");
         // } else if (exists("./package.json")) {
+
         if (config.isNPMPackageEnvironment()) {
             exec("npm version -f --git-tag-version=false " + parameters.toVersion);
             exec("git commit -a -m \"changing version to " + parameters.toVersion + "\"");
+        } else if (config.isSmallstackEnvironment()) {
+            glob("**/package.json", {
+                ignore: ["**/node_modules/**", "**/dist/**", "resources/projectfiles/meteor/**"]
+            }, function (err, files) {
+                _.each(files, function (file) {
+                    var jsonContent = require(path.resolve(config.rootDirectory, file));
+                    console.log("changing version of '" + jsonContent.name + "' from " + jsonContent.version + " to " + parameters.toVersion);
+                    jsonContent.version = parameters.toVersion;
+                    fs.writeJSONSync(file, jsonContent);
+                });
+                exec("git commit -a -m \"changing version to " + parameters.toVersion + "\"");
+                done();
+            });
         }
     }
 
