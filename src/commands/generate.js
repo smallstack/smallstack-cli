@@ -368,12 +368,15 @@ function prepareDataLayerDirectory() {
 
     // generate package.json
     console.log("generating datalayer package.json file ...");
-    processTemplate(config.datalayerTemplatesPath + "/datalayer_package.json", config.datalayerPath + "/package.json", {});
+    if (fs.existsSync(config.datalayerPath + "/package.json"))
+        console.log("    ... skipped since file exists already! Remove it for re-generating!");
+    else
+        processTemplate(config.datalayerTemplatesPath + "/datalayer_package.json", config.datalayerPath + "/package.json", {});
 
     // generate package_bundle.json
     console.log("generating datalayer package_bundle.json file ...");
     processTemplate(config.datalayerTemplatesPath + "/datalayer_package_bundle.json", config.datalayerPath + "/package_bundle.json", {});
-    
+
     // generate tsconfig.json
     console.log("generating datalayer tsconfig.json file ...");
     processTemplate(config.datalayerTemplatesPath + "/datalayer_tsconfig.json", config.datalayerPath + "/tsconfig.json", {});
