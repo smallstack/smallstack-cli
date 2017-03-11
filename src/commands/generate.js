@@ -426,8 +426,9 @@ function evaluateSmallstackFile(smallstackFile, extendings, roots, configuration
 
     // generate files and directories            
     var rootDirectory = undefined;
-    if (config.isSmallstackEnvironment())
-        rootDirectory = path.dirname("" + smallstackFile);
+    var smallstackFilePath = path.dirname("" + smallstackFile);
+    if (config.isSmallstackEnvironment() || generate === false)
+        rootDirectory = smallstackFilePath;
     else if (config.isProjectEnvironment() && config.datalayerPath)
         rootDirectory = config.datalayerPath;
     else
@@ -453,8 +454,19 @@ function evaluateSmallstackFile(smallstackFile, extendings, roots, configuration
             }
             if (roots[rootDirectory].packagesPathRelative === undefined)
                 throw new Error("Could not find relative path to smallstack framework from " + rootDirectory);
-        } else
-            roots[rootDirectory].packagesPathRelative = undefined;
+        } else {
+            if (smallstackFilePath.endsWith("/datalayer/types"))
+                roots[rootDirectory].moduleName = undefined;
+            else if (smallstackFilePath.endsWith("/modules/core/common/types"))
+                roots[rootDirectory].moduleName = "@smallstack/core-common";
+            else if (smallstackFilePath.endsWith("/modules/core/client/types"))
+                roots[rootDirectory].moduleName = "@smallstack/core-client";
+            else if (smallstackFilePath.endsWith("/modules/core/server/types"))
+                roots[rootDirectory].moduleName = "@smallstack/core-server";
+            else
+                throw new Error("Could not find module name for :" + smallstackFilePath);
+            roots[rootDirectory].packagesPathRelative = "";
+        }
     }
 
     var id = jsonContent.model.name;
