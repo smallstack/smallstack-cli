@@ -64,7 +64,7 @@ module.exports = function (params, done) {
         name: "smallstack.filepath",
         type: 'input',
         message: 'relative path from project root to local file location :',
-        default: "../smallstack/dist/smallstack-0.8.0.zip",
+        default: "../smallstack/dist/smallstack.zip",
         when: function (answers) {
             return answers.smallstack.mode === "file";
         }

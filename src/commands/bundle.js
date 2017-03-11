@@ -77,6 +77,8 @@ module.exports = function (parameters, done) {
         archive.directory("resources", "resources");
         archive.finalize();
 
+        createSymlink(destinationFile, path.resolve(config.rootDirectory, "dist", "smallstack.zip"));
+
     } else throw new Error("Bundling only works for smallstack projects and for smallstack modules!");
 
 }
@@ -90,4 +92,15 @@ function modifyProductionPackageJson(file) {
     content.main = content.main.replace("./dist/bundle/", "./")
     content.types = content.types.replace("./dist/bundle/", "./")
     fs.writeJSONSync(file, content);
+}
+
+function createSymlink(from, to) {
+
+    try {
+        fs.removeSync(to);
+        console.log("creating symlink: " + from + " -> " + to);
+        fs.ensureSymlinkSync(from, to);
+    } catch (e) {
+        console.error(e);
+    }
 }
