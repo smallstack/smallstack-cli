@@ -293,10 +293,16 @@ functions.getPackagesPathRelative = function (currentRootDirectory, relativeFile
         }
     }
 
-    if (asExternal)
+
+    if (asExternal && importPackage) {
         return importPackage;
-    else
+    } else {
+        if (relativeFilePath === undefined)
+            throw new Error("cannot get relative packages path since relativeFilePath is undefined!");
+        if (relativeModuleRootPath === undefined)
+            throw new Error("cannot get relative packages path since relativeModuleRootPath is undefined!");
         return path.join(relativeFilePath, relativeModuleRootPath, importPathRelativeToModuleRoot).replace(/\\/g, "/");
+    }
 }
 
 functions.getMongoUpdateJson = function getMongoUpdateJson(schema) {
