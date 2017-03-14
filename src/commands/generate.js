@@ -373,6 +373,9 @@ function prepareDataLayerDirectory() {
     else
         processTemplate(config.datalayerTemplatesPath + "/datalayer_package.json", config.datalayerPath + "/package.json", {});
 
+    if (!fs.existsSync(config.datalayerPath + "/index_custom.ts"))
+        processTemplate(config.datalayerTemplatesPath + "/datalayer_index_custom.ts", config.datalayerPath + "/index_custom.ts", {});
+
     // generate package_bundle.json
     console.log("generating datalayer package_bundle.json file ...");
     processTemplate(config.datalayerTemplatesPath + "/datalayer_package_bundle.json", config.datalayerPath + "/package_bundle.json", {});
