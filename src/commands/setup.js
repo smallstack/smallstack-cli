@@ -23,6 +23,7 @@ module.exports = function (params, done) {
     // properties
     var smallstackMode = params.mode;
     var smallstackPath = params.path;
+    var smallstackUrl = params.url;
 
     var packageModes = [{
         name: "local checkout",
@@ -74,12 +75,13 @@ module.exports = function (params, done) {
         type: 'input',
         message: 'please enter the url where to download smallstack from :',
         when: function (answers) {
-            return answers.smallstack.mode === "url";
+            return answers.smallstack.mode === "url" && smallstackUrl === undefined;
         }
     }];
 
     inquirer.prompt(questions).then(function (answers) {
         smallstackMode = answers.smallstack.mode || smallstackMode;
+        smallstackUrl = answers.smallstack.url || smallstackUrl;
         // if (answers["smallstack.path"])
         //     smallstackPath = path.join(config.rootDirectory, answers["smallstack.path"]);
         // else
@@ -104,7 +106,7 @@ module.exports = function (params, done) {
                 break;
             case "url":
                 fs.emptyDirSync(config.smallstackDirectory);
-                downloadAndExtract(answers.smallstack.url, config.smallstackDirectory, function () {
+                downloadAndExtract(smallstackUrl, config.smallstackDirectory, function () {
                     persistLocalConfiguration(config.smallstackDirectory);
                     done();
                 });
