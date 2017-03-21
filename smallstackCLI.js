@@ -1,3 +1,5 @@
+var startDate = new Date();
+
 // modules
 var logo = require("./src/functions/logo");
 var config = require("./src/config");
@@ -5,6 +7,7 @@ var fs = require("fs-extra");
 var _ = require("underscore");
 var colors = require("colors");
 var async = require("async");
+var moment = require("moment");
 
 var parseArguments = require("./src/functions/parseArguments");
 
@@ -27,6 +30,7 @@ commands.signAndroid = require("./src/commands/signAndroid");
 commands.upload = require("./src/commands/upload");
 commands.convert = require("./src/commands/convert");
 commands.syncproject = require("./src/commands/syncproject");
+commands.modifyproductionpackagejson = require("./src/commands/modifyProductionPackageJson");
 
 // show a nice logo
 logo();
@@ -82,13 +86,15 @@ if (parsedCommands.length === 0 || !allCommandsFine) {
             });
         }
     }, function (error) {
+        var duration = moment.duration((new Date() - startDate), "milliseconds").humanize(true);
+        var executionText = "Command Execution finished " + duration;
         if (error) {
-            console.error(colors.red(error));
+            console.error(colors.red(error + " " + executionText));
             updateCheck.showResult(function () {
                 process.exit(1);
             });
         } else {
-            console.log(colors.green("Success!"));
+            console.log(colors.green("Success! " + executionText));
             updateCheck.showResult(function () {
                 process.exit(0);
             });
