@@ -27,6 +27,7 @@ commands.signAndroid = require("./src/commands/signAndroid");
 commands.upload = require("./src/commands/upload");
 commands.convert = require("./src/commands/convert");
 commands.syncproject = require("./src/commands/syncproject");
+commands.modifyproductionpackagejson = require("./src/commands/modifyProductionPackageJson");
 
 // show a nice logo
 logo();
