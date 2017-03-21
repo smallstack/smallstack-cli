@@ -78,7 +78,9 @@ if (parsedCommands.length === 0 || !allCommandsFine) {
         try {
             commands[command.name](command.parameters, done);
         } catch (e) {
+            var duration = moment.duration((new Date() - startDate), "milliseconds").humanize(true);
             console.error(colors.red("ERROR:", e.message));
+            console.error(colors.red("Failure was executed " + duration));
             if (command.parameters.debug)
                 throw e;
             updateCheck.showResult(function () {
