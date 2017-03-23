@@ -64,6 +64,10 @@ _.each(parsedCommands, function (command) {
     }
 });
 
+function getDurationString() {
+    return moment((new Date() - startDate)).format('mm:ss.SSS');
+}
+
 // then execute
 if (parsedCommands.length === 0 || !allCommandsFine) {
     commands.help();
@@ -79,6 +83,7 @@ if (parsedCommands.length === 0 || !allCommandsFine) {
             commands[command.name](command.parameters, done);
         } catch (e) {
             console.error(colors.red("ERROR:", e.message));
+            console.error(colors.red("Failure was executed in " + getDurationString()));
             if (command.parameters.debug)
                 throw e;
             updateCheck.showResult(function () {
@@ -86,8 +91,7 @@ if (parsedCommands.length === 0 || !allCommandsFine) {
             });
         }
     }, function (error) {
-        var duration = moment.duration((new Date() - startDate), "milliseconds").humanize(true);
-        var executionText = "Command Execution finished " + duration;
+        var executionText = "Command Execution finished in " + getDurationString();
         if (error) {
             console.error(colors.red(error + " " + executionText));
             updateCheck.showResult(function () {

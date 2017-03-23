@@ -1,6 +1,6 @@
 {
   "name": "smallstack-cli",
-  "version": "0.4.21",
+  "version": "0.4.22",
   "description": "Command Line Interface for Smallstack Projects",
   "author": {
     "email": "max@smallstack.io",

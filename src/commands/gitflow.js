@@ -27,6 +27,7 @@ module.exports = function (parameters, done) {
         if (config.isNPMPackageEnvironment()) {
             exec("npm version -f --git-tag-version=false " + parameters.toVersion);
             exec("git commit -a -m \"changing version to " + parameters.toVersion + "\"");
+            done();
         } else if (config.isSmallstackEnvironment()) {
             glob("**/package.json", {
                 ignore: ["**/node_modules/**", "**/dist/**", "resources/projectfiles/meteor/**"]
