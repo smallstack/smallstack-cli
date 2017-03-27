@@ -12,9 +12,9 @@ var SmallstackApi = require("../functions/smallstackApi");
 
 module.exports = function (params, done) {
 
-
     if (config.isSmallstackEnvironment()) {
-        npmInstallModules();
+        if (!params || params.linkOnly !== true)
+            npmInstallModules();
         linkModules();
         done();
         return;
