@@ -58,7 +58,7 @@ module.exports = function (params, done) {
             message: 'relative path from project root to local smallstack directory :',
             default: "../smallstack",
             when: function (answers) {
-                return answers.smallstack.mode === "local" && smallstackPath === undefined;
+                return !smallstackMode && answers.smallstack.mode === "local" && smallstackPath === undefined;
             }
         },
         {
@@ -67,7 +67,7 @@ module.exports = function (params, done) {
             message: 'relative path from project root to local file location :',
             default: "../smallstack/dist/smallstack.zip",
             when: function (answers) {
-                return answers.smallstack.mode === "file";
+                return !smallstackMode && answers.smallstack.mode === "file";
             }
         },
         {
@@ -75,12 +75,14 @@ module.exports = function (params, done) {
             type: 'input',
             message: 'please enter the url where to download smallstack from :',
             when: function (answers) {
-                return answers.smallstack.mode === "url" && smallstackUrl === undefined;
+                return !smallstackMode && answers.smallstack.mode === "url" && smallstackUrl === undefined;
             }
         }
     ];
 
     inquirer.prompt(questions).then(function (answers) {
+        if (!answers.smallstack)
+            answers.smallstack = {};
         smallstackMode = answers.smallstack.mode || smallstackMode;
         smallstackUrl = answers.smallstack.url || smallstackUrl;
         smallstackPath = answers.smallstack.path || smallstackPath;
