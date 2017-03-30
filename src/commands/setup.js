@@ -12,9 +12,9 @@ var SmallstackApi = require("../functions/smallstackApi");
 
 module.exports = function (params, done) {
 
-
     if (config.isSmallstackEnvironment()) {
-        npmInstallModules();
+        if (!params || params.linkOnly !== true)
+            npmInstallModules();
         linkModules();
         done();
         return;
@@ -36,7 +36,7 @@ module.exports = function (params, done) {
         value: "url"
     }];
     if (!config.smallstack || !config.smallstack.version)
-        console.error(colors.gray("No smallstack.version defined in project's package.json!\n"));
+        console.error(colors.red("No smallstack.version defined in project's package.json!\n"));
     else
         packageModes.unshift({
             name: "use project version (" + config.smallstack.version + ")",
@@ -91,9 +91,11 @@ module.exports = function (params, done) {
                 done();
                 break;
             case "projectVersion":
-                throw new Error("Currently not supported!");
-                // downloadAndExtractVersion(params, config.smallstack.version, done);
-                // break;
+                downloadAndExtractVersion(params, config.smallstack.version, config.smallstackDirectory, function () {
+                    persistLocalConfiguration(config.smallstackDirectory);
+                    done();
+                });
+                break;
             case "file":
                 fs.emptyDirSync(config.smallstackDirectory);
                 unzipSmallstackFile(path.join(config.rootDirectory, answers.smallstack.filepath), config.smallstackDirectory, function () {
@@ -210,7 +212,7 @@ function persistLocalConfiguration(smallstackPath, addDistBundlePath) {
 
 }
 
-function downloadAndExtractVersion(parameters, version, doneCallback) {
+function downloadAndExtractVersion(parameters, version, destination, doneCallback) {
     var smallstackApi = new SmallstackApi(parameters);
     request({
         method: "GET",

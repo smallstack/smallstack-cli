@@ -9,7 +9,7 @@ var exec = require("../functions/exec");
 module.exports = function (parameters, done) {
 
     if (config.isSmallstackEnvironment()) {
-        cleanModuleFolder();
+        cleanModuleFolder(parameters);
         done();
         return;
     }
@@ -67,7 +67,12 @@ module.exports = function (parameters, done) {
     done();
 }
 
-function cleanModuleFolder() {
+function cleanModuleFolder(parameters) {
+
+    if (parameters && parameters.all === true) {
+        console.log("Performing complete cleanup! Please run 'smallstack setup' afterwards...");
+    }
+
     removeDirOrFile(path.resolve(config.rootDirectory, "dist"));
     exec("npm run clean", {
         cwd: path.resolve(config.rootDirectory, "modules", "core")
@@ -78,6 +83,16 @@ function cleanModuleFolder() {
     exec("npm run clean", {
         cwd: path.resolve(config.rootDirectory, "modules", "nativescript")
     });
+    if (parameters && parameters.all === true) {
+        removeDirOrFile(path.resolve(config.rootDirectory, "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "core", "client", "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "core", "server", "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "core", "common", "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor", "client", "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor", "server", "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor", "common", "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "nativescript", "node_modules"));
+    }
 }
 
 function removeDirOrFile(directoryOrFile) {
