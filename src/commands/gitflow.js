@@ -90,6 +90,9 @@ module.exports = function (parameters, done) {
                 var versionNameRegexGradlig = /versionName \"([a-zA-Z\.0-9].*)\"/;
                 replaceString(androidGradlig, versionCodeRegexGradlig, "versionCode " + nextAndroidVersionCode);
                 replaceString(androidGradlig, versionNameRegexGradlig, "versionName \"" + parameters.toVersion + "\"");
+
+                // do the commit
+                exec("git commit -a -m \"changing version to " + parameters.toVersion + "\"");
             }
 
 
