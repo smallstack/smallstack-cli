@@ -105,6 +105,10 @@ config.smallstackDirectoryAvailable = function () {
     return fs.existsSync(config.smallstackDirectory);
 }
 
+config.projectHasNativescriptApp = function() {
+    return fs.existsSync(path.join(config.rootDirectory, "nativescript-app"));
+}
+
 
 config.getRootDirectory = function () {
 
@@ -149,7 +153,7 @@ try {
             config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
             config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
 
-            if (fs.existsSync(path.join(config.rootDirectory, "nativescript-app"))) {
+            if (config.projectHasNativescriptApp()) {
                 config.nativescriptDirectory = path.join(config.rootDirectory, "nativescript-app");
                 config.nativescriptSmallstackCoreClientDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/core-client");
                 config.nativescriptSmallstackCoreCommonDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/core-common");
