@@ -81,7 +81,7 @@ module.exports = function (parameters, done) {
                 console.log("Next Android Version Code    : ", nextAndroidVersionCode);
                 console.warn(colors.cyan("Hint: Please double-check the unique android version code, this tool just increments the current one!"));
                 replaceString(androidManifest, versionCodeRegexMani, "android:versionCode=\"" + nextAndroidVersionCode + "\"");
-                replaceString(androidManifest, versionNameRegexMani, "android:versionCode=\"" + parameters.toVersion + "\"");
+                replaceString(androidManifest, versionNameRegexMani, "android:versionName=\"" + parameters.toVersion + "\"");
 
                 // Android gradle
                 var androidGradlig = path.resolve(config.nativescriptDirectory, "app", "App_Resources", "Android", "app.gradle");
