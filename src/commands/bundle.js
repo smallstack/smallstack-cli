@@ -4,6 +4,8 @@ var _ = require("underscore");
 var fs = require("fs-extra");
 var exec = require('../functions/exec');
 var archiver = require('archiver');
+var modifyProductionPackageJson = require("../functions/modifyProductionPackageJson");
+
 
 module.exports = function (parameters, done) {
 
@@ -81,17 +83,6 @@ module.exports = function (parameters, done) {
 
     } else throw new Error("Bundling only works for smallstack projects and for smallstack modules!");
 
-}
-
-
-function modifyProductionPackageJson(file) {
-    var content = require(file);
-    delete content.devDependencies;
-    delete content.dependencies;
-    delete content.scripts;
-    content.main = content.main.replace("./dist/bundle/", "./")
-    content.types = content.types.replace("./dist/bundle/", "./")
-    fs.writeJSONSync(file, content);
 }
 
 function createSymlink(from, to) {
