@@ -75,22 +75,34 @@ function cleanModuleFolder(parameters) {
 
     removeDirOrFile(path.resolve(config.rootDirectory, "dist"));
     exec("npm run clean", {
-        cwd: path.resolve(config.rootDirectory, "modules", "core")
+        cwd: path.resolve(config.rootDirectory, "modules", "core-common")
     });
     exec("npm run clean", {
-        cwd: path.resolve(config.rootDirectory, "modules", "meteor")
+        cwd: path.resolve(config.rootDirectory, "modules", "core-server")
+    });
+    exec("npm run clean", {
+        cwd: path.resolve(config.rootDirectory, "modules", "core-client")
+    });
+    exec("npm run clean", {
+        cwd: path.resolve(config.rootDirectory, "modules", "meteor-common")
+    });
+    exec("npm run clean", {
+        cwd: path.resolve(config.rootDirectory, "modules", "meteor-server")
+    });
+    exec("npm run clean", {
+        cwd: path.resolve(config.rootDirectory, "modules", "meteor-client")
     });
     exec("npm run clean", {
         cwd: path.resolve(config.rootDirectory, "modules", "nativescript")
     });
     if (parameters && parameters.all === true) {
         removeDirOrFile(path.resolve(config.rootDirectory, "node_modules"));
-        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "core", "client", "node_modules"));
-        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "core", "server", "node_modules"));
-        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "core", "common", "node_modules"));
-        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor", "client", "node_modules"));
-        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor", "server", "node_modules"));
-        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor", "common", "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "core-client", "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "core-server", "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "core-common", "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor-client", "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor-server", "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor-common", "node_modules"));
         removeDirOrFile(path.resolve(config.rootDirectory, "modules", "nativescript", "node_modules"));
     }
 }
