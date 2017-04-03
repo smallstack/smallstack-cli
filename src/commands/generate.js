@@ -460,11 +460,11 @@ function evaluateSmallstackFile(smallstackFile, extendings, roots, configuration
         } else {
             if (smallstackFilePath.endsWith("/datalayer/types"))
                 roots[rootDirectory].moduleName = undefined;
-            else if (smallstackFilePath.endsWith("/modules/core/common/types"))
+            else if (smallstackFilePath.endsWith("/modules/core-common/types"))
                 roots[rootDirectory].moduleName = "@smallstack/core-common";
-            else if (smallstackFilePath.endsWith("/modules/core/client/types"))
+            else if (smallstackFilePath.endsWith("/modules/core-client/types"))
                 roots[rootDirectory].moduleName = "@smallstack/core-client";
-            else if (smallstackFilePath.endsWith("/modules/core/server/types"))
+            else if (smallstackFilePath.endsWith("/modules/core-server/types"))
                 roots[rootDirectory].moduleName = "@smallstack/core-server";
             else
                 throw new Error("Could not find module name for :" + smallstackFilePath);

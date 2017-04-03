@@ -34,26 +34,39 @@ module.exports = function (parameters, done) {
         fs.emptyDirSync(path.resolve(config.rootDirectory, "dist"));
 
         exec("npm run bundle", {
-            cwd: path.resolve(config.rootDirectory, "modules", "core")
+            cwd: path.resolve(config.rootDirectory, "modules", "core-common")
         });
         exec("npm run bundle", {
-            cwd: path.resolve(config.rootDirectory, "modules", "meteor")
+            cwd: path.resolve(config.rootDirectory, "modules", "core-client")
+        });
+        exec("npm run bundle", {
+            cwd: path.resolve(config.rootDirectory, "modules", "core-server")
+        });
+        exec("npm run bundle", {
+            cwd: path.resolve(config.rootDirectory, "modules", "meteor-common")
+        });
+        exec("npm run bundle", {
+            cwd: path.resolve(config.rootDirectory, "modules", "meteor-client")
+        });
+        exec("npm run bundle", {
+            cwd: path.resolve(config.rootDirectory, "modules", "meteor-server")
         });
         exec("npm run bundle", {
             cwd: path.resolve(config.rootDirectory, "modules", "nativescript")
         });
 
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core", "client", "package.json"));
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core", "server", "package.json"));
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core", "common", "package.json"));
+        console.log("modifying production package.json files...");
+        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core-client", "package.json"));
+        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core-server", "package.json"));
+        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core-common", "package.json"));
 
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "meteor", "client", "package.json"));
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "meteor", "server", "package.json"));
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "meteor", "common", "package.json"));
+        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "meteor-client", "package.json"));
+        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "meteor-server", "package.json"));
+        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "meteor-common", "package.json"));
 
         modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "nativescript", "package.json"));
 
-        var version = require(path.resolve(config.rootDirectory, "dist", "modules", "core", "common", "package.json")).version;
+        var version = require(path.resolve(config.rootDirectory, "dist", "modules", "core-common", "package.json")).version;
         var destinationFile = path.resolve(config.rootDirectory, "dist", "smallstack-" + version + ".zip");
         fs.removeSync(destinationFile);
         console.log("Packaging smallstack modules to ", destinationFile);

@@ -9,13 +9,14 @@ var path = require("path");
 var request = require("request");
 var DecompressZip = require("decompress-zip");
 var SmallstackApi = require("../functions/smallstackApi");
+var semver = require("semver");
 
 module.exports = function (params, done) {
 
     if (config.isSmallstackEnvironment()) {
-        if (!params || params.linkOnly !== true)
-            npmInstallModules();
         linkModules();
+        if (!params || params.linkOnly !== true)
+            npmInstallModules(config.rootDirectory);
         done();
         return;
     }
@@ -95,6 +96,8 @@ module.exports = function (params, done) {
             case "projectVersion":
                 downloadAndExtractVersion(params, config.smallstack.version, config.smallstackDirectory, function () {
                     persistLocalConfiguration(config.smallstackDirectory);
+                    npmInstallModules(config.smallstackDirectory);
+                    copyMeteorDependencies(path.join(config.smallstackDirectory, "modules"));
                     done();
                 });
                 break;
@@ -102,6 +105,8 @@ module.exports = function (params, done) {
                 fs.emptyDirSync(config.smallstackDirectory);
                 unzipSmallstackFile(path.join(config.rootDirectory, answers.smallstack.filepath), config.smallstackDirectory, function () {
                     persistLocalConfiguration(config.smallstackDirectory);
+                    npmInstallModules(config.smallstackDirectory);
+                    copyMeteorDependencies(path.join(config.smallstackDirectory, "modules"));
                     done();
                 });
                 break;
@@ -109,6 +114,8 @@ module.exports = function (params, done) {
                 fs.emptyDirSync(config.smallstackDirectory);
                 downloadAndExtract(smallstackUrl, config.smallstackDirectory, function () {
                     persistLocalConfiguration(config.smallstackDirectory);
+                    npmInstallModules(config.smallstackDirectory);
+                    copyMeteorDependencies(path.join(config.smallstackDirectory, "modules"));
                     done();
                 });
                 break;
@@ -134,39 +141,84 @@ function createSymlink(from, to, createMissingDirectories) {
     }
 }
 
-function npmInstallModules() {
+function npmInstallModules(rootPath) {
     exec("npm install", {
-        cwd: path.resolve(config.rootDirectory, "modules", "core")
+        cwd: path.resolve(rootPath, "modules", "core-common")
     });
     exec("npm install", {
-        cwd: path.resolve(config.rootDirectory, "modules", "meteor")
+        cwd: path.resolve(rootPath, "modules", "core-client")
     });
     exec("npm install", {
-        cwd: path.resolve(config.rootDirectory, "modules", "nativescript")
+        cwd: path.resolve(rootPath, "modules", "core-server")
     });
+    exec("npm install", {
+        cwd: path.resolve(rootPath, "modules", "meteor-common")
+    });
+    exec("npm install", {
+        cwd: path.resolve(rootPath, "modules", "meteor-client")
+    });
+    exec("npm install", {
+        cwd: path.resolve(rootPath, "modules", "meteor-server")
+    });
+    exec("npm install", {
+        cwd: path.resolve(rootPath, "modules", "nativescript")
+    });
+}
+
+function copyMeteorDependencies(modulesPath) {
+    var dependencies = {};
+    dependencies.coreCommonDependencies = require(path.join(modulesPath, "core-common", "package.json"));
+    dependencies.coreClientDependencies = require(path.join(modulesPath, "core-client", "package.json"));
+    dependencies.coreServerDependencies = require(path.join(modulesPath, "core-server", "package.json"));
+    dependencies.meteorCommonDependencies = require(path.join(modulesPath, "meteor-common", "package.json"));
+    dependencies.meteorClientDependencies = require(path.join(modulesPath, "meteor-client", "package.json"));
+    dependencies.meteorServerDependencies = require(path.join(modulesPath, "meteor-server", "package.json"));
+
+    var common = {};
+    _.each(dependencies, function (subDependencies) {
+        _.each(subDependencies.dependencies, function (version, name) {
+            common[name] = version;
+        });
+    });
+
+    var meteorPackageJsonPath = path.join(config.meteorDirectory, "package.json");
+    var content = require(meteorPackageJsonPath);
+    _.each(common, function (version, name) {
+        if (name.indexOf("@smallstack") === -1) {
+            // if (!content.dependencies[name] || (content.dependencies[name] && semver.gt(content.dependencies[name], version)))
+            content.dependencies[name] = version;
+        }
+    });
+
+    fs.writeJSONSync(meteorPackageJsonPath, content);
+
+    exec("meteor npm install", {
+        cwd: config.meteorDirectory
+    });
+
 }
 
 function linkModules() {
 
     // core-client
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core", "common"), path.resolve(config.rootDirectory, "modules", "core", "client", "node_modules", "@smallstack", "core-common"));
+    createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "core-client", "node_modules", "@smallstack", "core-common"));
 
     // core-server
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core", "common"), path.resolve(config.rootDirectory, "modules", "core", "server", "node_modules", "@smallstack", "core-common"));
+    createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "core-server", "node_modules", "@smallstack", "core-common"));
 
     // meteor-common
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core", "common"), path.resolve(config.rootDirectory, "modules", "meteor", "common", "node_modules", "@smallstack", "core-common"));
+    createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "meteor-common", "node_modules", "@smallstack", "core-common"));
 
     // meteor-client
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core", "common"), path.resolve(config.rootDirectory, "modules", "meteor", "client", "node_modules", "@smallstack", "core-common"));
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core", "client"), path.resolve(config.rootDirectory, "modules", "meteor", "client", "node_modules", "@smallstack", "core-client"));
+    createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "meteor-client", "node_modules", "@smallstack", "core-common"));
+    createSymlink(path.resolve(config.rootDirectory, "modules", "core-client"), path.resolve(config.rootDirectory, "modules", "meteor-client", "node_modules", "@smallstack", "core-client"));
 
     // meteor-server
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core", "common"), path.resolve(config.rootDirectory, "modules", "meteor", "server", "node_modules", "@smallstack", "core-common"));
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core", "server"), path.resolve(config.rootDirectory, "modules", "meteor", "server", "node_modules", "@smallstack", "core-server"));
+    createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "meteor-server", "node_modules", "@smallstack", "core-common"));
+    createSymlink(path.resolve(config.rootDirectory, "modules", "core-server"), path.resolve(config.rootDirectory, "modules", "meteor-server", "node_modules", "@smallstack", "core-server"));
 
     // nativescript
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core", "common"), path.resolve(config.rootDirectory, "modules", "nativescript", "node_modules", "@smallstack", "core-common"));
+    createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "nativescript", "node_modules", "@smallstack", "core-common"));
 }
 
 function persistLocalConfiguration(smallstackPath, addDistBundlePath) {
@@ -176,12 +228,12 @@ function persistLocalConfiguration(smallstackPath, addDistBundlePath) {
     if (addDistBundlePath === true)
         additionalPath = "dist/bundle";
 
-    var absoluteModuleCoreClientPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "core", "client", additionalPath);
-    var absoluteModuleCoreServerPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "core", "server", additionalPath);
-    var absoluteModuleCoreCommonPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "core", "common", additionalPath);
-    var absoluteModuleMeteorClientPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor", "client", additionalPath);
-    var absoluteModuleMeteorServerPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor", "server", additionalPath);
-    var absoluteModuleMeteorCommonPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor", "common", additionalPath);
+    var absoluteModuleCoreClientPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "core-client", additionalPath);
+    var absoluteModuleCoreServerPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "core-server", additionalPath);
+    var absoluteModuleCoreCommonPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "core-common", additionalPath);
+    var absoluteModuleMeteorClientPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor-client", additionalPath);
+    var absoluteModuleMeteorServerPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor-server", additionalPath);
+    var absoluteModuleMeteorCommonPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor-common", additionalPath);
     var absoluteModuleNativescriptPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "nativescript", additionalPath);
     var absoluteDatalayerPath = path.resolve(config.datalayerPath, "dist", "bundles");
 
@@ -203,7 +255,7 @@ function persistLocalConfiguration(smallstackPath, addDistBundlePath) {
     // createSymlink(absoluteModuleNativescriptPath, path.resolve(config.rootDirectory, smallstackPath, "modules", "nativescript", "node_modules", "@smallstack", "nativescript"));
 
     // // meteor module
-    // createSymlink(absoluteSmallstackCorePath, path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor", "node_modules", "@smallstack", "core"));
+    // createSymlink(absoluteSmallstackCorePath, path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor-node_modules", "@smallstack", "core"));
 
     if (config.nativescriptDirectory) {
         createSymlink(absoluteModuleCoreClientPath, config.nativescriptSmallstackCoreClientDirectory);
@@ -229,7 +281,6 @@ function downloadAndExtractVersion(parameters, version, destination, doneCallbac
         downloadAndExtract(body.url, destination, doneCallback);
     });
 }
-
 
 function downloadAndExtract(url, destination, callback) {
     fs.ensureDirSync(config.tmpDirectory);

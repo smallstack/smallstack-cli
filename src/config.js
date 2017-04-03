@@ -32,7 +32,7 @@ function checkModule(path, name) {
 config.smallstackFound = function (directory) {
     try {
         // core common module available?
-        if (checkModule(path.join(directory, "modules", "core", "common", "package.json"), "@smallstack/core-common"))
+        if (checkModule(path.join(directory, "modules", "core-common", "package.json"), "@smallstack/core-common"))
             return true;
     } catch (e) {
         return false;
