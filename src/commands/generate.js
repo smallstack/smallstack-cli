@@ -51,14 +51,16 @@ module.exports = function (params, done) {
             allSmallstackFiles = allSmallstackFiles.concat(glob.sync("datalayer/types/**/*.smallstack.json", {
                 cwd: config.rootDirectory,
                 follow: true,
-                absolute: true
+                absolute: true,
+                ignore: ["**/dist/**", "**/node_modules/**", "**/undone/**"]
             }));
 
             // also load types from smallstack framework
             _.each(glob.sync("**/*.smallstack.json", {
                 cwd: config.smallstackDirectory,
                 follow: true,
-                absolute: true
+                absolute: true,
+                ignore: ["**/dist/**", "**/node_modules/**", "**/undone/**"]
             }), function (smallstackFile) {
                 evaluateSmallstackFile(smallstackFile, extendings, roots, configuration, {
                     generate: false
