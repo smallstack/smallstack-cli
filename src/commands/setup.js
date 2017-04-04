@@ -217,19 +217,6 @@ function copyMeteorDependencies(modulesPath) {
         "jquery",
         "underscore",
         "toastr",
-        "zone.js",
-        "rxjs",
-        "bcrypt",
-        "reflect-metadata",
-        "angular2-meteor-polyfills",
-        "@angular/core",
-        "@angular/common",
-        "@angular/compiler",
-        "@angular/forms",
-        "@angular/http",
-        "@angular/platform-browser",
-        "@angular/platform-browser-dynamic",
-        "@angular/router",
         "angular2-markdown",
         "ng2-bootstrap",
         "bootstrap"
@@ -243,6 +230,8 @@ function copyMeteorDependencies(modulesPath) {
     _.each(meteorDevDependencies, function (name) {
         content.devDependencies[name] = common[name];
     });
+
+    console.log("writing content : ", content);
 
     fs.writeJSONSync(meteorPackageJsonPath, content);
 
