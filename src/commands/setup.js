@@ -197,6 +197,21 @@ function copyMeteorDependencies(modulesPath) {
     content.dependencies["@smallstack/meteor-server"] = "*";
     content.dependencies["babel-runtime"] = "6.23.0";
 
+    content.dependencies["zone.js"] = "0.8.5";
+    content.dependencies["rxjs"] = "5.2.0";
+    content.dependencies["bcrypt"] = "1.0.2";
+    content.dependencies["reflect-metadata"] = "0.1.10";
+    content.dependencies["angular2-meteor-polyfills"] = "0.2.0";
+    content.dependencies["@angular/core"] = "4.0.1";
+    content.dependencies["@angular/common"] = "4.0.1";
+    content.dependencies["@angular/compiler"] = "4.0.1";
+    content.dependencies["@angular/forms"] = "4.0.1";
+    content.dependencies["@angular/http"] = "4.0.1";
+    content.dependencies["@angular/platform-browser"] = "4.0.1";
+    content.dependencies["@angular/platform-browser-dynamic"] = "4.0.1";
+    content.dependencies["@angular/router"] = "4.0.1";
+
+
     // meteor app dependencies
     var meteorDependencies = [
         "jquery",
