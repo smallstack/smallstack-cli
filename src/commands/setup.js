@@ -183,11 +183,50 @@ function copyMeteorDependencies(modulesPath) {
 
     var meteorPackageJsonPath = path.join(config.meteorDirectory, "package.json");
     var content = require(meteorPackageJsonPath);
-    _.each(common, function (version, name) {
-        if (name.indexOf("@smallstack") === -1) {
-            // if (!content.dependencies[name] || (content.dependencies[name] && semver.gt(content.dependencies[name], version)))
-            content.dependencies[name] = version;
-        }
+    if (!content.dependencies)
+        content.dependencies = {};
+    if (!content.devDependencies)
+        content.devDependencies = {};
+
+    // smallstack dependencies
+    content.dependencies["@smallstack/core-common"] = "*";
+    content.dependencies["@smallstack/core-client"] = "*";
+    content.dependencies["@smallstack/core-server"] = "*";
+    content.dependencies["@smallstack/meteor-common"] = "*";
+    content.dependencies["@smallstack/meteor-client"] = "*";
+    content.dependencies["@smallstack/meteor-server"] = "*";
+    content.dependencies["babel-runtime"] = "6.23.0";
+
+    // meteor app dependencies
+    var meteorDependencies = [
+        "jquery",
+        "underscore",
+        "toastr",
+        "zone.js",
+        "rxjs",
+        "bcrypt",
+        "reflect-metadata",
+        "angular2-meteor-polyfills",
+        "@angular/core",
+        "@angular/common",
+        "@angular/compiler",
+        "@angular/forms",
+        "@angular/http",
+        "@angular/platform-browser",
+        "@angular/platform-browser-dynamic",
+        "@angular/router",
+        "angular2-markdown",
+        "ng2-bootstrap",
+        "bootstrap"
+    ];
+
+    var meteorDevDependencies = ["@types/meteor", "meteor-node-stubs"];
+
+    _.each(meteorDependencies, function (name) {
+        content.dependencies[name] = common[name];
+    });
+    _.each(meteorDevDependencies, function (name) {
+        content.devDependencies[name] = common[name];
     });
 
     fs.writeJSONSync(meteorPackageJsonPath, content);
