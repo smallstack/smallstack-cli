@@ -40,25 +40,25 @@ module.exports = function modifyProductionPackageJson(file) {
     _.each(content.devDependencies, function (version, name) {
         switch (name) {
             case "@smallstack/core-client":
-                content.dependencies[name] = "file:" + relativePath + "core-client";
+                content.devDependencies[name] = "file:" + relativePath + "core-client";
                 break;
             case "@smallstack/core-common":
-                content.dependencies[name] = "file:" + relativePath + "core-common";
+                content.devDependencies[name] = "file:" + relativePath + "core-common";
                 break;
             case "@smallstack/core-server":
-                content.dependencies[name] = "file:" + relativePath + "core-server";
+                content.devDependencies[name] = "file:" + relativePath + "core-server";
                 break;
             case "@smallstack/meteor-client":
-                content.dependencies[name] = "file:" + relativePath + "meteor-client";
+                content.devDependencies[name] = "file:" + relativePath + "meteor-client";
                 break;
             case "@smallstack/meteor-common":
-                content.dependencies[name] = "file:" + relativePath + "meteor-common";
+                content.devDependencies[name] = "file:" + relativePath + "meteor-common";
                 break;
             case "@smallstack/meteor-server":
-                content.dependencies[name] = "file:" + relativePath + "meteor-server";
+                content.devDependencies[name] = "file:" + relativePath + "meteor-server";
                 break;
             case "@smallstack/nativescript":
-                content.dependencies[name] = "file:" + relativePath + "nativescript";
+                content.devDependencies[name] = "file:" + relativePath + "nativescript";
                 break;
         }
     });
