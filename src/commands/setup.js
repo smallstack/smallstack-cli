@@ -14,7 +14,6 @@ var semver = require("semver");
 module.exports = function (params, done) {
 
     if (config.isSmallstackEnvironment()) {
-        linkModules();
         if (!params || params.linkOnly !== true)
             npmInstallModules(config.rootDirectory);
         done();
@@ -241,28 +240,6 @@ function copyMeteorDependencies(modulesPath) {
 
 }
 
-function linkModules() {
-
-    // core-client
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "core-client", "node_modules", "@smallstack", "core-common"));
-
-    // core-server
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "core-server", "node_modules", "@smallstack", "core-common"));
-
-    // meteor-common
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "meteor-common", "node_modules", "@smallstack", "core-common"));
-
-    // meteor-client
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "meteor-client", "node_modules", "@smallstack", "core-common"));
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core-client"), path.resolve(config.rootDirectory, "modules", "meteor-client", "node_modules", "@smallstack", "core-client"));
-
-    // meteor-server
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "meteor-server", "node_modules", "@smallstack", "core-common"));
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core-server"), path.resolve(config.rootDirectory, "modules", "meteor-server", "node_modules", "@smallstack", "core-server"));
-
-    // nativescript
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "nativescript", "node_modules", "@smallstack", "core-common"));
-}
 
 function persistLocalConfiguration(smallstackPath, addDistBundlePath) {
     if (smallstackPath === undefined)
