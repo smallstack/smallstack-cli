@@ -8,8 +8,15 @@
 
 [![Build Status](https://travis-ci.org/smallstack/smallstack-cli.svg?branch=develop)](https://travis-ci.org/smallstack/smallstack-cli)
 
+## How-to install
+```
+$ npm install -g @smallstack/cli
+```
+
 ## How-to use
-- npm install -g smallstack-cli
+```
+$ smallstack help
+```
 
 ## Documentation
-see https://smallstack.io/cli
+see https://smallstack.io/products/cli
