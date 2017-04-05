@@ -42,6 +42,8 @@ else if (config.isProjectEnvironment())
     console.log("Environment:     Smallstack Project");
 else if (config.isNPMPackageEnvironment())
     console.log("Environment:     NPM Package");
+else if (config.calledWithCreateProjectCommand())
+    console.log("Environment:     Project Creation");
 else {
     console.error(colors.red("ERROR: No suitable environment found! The smallstack CLI only works inside smallstack projects and smallstack module folders!"));
     return;
