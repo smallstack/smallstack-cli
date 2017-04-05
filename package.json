@@ -1,5 +1,5 @@
 {
-  "name": "smallstack-cli",
+  "name": "@smallstack/cli",
   "version": "0.5.3",
   "description": "Command Line Interface for Smallstack Projects",
   "author": {
