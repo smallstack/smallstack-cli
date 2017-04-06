@@ -16,7 +16,7 @@ module.exports = function (params, done) {
     if (config.isSmallstackEnvironment()) {
         linkModules();
         if (!params || params.linkOnly !== true)
-            npmInstallModules(config.rootDirectory);
+            npmInstallModules(config.rootDirectory, true);
         done();
         return;
     }
@@ -141,26 +141,30 @@ function createSymlink(from, to, createMissingDirectories) {
     }
 }
 
-function npmInstallModules(rootPath) {
-    exec("npm install", {
+function npmInstallModules(rootPath, alsoDevPackages) {
+    var npmCommand = "npm install";
+    if (alsoDevPackages !== true)
+        npmCommand += " --production";
+
+    exec(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "core-common")
     });
-    exec("npm install", {
+    exec(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "core-client")
     });
-    exec("npm install", {
+    exec(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "core-server")
     });
-    exec("npm install", {
+    exec(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "meteor-common")
     });
-    exec("npm install", {
+    exec(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "meteor-client")
     });
-    exec("npm install", {
+    exec(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "meteor-server")
     });
-    exec("npm install", {
+    exec(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "nativescript")
     });
 }
@@ -219,10 +223,14 @@ function copyMeteorDependencies(modulesPath) {
         "toastr",
         "angular2-markdown",
         "ng2-bootstrap",
-        "bootstrap"
+        "bootstrap",
+        "chance",
+        "ng2-charts",
+        "ng2-file-upload",
+        "simplemde"
     ];
 
-    var meteorDevDependencies = ["@types/meteor", "meteor-node-stubs"];
+    var meteorDevDependencies = ["@types/meteor", "@types/jquery", "meteor-node-stubs"];
 
     _.each(meteorDependencies, function (name) {
         content.dependencies[name] = common[name];
