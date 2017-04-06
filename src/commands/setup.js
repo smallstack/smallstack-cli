@@ -10,6 +10,7 @@ var request = require("request");
 var DecompressZip = require("decompress-zip");
 var SmallstackApi = require("../functions/smallstackApi");
 var semver = require("semver");
+var sortPackageJson = require("sort-package-json");
 
 module.exports = function (params, done) {
 
@@ -179,9 +180,13 @@ function copyMeteorDependencies(modulesPath) {
     dependencies.meteorServerDependencies = require(path.join(modulesPath, "meteor-server", "package.json"));
 
     var common = {};
+    var commonDev = {};
     _.each(dependencies, function (subDependencies) {
         _.each(subDependencies.dependencies, function (version, name) {
             common[name] = version;
+        });
+        _.each(subDependencies.devDependencies, function (version, name) {
+            commonDev[name] = version;
         });
     });
 
@@ -192,6 +197,16 @@ function copyMeteorDependencies(modulesPath) {
     if (!content.devDependencies)
         content.devDependencies = {};
 
+    // automatic smallstack module dependencies
+    _.each(common, function (version, name) {
+        content.dependencies[name] = version;
+    });
+
+    _.each(commonDev, function (version, name) {
+        content.devDependencies[name] = version;
+    });
+
+
     // smallstack dependencies
     content.dependencies["@smallstack/core-common"] = "*";
     content.dependencies["@smallstack/core-client"] = "*";
@@ -199,52 +214,35 @@ function copyMeteorDependencies(modulesPath) {
     content.dependencies["@smallstack/meteor-common"] = "*";
     content.dependencies["@smallstack/meteor-client"] = "*";
     content.dependencies["@smallstack/meteor-server"] = "*";
+
+    // hard requirements for meteor
     content.dependencies["babel-runtime"] = "6.23.0";
-
-    content.dependencies["zone.js"] = "0.8.5";
-    content.dependencies["rxjs"] = "5.2.0";
     content.dependencies["bcrypt"] = "1.0.2";
-    content.dependencies["reflect-metadata"] = "0.1.10";
-    content.dependencies["angular2-meteor-polyfills"] = "0.2.0";
-    content.dependencies["@angular/core"] = "4.0.1";
-    content.dependencies["@angular/common"] = "4.0.1";
-    content.dependencies["@angular/compiler"] = "4.0.1";
-    content.dependencies["@angular/forms"] = "4.0.1";
-    content.dependencies["@angular/http"] = "4.0.1";
-    content.dependencies["@angular/platform-browser"] = "4.0.1";
-    content.dependencies["@angular/platform-browser-dynamic"] = "4.0.1";
-    content.dependencies["@angular/router"] = "4.0.1";
 
-
-    // meteor app dependencies
-    var meteorDependencies = [
-        "jquery",
-        "underscore",
-        "toastr",
-        "angular2-markdown",
-        "ng2-bootstrap",
-        "bootstrap",
-        "chance",
-        "ng2-charts",
-        "ng2-file-upload",
-        "simplemde"
-    ];
-
-    var meteorDevDependencies = ["@types/meteor", "@types/jquery", "meteor-node-stubs"];
-
-    _.each(meteorDependencies, function (name) {
-        content.dependencies[name] = common[name];
-    });
-    _.each(meteorDevDependencies, function (name) {
-        content.devDependencies[name] = common[name];
-    });
-
-    console.log("writing content : ", content);
+    content = sortPackageJson(content);
 
     fs.writeJSONSync(meteorPackageJsonPath, content);
 
     exec("meteor npm install", {
         cwd: config.meteorDirectory
+    });
+
+    // write module root package.json
+    var modulesDependencies = {
+        "name": "smallstack-modules-dev",
+        "version": "1.0.0",
+        "dependencies": common,
+        "devDependencies": commonDev
+    };
+    modulesDependencies.dependencies["@smallstack/core-common"] = "file:./core-common";
+    modulesDependencies.dependencies["@smallstack/core-client"] = "file:./core-client";
+    modulesDependencies.dependencies["@smallstack/core-server"] = "file:./core-server";
+    modulesDependencies.dependencies["@smallstack/meteor-common"] = "file:./meteor-common";
+    modulesDependencies.dependencies["@smallstack/meteor-client"] = "file:./meteor-client";
+    modulesDependencies.dependencies["@smallstack/meteor-server"] = "file:./meteor-server";
+    fs.writeJSONSync(path.join(modulesPath, "package.json"), modulesDependencies);
+    exec("npm install", {
+        cwd: modulesPath
     });
 
 }
