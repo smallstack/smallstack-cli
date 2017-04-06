@@ -96,7 +96,7 @@ module.exports = function (params, done) {
             case "projectVersion":
                 downloadAndExtractVersion(params, config.smallstack.version, config.smallstackDirectory, function () {
                     persistLocalConfiguration(config.smallstackDirectory);
-                    npmInstallModules(config.smallstackDirectory);
+                    // npmInstallModules(config.smallstackDirectory);
                     copyMeteorDependencies(path.join(config.smallstackDirectory, "modules"));
                     done();
                 });
@@ -105,7 +105,7 @@ module.exports = function (params, done) {
                 fs.emptyDirSync(config.smallstackDirectory);
                 unzipSmallstackFile(path.join(config.rootDirectory, answers.smallstack.filepath), config.smallstackDirectory, function () {
                     persistLocalConfiguration(config.smallstackDirectory);
-                    npmInstallModules(config.smallstackDirectory);
+                    // npmInstallModules(config.smallstackDirectory);
                     copyMeteorDependencies(path.join(config.smallstackDirectory, "modules"));
                     done();
                 });
@@ -114,7 +114,7 @@ module.exports = function (params, done) {
                 fs.emptyDirSync(config.smallstackDirectory);
                 downloadAndExtract(smallstackUrl, config.smallstackDirectory, function () {
                     persistLocalConfiguration(config.smallstackDirectory);
-                    npmInstallModules(config.smallstackDirectory);
+                    // npmInstallModules(config.smallstackDirectory);
                     copyMeteorDependencies(path.join(config.smallstackDirectory, "modules"));
                     done();
                 });
