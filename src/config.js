@@ -105,7 +105,7 @@ config.smallstackDirectoryAvailable = function () {
     return fs.existsSync(config.smallstackDirectory);
 }
 
-config.projectHasNativescriptApp = function() {
+config.projectHasNativescriptApp = function () {
     return fs.existsSync(path.join(config.rootDirectory, "nativescript-app"));
 }
 
@@ -139,6 +139,7 @@ try {
         if (config.isProjectEnvironment()) {
             config.builtDirectory = path.join(config.rootDirectory, "built");
             config.meteorDirectory = path.join(config.rootDirectory, "meteor");
+            config.meteorTestsDirectory = path.join(config.meteorDirectory, "tests");
             config.smallstackDirectory = path.join(config.rootDirectory, "smallstack");
             config.meteorSmallstackCoreClientDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/core-client");
             config.meteorSmallstackCoreServerDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack/core-server");
