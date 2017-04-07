@@ -21,6 +21,7 @@ commands.showConfig = require("./src/commands/showConfig");
 commands.compile = require("./src/commands/compile");
 commands.setup = require("./src/commands/setup");
 commands.clean = require("./src/commands/cleaner");
+commands.test = require("./src/commands/test");
 commands.bundle = require("./src/commands/bundle");
 commands.jenkins = require("./src/commands/jenkins");
 commands.deploy = require("./src/commands/deploy");
