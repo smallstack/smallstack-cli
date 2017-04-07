@@ -5,7 +5,6 @@ var _ = require("underscore");
 
 module.exports = function modifyProductionPackageJson(file) {
     var content = require(file);
-    delete content.devDependencies;
     delete content.scripts;
     content.main = content.main.replace("./dist/bundle/", "./");
     content.types = content.types.replace("./dist/bundle/", "./");
@@ -34,6 +33,32 @@ module.exports = function modifyProductionPackageJson(file) {
                 break;
             case "@smallstack/nativescript":
                 content.dependencies[name] = "file:" + relativePath + "nativescript";
+                break;
+        }
+    });
+
+    _.each(content.devDependencies, function (version, name) {
+        switch (name) {
+            case "@smallstack/core-client":
+                content.devDependencies[name] = "file:" + relativePath + "core-client";
+                break;
+            case "@smallstack/core-common":
+                content.devDependencies[name] = "file:" + relativePath + "core-common";
+                break;
+            case "@smallstack/core-server":
+                content.devDependencies[name] = "file:" + relativePath + "core-server";
+                break;
+            case "@smallstack/meteor-client":
+                content.devDependencies[name] = "file:" + relativePath + "meteor-client";
+                break;
+            case "@smallstack/meteor-common":
+                content.devDependencies[name] = "file:" + relativePath + "meteor-common";
+                break;
+            case "@smallstack/meteor-server":
+                content.devDependencies[name] = "file:" + relativePath + "meteor-server";
+                break;
+            case "@smallstack/nativescript":
+                content.devDependencies[name] = "file:" + relativePath + "nativescript";
                 break;
         }
     });
