@@ -98,7 +98,7 @@ module.exports = function (params, done) {
                 downloadAndExtractVersion(params, config.smallstack.version, config.smallstackDirectory, function () {
                     persistLocalConfiguration(config.smallstackDirectory);
                     // npmInstallModules(config.smallstackDirectory);
-                    copyMeteorDependencies(path.join(config.smallstackDirectory, "modules"));
+                    copyMeteorDependencies(params, path.join(config.smallstackDirectory, "modules"));
                     done();
                 });
                 break;
@@ -107,7 +107,7 @@ module.exports = function (params, done) {
                 unzipSmallstackFile(path.join(config.rootDirectory, answers.smallstack.filepath), config.smallstackDirectory, function () {
                     persistLocalConfiguration(config.smallstackDirectory);
                     // npmInstallModules(config.smallstackDirectory);
-                    copyMeteorDependencies(path.join(config.smallstackDirectory, "modules"));
+                    copyMeteorDependencies(params, path.join(config.smallstackDirectory, "modules"));
                     done();
                 });
                 break;
@@ -116,7 +116,7 @@ module.exports = function (params, done) {
                 downloadAndExtract(smallstackUrl, config.smallstackDirectory, function () {
                     persistLocalConfiguration(config.smallstackDirectory);
                     // npmInstallModules(config.smallstackDirectory);
-                    copyMeteorDependencies(path.join(config.smallstackDirectory, "modules"));
+                    copyMeteorDependencies(params, path.join(config.smallstackDirectory, "modules"));
                     done();
                 });
                 break;
@@ -170,7 +170,7 @@ function npmInstallModules(rootPath, alsoDevPackages) {
     });
 }
 
-function copyMeteorDependencies(modulesPath) {
+function copyMeteorDependencies(params, modulesPath) {
     var dependencies = {};
     dependencies.coreCommonDependencies = require(path.join(modulesPath, "core-common", "package.json"));
     dependencies.coreClientDependencies = require(path.join(modulesPath, "core-client", "package.json"));
@@ -223,9 +223,11 @@ function copyMeteorDependencies(modulesPath) {
 
     fs.writeJSONSync(meteorPackageJsonPath, content);
 
-    exec("meteor npm install", {
-        cwd: config.meteorDirectory
-    });
+    if (!params || params.offline !== true) {
+        exec("meteor npm install", {
+            cwd: config.meteorDirectory
+        });
+    }
 
     // write module root package.json
     var modulesDependencies = {
@@ -241,9 +243,12 @@ function copyMeteorDependencies(modulesPath) {
     modulesDependencies.dependencies["@smallstack/meteor-client"] = "file:./meteor-client";
     modulesDependencies.dependencies["@smallstack/meteor-server"] = "file:./meteor-server";
     fs.writeJSONSync(path.join(modulesPath, "package.json"), modulesDependencies);
-    exec("npm install", {
-        cwd: modulesPath
-    });
+
+    if (!params || params.offline !== true) {
+        exec("npm install", {
+            cwd: modulesPath
+        });
+    }
 
 }
 
