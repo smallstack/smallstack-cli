@@ -218,7 +218,6 @@ function copyMeteorDependencies(modulesPath) {
     // hard requirements for meteor
     content.dependencies["babel-runtime"] = "6.23.0";
     content.dependencies["bcrypt"] = "1.0.2";
-    content.devDependencies["nightmare"] = "2.10.0";
 
     content = sortPackageJson(content);
 
