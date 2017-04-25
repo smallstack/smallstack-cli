@@ -178,6 +178,7 @@ function copyMeteorDependencies(params, modulesPath) {
     dependencies.meteorCommonDependencies = require(path.join(modulesPath, "meteor-common", "package.json"));
     dependencies.meteorClientDependencies = require(path.join(modulesPath, "meteor-client", "package.json"));
     dependencies.meteorServerDependencies = require(path.join(modulesPath, "meteor-server", "package.json"));
+    var nativescriptDependencies = require(path.join(modulesPath, "nativescript", "package.json"));
 
     var common = {};
     var commonDev = {};
@@ -242,6 +243,9 @@ function copyMeteorDependencies(params, modulesPath) {
     modulesDependencies.dependencies["@smallstack/meteor-common"] = "file:./meteor-common";
     modulesDependencies.dependencies["@smallstack/meteor-client"] = "file:./meteor-client";
     modulesDependencies.dependencies["@smallstack/meteor-server"] = "file:./meteor-server";
+    _.each(nativescriptDependencies.dependencies, function(version, name) {
+        modulesDependencies.dependencies[name] = version;
+    });
     fs.writeJSONSync(path.join(modulesPath, "package.json"), modulesDependencies);
 
     if (!params || params.offline !== true) {
