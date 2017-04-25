@@ -98,7 +98,7 @@ module.exports = function (params, done) {
                 downloadAndExtractVersion(params, config.smallstack.version, config.smallstackDirectory, function () {
                     persistLocalConfiguration(config.smallstackDirectory);
                     // npmInstallModules(config.smallstackDirectory);
-                    copyMeteorDependencies(path.join(config.smallstackDirectory, "modules"));
+                    copyMeteorDependencies(params, path.join(config.smallstackDirectory, "modules"));
                     done();
                 });
                 break;
@@ -107,7 +107,7 @@ module.exports = function (params, done) {
                 unzipSmallstackFile(path.join(config.rootDirectory, answers.smallstack.filepath), config.smallstackDirectory, function () {
                     persistLocalConfiguration(config.smallstackDirectory);
                     // npmInstallModules(config.smallstackDirectory);
-                    copyMeteorDependencies(path.join(config.smallstackDirectory, "modules"));
+                    copyMeteorDependencies(params, path.join(config.smallstackDirectory, "modules"));
                     done();
                 });
                 break;
@@ -116,7 +116,7 @@ module.exports = function (params, done) {
                 downloadAndExtract(smallstackUrl, config.smallstackDirectory, function () {
                     persistLocalConfiguration(config.smallstackDirectory);
                     // npmInstallModules(config.smallstackDirectory);
-                    copyMeteorDependencies(path.join(config.smallstackDirectory, "modules"));
+                    copyMeteorDependencies(params, path.join(config.smallstackDirectory, "modules"));
                     done();
                 });
                 break;
@@ -170,7 +170,7 @@ function npmInstallModules(rootPath, alsoDevPackages) {
     });
 }
 
-function copyMeteorDependencies(modulesPath) {
+function copyMeteorDependencies(params, modulesPath) {
     var dependencies = {};
     dependencies.coreCommonDependencies = require(path.join(modulesPath, "core-common", "package.json"));
     dependencies.coreClientDependencies = require(path.join(modulesPath, "core-client", "package.json"));
@@ -178,6 +178,7 @@ function copyMeteorDependencies(modulesPath) {
     dependencies.meteorCommonDependencies = require(path.join(modulesPath, "meteor-common", "package.json"));
     dependencies.meteorClientDependencies = require(path.join(modulesPath, "meteor-client", "package.json"));
     dependencies.meteorServerDependencies = require(path.join(modulesPath, "meteor-server", "package.json"));
+    var nativescriptDependencies = require(path.join(modulesPath, "nativescript", "package.json"));
 
     var common = {};
     var commonDev = {};
@@ -218,15 +219,16 @@ function copyMeteorDependencies(modulesPath) {
     // hard requirements for meteor
     content.dependencies["babel-runtime"] = "6.23.0";
     content.dependencies["bcrypt"] = "1.0.2";
-    content.devDependencies["nightmare"] = "2.10.0";
 
     content = sortPackageJson(content);
 
     fs.writeJSONSync(meteorPackageJsonPath, content);
 
-    exec("meteor npm install", {
-        cwd: config.meteorDirectory
-    });
+    if (!params || params.offline !== true) {
+        exec("meteor npm install", {
+            cwd: config.meteorDirectory
+        });
+    }
 
     // write module root package.json
     var modulesDependencies = {
@@ -241,10 +243,16 @@ function copyMeteorDependencies(modulesPath) {
     modulesDependencies.dependencies["@smallstack/meteor-common"] = "file:./meteor-common";
     modulesDependencies.dependencies["@smallstack/meteor-client"] = "file:./meteor-client";
     modulesDependencies.dependencies["@smallstack/meteor-server"] = "file:./meteor-server";
-    fs.writeJSONSync(path.join(modulesPath, "package.json"), modulesDependencies);
-    exec("npm install", {
-        cwd: modulesPath
+    _.each(nativescriptDependencies.dependencies, function(version, name) {
+        modulesDependencies.dependencies[name] = version;
     });
+    fs.writeJSONSync(path.join(modulesPath, "package.json"), modulesDependencies);
+
+    if (!params || params.offline !== true) {
+        exec("npm install", {
+            cwd: modulesPath
+        });
+    }
 
 }
 
