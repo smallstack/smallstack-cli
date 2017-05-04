@@ -3,7 +3,7 @@
 
 module.exports = function (parameters) {
 
-    var apiUrl = parameters.apiUrl || "https://smallstack.io/api";
+    var apiUrl = parameters.apiUrl || process.env.SMALLSTACK_API_URL || "https://smallstack.io/api";
     var apiKey = parameters.apiKey || process.env.SMALLSTACK_API_KEY;
 
     if (!apiKey) {
