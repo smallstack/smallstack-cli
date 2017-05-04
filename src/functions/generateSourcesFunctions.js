@@ -38,9 +38,9 @@ functions.getSchemaType = function getSchemaType(type) {
 
     if (!functions.isPrimitiveType(type)) {
         if (type.indexOf("[]") === -1)
-            return type + ".getSchema()";
+            return "new SimpleSchema(" + type + ".getSchema())";
         else
-            return "[" + type.replace("[]", "") + ".getSchema()]";
+            return "[new SimpleSchema(" + type.replace("[]", "") + ".getSchema())]";
     }
 
     throw new Error("Can't convert '" + type + "' to a schema type!");
@@ -391,7 +391,7 @@ functions.pluralize = function pluralize(singular) {
 functions.getSearchableFieldsArray = function getSearchableFieldsArray(schema) {
     var fields = [];
     for (var i = 0; i < schema.length; i++) {
-        if (schema[i].type !== "foreign[]")
+        if (schema[i].type !== "foreign[]" && schema[i].type !== "foreign")
             fields.push(schema[i].name);
     }
     fields.push("_id");
