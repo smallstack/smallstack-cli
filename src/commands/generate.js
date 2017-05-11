@@ -468,6 +468,12 @@ function evaluateSmallstackFile(smallstackFile, extendings, roots, configuration
                 roots[rootDirectory].moduleName = "@smallstack/core-client";
             else if (smallstackFilePath.endsWith("/modules/core-server/types"))
                 roots[rootDirectory].moduleName = "@smallstack/core-server";
+            else if (smallstackFilePath.endsWith("/modules/meteor-server/types"))
+                roots[rootDirectory].moduleName = "@smallstack/meteor-server";
+            else if (smallstackFilePath.endsWith("/modules/meteor-client/types"))
+                roots[rootDirectory].moduleName = "@smallstack/meteor-client";
+            else if (smallstackFilePath.endsWith("/modules/meteor-common/types"))
+                roots[rootDirectory].moduleName = "@smallstack/meteor-common";
             else
                 throw new Error("Could not find module name for :" + smallstackFilePath);
             roots[rootDirectory].packagesPathRelative = "";
