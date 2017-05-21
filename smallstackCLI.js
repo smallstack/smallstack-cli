@@ -30,6 +30,7 @@ commands.gitflow = require("./src/commands/gitflow");
 commands.signAndroid = require("./src/commands/signAndroid");
 commands.upload = require("./src/commands/upload");
 commands.convert = require("./src/commands/convert");
+commands.watch = require("./src/commands/watch");
 commands.syncproject = require("./src/commands/syncproject");
 commands.modifyproductionpackagejson = require("./src/commands/modifyProductionPackageJson");
 
