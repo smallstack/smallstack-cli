@@ -46,40 +46,40 @@ module.exports = function (params, done) {
         });
 
     var questions = [{
-            name: "smallstack.mode",
-            type: 'list',
-            message: 'Which version shall be used? ',
-            choices: packageModes,
-            when: function () {
-                return !smallstackMode;
-            }
-        },
-        {
-            name: "smallstack.path",
-            type: 'input',
-            message: 'relative path from project root to local smallstack directory :',
-            default: "../smallstack",
-            when: function (answers) {
-                return !smallstackMode && answers.smallstack.mode === "local" && smallstackPath === undefined;
-            }
-        },
-        {
-            name: "smallstack.filepath",
-            type: 'input',
-            message: 'relative path from project root to local file location :',
-            default: "../smallstack/dist/smallstack.zip",
-            when: function (answers) {
-                return !smallstackMode && answers.smallstack.mode === "file";
-            }
-        },
-        {
-            name: "smallstack.url",
-            type: 'input',
-            message: 'please enter the url where to download smallstack from :',
-            when: function (answers) {
-                return !smallstackMode && answers.smallstack.mode === "url" && smallstackUrl === undefined;
-            }
+        name: "smallstack.mode",
+        type: 'list',
+        message: 'Which version shall be used? ',
+        choices: packageModes,
+        when: function () {
+            return !smallstackMode;
         }
+    },
+    {
+        name: "smallstack.path",
+        type: 'input',
+        message: 'relative path from project root to local smallstack directory :',
+        default: "../smallstack",
+        when: function (answers) {
+            return !smallstackMode && answers.smallstack.mode === "local" && smallstackPath === undefined;
+        }
+    },
+    {
+        name: "smallstack.filepath",
+        type: 'input',
+        message: 'relative path from project root to local file location :',
+        default: "../smallstack/dist/smallstack.zip",
+        when: function (answers) {
+            return !smallstackMode && answers.smallstack.mode === "file";
+        }
+    },
+    {
+        name: "smallstack.url",
+        type: 'input',
+        message: 'please enter the url where to download smallstack from :',
+        when: function (answers) {
+            return !smallstackMode && answers.smallstack.mode === "url" && smallstackUrl === undefined;
+        }
+    }
     ];
 
     inquirer.prompt(questions).then(function (answers) {
@@ -91,7 +91,7 @@ module.exports = function (params, done) {
         switch (smallstackMode) {
             case "local":
                 console.log("using local path : ", smallstackPath);
-                persistLocalConfiguration(smallstackPath, true);
+                persistLocalConfiguration(smallstackPath, true, true);
                 done();
                 break;
             case "projectVersion":
@@ -138,7 +138,7 @@ function createSymlink(from, to, createMissingDirectories) {
         console.log("creating symlink: " + from + " -> " + to);
         fs.ensureSymlinkSync(from, to);
     } catch (e) {
-        console.error(e);
+        throw new Error(e.message + ", src:" + to + ", dst:" + from);
     }
 }
 
@@ -243,7 +243,7 @@ function copyMeteorDependencies(params, modulesPath) {
     modulesDependencies.dependencies["@smallstack/meteor-common"] = "file:./meteor-common";
     modulesDependencies.dependencies["@smallstack/meteor-client"] = "file:./meteor-client";
     modulesDependencies.dependencies["@smallstack/meteor-server"] = "file:./meteor-server";
-    _.each(nativescriptDependencies.dependencies, function(version, name) {
+    _.each(nativescriptDependencies.dependencies, function (version, name) {
         modulesDependencies.dependencies[name] = version;
     });
     fs.writeJSONSync(path.join(modulesPath, "package.json"), modulesDependencies);
@@ -279,7 +279,7 @@ function linkModules() {
     createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "nativescript", "node_modules", "@smallstack", "core-common"));
 }
 
-function persistLocalConfiguration(smallstackPath, addDistBundlePath) {
+function persistLocalConfiguration(smallstackPath, addDistBundlePath, linkResources) {
     if (smallstackPath === undefined)
         throw Error("No smallstack.path is given!");
     var additionalPath = "";
@@ -294,6 +294,8 @@ function persistLocalConfiguration(smallstackPath, addDistBundlePath) {
     var absoluteModuleMeteorCommonPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor-common", additionalPath);
     var absoluteModuleNativescriptPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "nativescript", additionalPath);
     var absoluteDatalayerPath = path.resolve(config.datalayerPath, "dist", "bundles");
+    var absoluteResourcesPath = path.resolve(config.rootDirectory, smallstackPath, "resources");
+    var absoluteSmallstackDistPath = path.resolve(config.rootDirectory, smallstackPath, "dist");
 
     // meteor links
     createSymlink(absoluteModuleCoreClientPath, config.meteorSmallstackCoreClientDirectory);
@@ -306,6 +308,12 @@ function persistLocalConfiguration(smallstackPath, addDistBundlePath) {
 
     // datalayer
     createSymlink(absoluteModuleCoreCommonPath, config.datalayerSmallstackCoreCommonDirectory);
+
+    // resources
+    if (linkResources) {
+        createSymlink(absoluteResourcesPath, config.cliResourcesPath);
+        // createSymlink(absoluteSmallstackDistPath, config.smallstackDistDirectory);
+    }
 
     // nativescript module
     // createSymlink(absoluteSmallstackCoreClientPath, path.resolve(config.rootDirectory, smallstackPath, "modules", "nativescript", "node_modules", "@smallstack", "core-client"));

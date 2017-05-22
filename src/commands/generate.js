@@ -56,16 +56,31 @@ module.exports = function (params, done) {
             }));
 
             // also load types from smallstack framework
-            _.each(glob.sync("**/*.smallstack.json", {
-                cwd: config.smallstackDirectory,
-                follow: true,
-                absolute: true,
-                ignore: ["**/dist/**", "**/node_modules/**", "**/undone/**"]
-            }), function (smallstackFile) {
-                evaluateSmallstackFile(smallstackFile, extendings, roots, configuration, {
-                    generate: false
+            if (fs.existsSync(path.join(config.smallstackDirectory, "modules"))) {
+                // local / remote file mode
+                _.each(glob.sync("**/*.smallstack.json", {
+                    cwd: config.smallstackDirectory,
+                    follow: false,
+                    absolute: true,
+                    ignore: ["**/undone/**"]
+                }), function (smallstackFile) {
+                    evaluateSmallstackFile(smallstackFile, extendings, roots, configuration, {
+                        generate: false
+                    });
                 });
-            });
+            } else {
+                // local checkout mode
+                _.each(glob.sync("**/types/**/*.smallstack.json", {
+                    cwd: config.meteorSmallstackDependenciesDirectory,
+                    follow: false,
+                    absolute: true,
+                    ignore: ["**/dist/**", "**/undone/**"]
+                }), function (smallstackFile) {
+                    evaluateSmallstackFile(smallstackFile, extendings, roots, configuration, {
+                        generate: false
+                    });
+                });
+            }
 
         }
 
@@ -474,8 +489,15 @@ function evaluateSmallstackFile(smallstackFile, extendings, roots, configuration
                 roots[rootDirectory].moduleName = "@smallstack/meteor-client";
             else if (smallstackFilePath.endsWith("/modules/meteor-common/types"))
                 roots[rootDirectory].moduleName = "@smallstack/meteor-common";
-            else
-                throw new Error("Could not find module name for :" + smallstackFilePath);
+            else {
+                var regex = new RegExp("\/node_modules\/@smallstack\/(.*)\/types", "i");
+                var result = regex.exec(smallstackFilePath);
+                if (result.length === 0)
+                    throw new Error("Could not find module name for :" + smallstackFilePath);
+                else {
+                    roots[rootDirectory].moduleName = "@smallstack/" + result[1];
+                }
+            }
             roots[rootDirectory].packagesPathRelative = "";
         }
     }
@@ -486,8 +508,10 @@ function evaluateSmallstackFile(smallstackFile, extendings, roots, configuration
 
 
     // fill the configuration
-    if (configuration[id] !== undefined)
-        throw new Error("Configuration for ID '" + id + "' already exists!!!");
+    if (configuration[id] !== undefined) {
+        console.warn("Configuration for ID '" + id + "' already exists, skipping!!!");
+        return;
+    }
     configuration[id] = {};
     configuration[id].root = roots[rootDirectory];
 
