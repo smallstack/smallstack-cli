@@ -10,7 +10,9 @@ module.exports = function (parameters, done) {
         throw new Error("You're not inside a smallstack project folder!");
 
     // copy folder
+    console.log("Syncing project files...");
     fs.copySync(path.join(config.cliResourcesPath, "projectfiles"), config.rootDirectory);
-    done();
 
+    if (typeof done === "function")
+        done();
 }

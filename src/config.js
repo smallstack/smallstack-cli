@@ -141,7 +141,7 @@ try {
             config.meteorDirectory = path.join(config.rootDirectory, "meteor");
             config.meteorTestsDirectory = path.join(config.meteorDirectory, "tests");
             config.smallstackDirectory = path.join(config.rootDirectory, "smallstack");
-            config.meteorSmallstackDependenciesDirectory = path.join(config.rootDirectory, "node_modules", "@smallstack");
+            config.meteorSmallstackDependenciesDirectory = path.join(config.meteorDirectory, "node_modules", "@smallstack");
             config.meteorSmallstackCoreClientDirectory = path.join(config.meteorSmallstackDependenciesDirectory, "core-client");
             config.meteorSmallstackCoreServerDirectory = path.join(config.meteorSmallstackDependenciesDirectory, "core-server");
             config.meteorSmallstackCoreCommonDirectory = path.join(config.meteorSmallstackDependenciesDirectory, "core-common");
