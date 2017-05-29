@@ -13,7 +13,7 @@ module.exports = function (parameters, done) {
     var queueLine = 0;
     var executionsLine = 1;
     var executionLogLine = 3;
-    var debugLine = 5;
+    var errorLine = 5;
     var isExecuting = false;
 
     logUpdate();
@@ -100,12 +100,18 @@ module.exports = function (parameters, done) {
             spinner.start();
             executions.splice(0, 1);
             updateExecutionsText();
-            var childProcess = exec(execution.cmd, execution.options);
+            var childProcess = exec(execution.cmd, execution.options, (error) => {
+                if (error !== null)
+                    logUpdate(error.message, errorLine);
+            });
             childProcess.on("exit", (code, signal) => {
                 isExecuting = false;
                 spinner.stop();
                 logUpdate("watching files for changes...", executionLogLine);
                 executeNextExecution();
+            });
+            childProcess.on("error", (err) => {
+                logUpdate(err.message, errorLine);
             });
             childProcess.stdout.on("data", (data) => {
                 logUpdate(data, executionLogLine);

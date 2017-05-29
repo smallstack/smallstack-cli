@@ -11,6 +11,7 @@ var DecompressZip = require("decompress-zip");
 var SmallstackApi = require("../functions/smallstackApi");
 var semver = require("semver");
 var sortPackageJson = require("sort-package-json");
+var syncProjectFiles = require("./syncproject");
 
 module.exports = function (params, done) {
 
@@ -88,9 +89,10 @@ module.exports = function (params, done) {
         smallstackMode = answers.smallstack.mode || smallstackMode;
         smallstackUrl = answers.smallstack.url || smallstackUrl;
         smallstackPath = answers.smallstack.path || smallstackPath;
+        console.log("cleaning local smallstack path : " + config.smallstackDirectory);
+        fs.emptyDirSync(config.smallstackDirectory);
         switch (smallstackMode) {
             case "local":
-                console.log("using local path : ", smallstackPath);
                 persistLocalConfiguration(smallstackPath, true, true);
                 done();
                 break;
@@ -330,6 +332,7 @@ function persistLocalConfiguration(smallstackPath, addDistBundlePath, linkResour
         createSymlink(absoluteDatalayerPath, config.nativescriptDatalayerDirectory);
     }
 
+    syncProjectFiles();
 }
 
 function downloadAndExtractVersion(parameters, version, destination, doneCallback) {
