@@ -15,6 +15,7 @@ module.exports = function (parameters, done) {
     var executionLogLine = 3;
     var errorLine = 5;
     var isExecuting = false;
+    var last10LinesBuffer = [];
 
     logUpdate();
 
@@ -94,6 +95,7 @@ module.exports = function (parameters, done) {
     function executeNextExecution() {
         updateExecutionsText();
         if (executions.length > 0 && !isExecuting) {
+            logUpdate("", errorLine);
             isExecuting = true;
             var execution = executions[0];
             var spinner = new Spinner('%s Bundling ' + execution.packageName);
@@ -101,8 +103,9 @@ module.exports = function (parameters, done) {
             executions.splice(0, 1);
             updateExecutionsText();
             var childProcess = exec(execution.cmd, execution.options, (error) => {
-                if (error !== null)
-                    logUpdate(error.message, errorLine);
+                if (error !== null) {
+                    logUpdate("ERROR: \n===============================================\n" + last10LinesBuffer + "\n===============================================\n" + error, errorLine);
+                }
             });
             childProcess.on("exit", (code, signal) => {
                 isExecuting = false;
@@ -111,11 +114,18 @@ module.exports = function (parameters, done) {
                 executeNextExecution();
             });
             childProcess.on("error", (err) => {
-                logUpdate(err.message, errorLine);
+                logUpdate("ERROR: \n===============================================\n" + last10LinesBuffer + "\n===============================================\n" + err, errorLine);
             });
             childProcess.stdout.on("data", (data) => {
+                addToLast10LinesBuffer(data);
                 logUpdate(data, executionLogLine);
             });
         }
+    }
+
+    function addToLast10LinesBuffer(text) {
+        if (last10LinesBuffer.length > 10)
+            last10LinesBuffer.shift();
+        last10LinesBuffer.push(text);
     }
 }
