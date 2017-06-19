@@ -5,6 +5,7 @@ var glob = require("glob");
 var _ = require("underscore");
 var lodash = require("lodash");
 var capitalize = require("underscore.string/capitalize");
+var colors = require("colors");
 
 var templating = require("../functions/templating");
 var notifier = require("../functions/notifier");
@@ -92,8 +93,10 @@ module.exports = function (params, done) {
                 ignore: ["**/dist/**", "**/node_modules/**", "**/undone/**"]
             }));
 
-        if (allSmallstackFiles.length === 0)
-            throw new Error("Aborting! No *.smallstack.json files found!");
+        if (allSmallstackFiles.length === 0) {
+            console.warn(colors.yellow("Warning: No *.smallstack.json files found in project, aborting source code generation!"));
+            return;
+        }
 
         _.each(allSmallstackFiles, function (smallstackFile) {
             evaluateSmallstackFile(smallstackFile, extendings, roots, configuration);
