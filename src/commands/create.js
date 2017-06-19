@@ -43,6 +43,7 @@ module.exports = function (parameters, done) {
             cwd: directory,
             finished: function () {
                 fs.renameSync(path.join(directory, "app"), path.join(directory, "meteor"));
+                fs.copySync(__dirname + "/../resources/templates/project/packages", path.join(appDirectory, ".meteor", "packages"));
                 done();
             }
         });
