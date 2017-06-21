@@ -20,9 +20,78 @@ module.exports = function (params, done) {
         if (!params || params.linkOnly !== true)
             npmInstallModules(config.rootDirectory, true);
         done();
-        return;
+    }
+    else if (config.isProjectEnvironment()) {
+        setupSmallstackProject(params, done);
+    }
+    else if (config.isNativescriptEnvironment()) {
+        setupNativescriptApp(params, done);
     }
 
+}
+
+
+
+function setupNativescriptApp(params, done) {
+    askPackageModeQuestions(params, function (smallstackMode, smallstackUrl, smallstackPath) {
+        switch (smallstackMode) {
+            case "local":
+                persistNativescriptConfiguration(smallstackPath, true);
+                done();
+                break;
+            case "projectVersion":
+                downloadAndExtractVersion(params, config.smallstack.version, config.smallstackDirectory, function () {
+                    persistNativescriptConfiguration(config.smallstackDirectory);
+                    done();
+                });
+                break;
+            case "file":
+                fs.emptyDirSync(config.smallstackDirectory);
+                unzipSmallstackFile(path.join(config.rootDirectory, answers.smallstack.filepath), config.smallstackDirectory, function () {
+                    persistNativescriptConfiguration(config.smallstackDirectory);
+                });
+                break;
+            case "url":
+                fs.emptyDirSync(config.smallstackDirectory);
+                downloadAndExtract(smallstackUrl, config.smallstackDirectory, function () {
+                    persistNativescriptConfiguration(config.smallstackDirectory);
+                    done();
+                });
+                break;
+            default:
+                throw new Error(smallstackMode + " is an unknown way of getting smallstack packages!");
+        }
+    });
+}
+
+function persistNativescriptConfiguration(smallstackPath, addDistBundlePath) {
+    if (smallstackPath === undefined)
+        throw Error("No smallstack.path is given!");
+    var additionalPath = "";
+    if (addDistBundlePath === true)
+        additionalPath = "dist/bundle";
+
+    var absoluteModuleCoreClientPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "core-client", additionalPath);
+    var absoluteModuleCoreCommonPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "core-common", additionalPath);
+    var absoluteModuleNativescriptPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "nativescript", additionalPath);
+
+    createSymlink(absoluteModuleCoreClientPath, path.resolve(config.rootDirectory, "node_modules", "@smallstack", "core-client"));
+    createSymlink(absoluteModuleCoreCommonPath, path.resolve(config.rootDirectory, "node_modules", "@smallstack", "core-common"));
+    createSymlink(absoluteModuleNativescriptPath, path.resolve(config.rootDirectory, "node_modules", "@smallstack", "nativescript"));
+
+    // add dependencies to nativescript app
+    var packagePath = path.join(config.rootDirectory, "package.json");
+    var packageContent = require(packagePath);
+    if (!packageContent.dependencies)
+        packageContent.dependencies = {};
+    packageContent.dependencies["@smallstack/core-common"] = "*";
+    packageContent.dependencies["@smallstack/core-client"] = "*";
+    packageContent.dependencies["@smallstack/nativescript"] = "*";
+    fs.writeJSONSync(packagePath, packageContent);
+}
+
+
+function askPackageModeQuestions(params, callbackFn) {
     // properties
     var smallstackMode = params.mode;
     var smallstackPath = params.path;
@@ -80,8 +149,7 @@ module.exports = function (params, done) {
         when: function (answers) {
             return !smallstackMode && answers.smallstack.mode === "url" && smallstackUrl === undefined;
         }
-    }
-    ];
+    }];
 
     inquirer.prompt(questions).then(function (answers) {
         if (!answers.smallstack)
@@ -89,6 +157,13 @@ module.exports = function (params, done) {
         smallstackMode = answers.smallstack.mode || smallstackMode;
         smallstackUrl = answers.smallstack.url || smallstackUrl;
         smallstackPath = answers.smallstack.path || smallstackPath;
+        callbackFn(smallstackMode, smallstackUrl, smallstackPath);
+    });
+}
+
+
+function setupSmallstackProject(params, done) {
+    askPackageModeQuestions(params, function (smallstackMode, smallstackUrl, smallstackPath) {
         console.log("cleaning local smallstack path : " + config.smallstackDirectory);
         fs.emptyDirSync(config.smallstackDirectory);
         switch (smallstackMode) {
@@ -134,6 +209,9 @@ function createSymlink(from, to, createMissingDirectories) {
 
     if (createMissingDirectories)
         fs.ensureDirSync(from);
+    else if (!fs.existsSync(from)) {
+        throw new Error("'from' does not exist, can't create symlink. from is set to " + from);
+    }
 
     try {
         fs.removeSync(to);
