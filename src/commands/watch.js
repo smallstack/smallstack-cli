@@ -28,6 +28,7 @@ module.exports = function (parameters, done) {
     directories.push("./modules/meteor-client");
     directories.push("./modules/meteor-common");
     directories.push("./modules/meteor-server");
+    directories.push("./modules/nativescript");
 
     watch(directories, {
         recursive: true,
@@ -59,6 +60,8 @@ module.exports = function (parameters, done) {
             addExecution("meteor-common");
         if (filename.indexOf("modules\\meteor-server") === 0)
             addExecution("meteor-server");
+        if (filename.indexOf("modules\\nativescript") === 0)
+            addExecution("nativescript");
         executeNextExecution();
     });
 
