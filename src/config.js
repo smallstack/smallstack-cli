@@ -60,6 +60,16 @@ config.smallstackModuleFound = function (directory) {
     }
 }
 
+config.nativescriptAppFound = function (directory) {
+    if (!directory)
+        return false;
+    var packageJSONPath = path.join(directory, "package.json");
+    if (!fs.existsSync(packageJSONPath))
+        return false;
+    var packageContent = require(packageJSONPath);
+    return packageContent.nativescript !== undefined && packageContent.nativescript.id !== undefined;
+}
+
 config.npmPackageFound = function (directory) {
     if (!directory)
         return false;
@@ -78,6 +88,10 @@ config.isSmallstackEnvironment = function () {
 
 config.isProjectEnvironment = function () {
     return config.projectFound(config.rootDirectory);
+}
+
+config.isNativescriptEnvironment = function () {
+    return config.nativescriptAppFound(config.rootDirectory);
 }
 
 config.isNPMPackageEnvironment = function () {
@@ -121,11 +135,13 @@ config.getRootDirectory = function () {
                 return root;
             if (config.npmPackageFound(root))
                 return root;
+            if (config.nativescriptAppFound(root))
+                return root;
 
             root = path.resolve(path.join(root, "../"));
         }
     } catch (e) {
-        throw new Error("No suitable environment found! The smallstack CLI only works inside smallstack projects and smallstack module folders!");
+        throw new Error("No suitable environment found! The smallstack CLI only works inside smallstack projects, smallstack module folders or nativescript apps!");
     }
 }
 
