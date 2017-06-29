@@ -357,6 +357,7 @@ function linkModules() {
 
     // nativescript
     createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "nativescript", "node_modules", "@smallstack", "core-common"));
+    createSymlink(path.resolve(config.rootDirectory, "modules", "core-client"), path.resolve(config.rootDirectory, "modules", "nativescript", "node_modules", "@smallstack", "core-client"));
 }
 
 function persistLocalConfiguration(smallstackPath, addDistBundlePath, linkResources) {
