@@ -1,19 +1,25 @@
 var config = require("../config");
 var AWS = require('aws-sdk');
 var fs = require("fs-extra");
+var dateFormat = require('dateformat');
 
 module.exports = function (parameters, done) {
 
-    AWS.config.region = 'eu-central-1';
-    var bucketName = "smallstack-bundles";
-    var uploadName = "project-" + config.name + "-" + config.version + ".tar.gz";
+    var now = new Date();
+    var dateString = dateFormat(now, "yyyy-mm-dd-HH-MM-ss");
 
-    console.log("Target File Name : ", uploadName);
-    console.log("AWS Region : ", "eu-central-1");
-    console.log("Bucket : ", "smallstack-bundles");
+    var region = parameters.region || "eu-central-1";
+    var bucketName = parameters.bucket || "smallstack-bundles";
+    var uploadName = parameters.filename || "smallstack/" + config.name + "/" + config.version + "-" + dateString + ".tar.gz";
+
+    console.log("Target File Name : " + uploadName);
+    console.log("AWS Region :       " + region);
+    console.log("Bucket :           " + bucketName);
     console.log(" ");
     console.log("Uploading file...");
 
+
+    AWS.config.region = region;
 
     var s3bucket = new AWS.S3({ params: { Bucket: bucketName } });
     fs.readFile(config.builtDirectory + "/meteor.tar.gz", function (err, data) {
