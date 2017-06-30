@@ -21,40 +21,40 @@ module.exports = function (params, done) {
             npmInstallModules(config.rootDirectory, true);
         done();
     }
+    else if (config.isComponentEnvironment() || config.isNativescriptEnvironment()) {
+        setupNPMProject(params, done);
+    }
     else if (config.isProjectEnvironment()) {
         setupSmallstackProject(params, done);
     }
-    else if (config.isNativescriptEnvironment()) {
-        setupNativescriptApp(params, done);
-    }
-
+    else throw new Error("Unknown Environment for 'smallstack setup', sorry!");
 }
 
 
 
-function setupNativescriptApp(params, done) {
+function setupNPMProject(params, done) {
     askPackageModeQuestions(params, function (smallstackMode, smallstackUrl, smallstackPath) {
         switch (smallstackMode) {
             case "local":
-                persistNativescriptConfiguration(smallstackPath, true);
+                persistNPMConfiguration(smallstackPath, true);
                 done();
                 break;
             case "projectVersion":
                 downloadAndExtractVersion(params, config.smallstack.version, config.smallstackDirectory, function () {
-                    persistNativescriptConfiguration(config.smallstackDirectory);
+                    persistNPMConfiguration(config.smallstackDirectory);
                     done();
                 });
                 break;
             case "file":
                 fs.emptyDirSync(config.smallstackDirectory);
                 unzipSmallstackFile(path.join(config.rootDirectory, answers.smallstack.filepath), config.smallstackDirectory, function () {
-                    persistNativescriptConfiguration(config.smallstackDirectory);
+                    persistNPMConfiguration(config.smallstackDirectory);
                 });
                 break;
             case "url":
                 fs.emptyDirSync(config.smallstackDirectory);
                 downloadAndExtract(smallstackUrl, config.smallstackDirectory, function () {
-                    persistNativescriptConfiguration(config.smallstackDirectory);
+                    persistNPMConfiguration(config.smallstackDirectory);
                     done();
                 });
                 break;
@@ -64,30 +64,28 @@ function setupNativescriptApp(params, done) {
     });
 }
 
-function persistNativescriptConfiguration(smallstackPath, addDistBundlePath) {
+function persistNPMConfiguration(smallstackPath, addDistBundlePath) {
     if (smallstackPath === undefined)
         throw Error("No smallstack.path is given!");
     var additionalPath = "";
     if (addDistBundlePath === true)
         additionalPath = "dist/bundle";
 
-    var absoluteModuleCoreClientPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "core-client", additionalPath);
-    var absoluteModuleCoreCommonPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "core-common", additionalPath);
-    var absoluteModuleNativescriptPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "nativescript", additionalPath);
-
-    createSymlink(absoluteModuleCoreClientPath, path.resolve(config.rootDirectory, "node_modules", "@smallstack", "core-client"));
-    createSymlink(absoluteModuleCoreCommonPath, path.resolve(config.rootDirectory, "node_modules", "@smallstack", "core-common"));
-    createSymlink(absoluteModuleNativescriptPath, path.resolve(config.rootDirectory, "node_modules", "@smallstack", "nativescript"));
-
-    // add dependencies to nativescript app
+    // search for smallstack dependencies in package.json
     var packagePath = path.join(config.rootDirectory, "package.json");
     var packageContent = require(packagePath);
-    if (!packageContent.dependencies)
-        packageContent.dependencies = {};
-    packageContent.dependencies["@smallstack/core-common"] = "*";
-    packageContent.dependencies["@smallstack/core-client"] = "*";
-    packageContent.dependencies["@smallstack/nativescript"] = "*";
-    fs.writeJSONSync(packagePath, packageContent);
+    var requiredModules = [];
+    _.each(packageContent.dependencies, function (value, key) {
+        if (key.indexOf("@smallstack/") === 0)
+            requiredModules.push(key.replace("@smallstack/", ""));
+    });
+
+    if (requiredModules.length === 0)
+        throw new Error("No smallstack dependencies defined in package.json file. This might be intended?");
+
+    _.each(requiredModules, function (value) {
+        createSymlink(path.resolve(config.rootDirectory, smallstackPath, "modules", value, additionalPath), path.resolve(config.rootDirectory, "node_modules", "@smallstack", value));
+    });
 }
 
 

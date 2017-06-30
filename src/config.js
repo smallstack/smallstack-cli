@@ -60,6 +60,24 @@ config.smallstackModuleFound = function (directory) {
     }
 }
 
+config.smallstackComponentFound = function (directory) {
+    if (!directory)
+        return false;
+    var packageJSONPath = path.join(directory, "package.json");
+    if (!fs.existsSync(packageJSONPath))
+        return false;
+    var packageContent = require(packageJSONPath);
+    try {
+        if (packageContent.smallstack.component.nativescript)
+            return true;
+        if (packageContent.smallstack.component.web)
+            return true;
+        if (packageContent.smallstack.component.server)
+            return true;
+    } catch (e) { }
+    return false;
+}
+
 config.nativescriptAppFound = function (directory) {
     if (!directory)
         return false;
@@ -88,6 +106,10 @@ config.isSmallstackEnvironment = function () {
 
 config.isProjectEnvironment = function () {
     return config.projectFound(config.rootDirectory);
+}
+
+config.isComponentEnvironment = function () {
+    return config.smallstackComponentFound(config.rootDirectory);
 }
 
 config.isNativescriptEnvironment = function () {
@@ -136,6 +158,8 @@ config.getRootDirectory = function () {
             if (config.npmPackageFound(root))
                 return root;
             if (config.nativescriptAppFound(root))
+                return root;
+            if (config.smallstackComponentFound(root))
                 return root;
 
             root = path.resolve(path.join(root, "../"));

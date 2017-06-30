@@ -39,15 +39,17 @@ logo();
 
 // display some information
 if (config.isSmallstackEnvironment())
-    console.log("Environment:     Smallstack Framework");
+    console.log("Environment:     smallstack framework");
 else if (config.isProjectEnvironment())
-    console.log("Environment:     Smallstack Project");
-else if (config.isNPMPackageEnvironment())
-    console.log("Environment:     NPM Package");
+    console.log("Environment:     smallstack project");
+else if (config.isComponentEnvironment())
+    console.log("Environment:     smallstack component");
 else if (config.isNativescriptEnvironment())
-    console.log("Environment:     Nativescript App");
+    console.log("Environment:     nativescript app");
+else if (config.isNPMPackageEnvironment())
+    console.log("Environment:     NPM package");
 else if (config.calledWithCreateProjectCommand())
-    console.log("Environment:     Project Creation");
+    console.log("Environment:     project creation");
 else {
     console.error(colors.red("ERROR: No suitable environment found! The smallstack CLI only works inside smallstack projects, smallstack module folders and nativescript apps!"));
     return;
