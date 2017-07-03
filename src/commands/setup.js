@@ -315,15 +315,15 @@ function copyMeteorDependencies(params, modulesPath) {
         "dependencies": common,
         "devDependencies": commonDev
     };
+    _.each(nativescriptDependencies.dependencies, function (version, name) {
+        modulesDependencies.dependencies[name] = version;
+    });
     modulesDependencies.dependencies["@smallstack/core-common"] = "file:./core-common";
     modulesDependencies.dependencies["@smallstack/core-client"] = "file:./core-client";
     modulesDependencies.dependencies["@smallstack/core-server"] = "file:./core-server";
     modulesDependencies.dependencies["@smallstack/meteor-common"] = "file:./meteor-common";
     modulesDependencies.dependencies["@smallstack/meteor-client"] = "file:./meteor-client";
     modulesDependencies.dependencies["@smallstack/meteor-server"] = "file:./meteor-server";
-    _.each(nativescriptDependencies.dependencies, function (version, name) {
-        modulesDependencies.dependencies[name] = version;
-    });
     fs.writeJSONSync(path.join(modulesPath, "package.json"), modulesDependencies);
 
     if (!params || params.offline !== true) {
