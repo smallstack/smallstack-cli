@@ -2,6 +2,7 @@ var config = require("../config");
 var AWS = require('aws-sdk');
 var fs = require("fs-extra");
 var dateFormat = require('dateformat');
+var gitState = require("git-state");
 
 module.exports = function (parameters, done) {
 
