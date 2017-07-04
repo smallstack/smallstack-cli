@@ -452,6 +452,7 @@ function unzipSmallstackFile(file, destination, callback) {
     var unzipper = new DecompressZip(file);
     unzipper.on('error', function (err) {
         console.log('Caught an error', err);
+        throw err;
     });
 
     unzipper.on('extract', function (log) {
