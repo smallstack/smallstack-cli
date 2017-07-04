@@ -167,6 +167,7 @@ function setupSmallstackProject(params, done) {
         switch (smallstackMode) {
             case "local":
                 persistLocalConfiguration(smallstackPath, true, true);
+                copyMeteorDependencies(params, path.join(config.rootDirectory, smallstackPath, "modules"));
                 done();
                 break;
             case "projectVersion":
@@ -270,7 +271,12 @@ function copyMeteorDependencies(params, modulesPath) {
     });
 
     var meteorPackageJsonPath = path.join(config.meteorDirectory, "package.json");
-    var content = require(meteorPackageJsonPath);
+    var content;
+    if (fs.existsSync(meteorPackageJsonPath))
+        content = require(meteorPackageJsonPath);
+    else
+        content = { "name": "meteor-app", "scripts": { "start": "meteor run" }, "dependencies": {}, "devDependencies": {}, "private": true };
+
     if (!content.dependencies)
         content.dependencies = {};
     if (!content.devDependencies)
@@ -294,11 +300,11 @@ function copyMeteorDependencies(params, modulesPath) {
     content.dependencies["@smallstack/meteor-client"] = "*";
     content.dependencies["@smallstack/meteor-server"] = "*";
 
-    // hard requirements for meteor
-    content.dependencies["babel-runtime"] = "6.23.0";
-    content.dependencies["bcrypt"] = "1.0.2";
-
     content = sortPackageJson(content);
+
+    // eleminate doubled dev dependencies, remove @smallstack dependencies
+    removeDoubledDevDependencies(content);
+
 
     fs.writeJSONSync(meteorPackageJsonPath, content);
 
@@ -315,6 +321,7 @@ function copyMeteorDependencies(params, modulesPath) {
         "dependencies": common,
         "devDependencies": commonDev
     };
+
     _.each(nativescriptDependencies.dependencies, function (version, name) {
         modulesDependencies.dependencies[name] = version;
     });
@@ -469,5 +476,13 @@ function unzipSmallstackFile(file, destination, callback) {
         filter: function (file) {
             return file.type !== "SymbolicLink";
         }
+    });
+}
+
+
+function removeDoubledDevDependencies(packageJsonContent) {
+    _.each(packageJsonContent.dependencies, function (depVal, depKey) {
+        if (packageJsonContent.devDependencies[depKey])
+            delete packageJsonContent.devDependencies[depKey];
     });
 }
