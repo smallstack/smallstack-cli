@@ -302,6 +302,7 @@ function copyMeteorDependencies(params, modulesPath, createModuleRootPackageJson
     content.dependencies["@smallstack/meteor-common"] = "*";
     content.dependencies["@smallstack/meteor-client"] = "*";
     content.dependencies["@smallstack/meteor-server"] = "*";
+    content.dependencies["@smallstack/datalayer"] = "*";
 
     content = sortPackageJson(content);
 
