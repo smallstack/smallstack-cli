@@ -290,9 +290,11 @@ function copyMeteorDependencies(params, modulesPath, createModuleRootPackageJson
         content.dependencies[name] = version;
     });
 
-    // _.each(commonDev, function (version, name) {
-    //     content.devDependencies[name] = version;
-    // });
+    _.each(commonDev, function (version, name) {
+        if (name.startsWith("@types/")) {
+            content.devDependencies[name] = version;
+        }
+    });
 
 
     // smallstack dependencies
