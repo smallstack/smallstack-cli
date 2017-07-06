@@ -82,7 +82,6 @@ module.exports = function (params, done) {
                         jobName = "project-" + jobName;
 
                     // modify config from template
-                    console.log(jobConfig);
                     var xml = new jsxml.XML(jobConfig);
 
                     // scm url
