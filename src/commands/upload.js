@@ -12,8 +12,10 @@ module.exports = function (parameters, done) {
     if (state !== undefined && state.branch !== undefined) {
         gitTagCheck();
         var branchName = state.branch.replace(new RegExp("/", "gi"), "_");
-        if (branchName.indexOf("heads_tags_") === -1 && branchName.indexOf("tags_") === -1)
-            bundleName = branchName;
+        console.log("Branch Name :      " + branchName);
+        if (branchName.indexOf("heads_tags_") === -1 && branchName.indexOf("tags_") === -1) {
+            bundleName = branchName.replace("heads_", "");
+        }
     }
     var region = parameters.region || "eu-central-1";
     var bucketName = parameters.bucket || "smallstack-bundles";
