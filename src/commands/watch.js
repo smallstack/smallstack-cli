@@ -48,19 +48,20 @@ module.exports = function (parameters, done) {
             return true;
         }
     }, function (filename) {
-        if (filename.indexOf("modules\\core-client") === 0)
+
+        if (filename.indexOf("modules" + path.sep + "core-client") === 0)
             addExecution("core-client");
-        if (filename.indexOf("modules\\core-common") === 0)
+        if (filename.indexOf("modules" + path.sep + "core-common") === 0)
             addExecution("core-common");
-        if (filename.indexOf("modules\\core-server") === 0)
+        if (filename.indexOf("modules" + path.sep + "core-server") === 0)
             addExecution("core-server");
-        if (filename.indexOf("modules\\meteor-client") === 0)
+        if (filename.indexOf("modules" + path.sep + "meteor-client") === 0)
             addExecution("meteor-client");
-        if (filename.indexOf("modules\\meteor-common") === 0)
+        if (filename.indexOf("modules" + path.sep + "meteor-common") === 0)
             addExecution("meteor-common");
-        if (filename.indexOf("modules\\meteor-server") === 0)
+        if (filename.indexOf("modules" + path.sep + "meteor-server") === 0)
             addExecution("meteor-server");
-        if (filename.indexOf("modules\\nativescript") === 0)
+        if (filename.indexOf("modules" + path.sep + "nativescript") === 0)
             addExecution("nativescript");
         executeNextExecution();
     });
