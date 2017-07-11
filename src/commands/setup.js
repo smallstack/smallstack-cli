@@ -156,6 +156,9 @@ function askPackageModeQuestions(params, callbackFn) {
         smallstackUrl = answers.smallstack.url || smallstackUrl;
         smallstackPath = answers.smallstack.path || smallstackPath;
         callbackFn(smallstackMode, smallstackUrl, smallstackPath);
+    }, function(error) {
+        console.error(error);
+        throw error;
     });
 }
 

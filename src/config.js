@@ -208,6 +208,9 @@ try {
             config.cliTemplatesPath = path.join(config.cliResourcesPath, "templates");
             config.datalayerTemplatesPath = path.join(config.cliTemplatesPath, "datalayer");
         }
+        if (config.isComponentEnvironment()) {
+            config.smallstackDirectory = path.join(config.rootDirectory, "smallstack");
+        }
     }
 
     if (fs.existsSync(config.rootDirectory + "/package.json")) {
