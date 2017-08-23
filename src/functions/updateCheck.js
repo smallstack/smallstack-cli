@@ -14,9 +14,13 @@ module.exports = {
                 if (error)
                     console.log("Error while checking for updates: ", error);
                 else {
-                    var packageJSON = JSON.parse(body);
-                    if (semver.lt(config.cli.version, packageJSON.version)) {
-                        checker.newVersion = packageJSON.version
+                    try {
+                        var packageJSON = JSON.parse(body);
+                        if (semver.lt(config.cli.version, packageJSON.version)) {
+                            checker.newVersion = packageJSON.version
+                        }
+                    } catch (e) {
+                        // could not parse JSON???
                     }
                     if (checker.asyncCallback)
                         checker.asyncCallback();
