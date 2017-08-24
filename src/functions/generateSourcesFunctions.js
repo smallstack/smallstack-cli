@@ -347,6 +347,8 @@ functions.relativePath = function relativePath(pathA, pathB) {
 }
 
 functions.isPrimitiveType = function isPrimitiveType(typeAsString) {
+    if (typeAsString === undefined)
+        throw new Error("Type is undefined!");
     typeAsString = typeAsString.toLowerCase().replace(/\[|\]/g, "");
     switch (typeAsString) {
         case "number":
