@@ -48,6 +48,20 @@ functions.getSchemaType = function getSchemaType(type) {
 }
 
 
+functions.getTypescriptTypeBySchema = function getTypescriptType(schema) {
+    var type = schema.type;
+    if (type === "string" && schema.allowedValues instanceof Array) {
+        var allowedValues = "";
+        _.each(schema.allowedValues, function (allowedValue) {
+            if (allowedValues !== "")
+                allowedValues += " | ";
+            allowedValues += "\"" + allowedValue + "\"";
+        });
+        return allowedValues;
+    }
+    return functions.getTypescriptType(type);
+}
+
 functions.getTypescriptType = function getTypescriptType(type) {
     switch (type.toLowerCase()) {
         case "date":
@@ -347,6 +361,8 @@ functions.relativePath = function relativePath(pathA, pathB) {
 }
 
 functions.isPrimitiveType = function isPrimitiveType(typeAsString) {
+    if (typeAsString === undefined)
+        throw new Error("Type is undefined!");
     typeAsString = typeAsString.toLowerCase().replace(/\[|\]/g, "");
     switch (typeAsString) {
         case "number":
