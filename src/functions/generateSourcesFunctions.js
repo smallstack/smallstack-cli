@@ -318,10 +318,24 @@ functions.getMongoUpdateJson = function getMongoUpdateJson(schema) {
     return out;
 }
 
-functions.lowerCaseFirst = function lowerCaseFirst(str) {
+functions.lowerCaseFirst = function lowerCaseFirst(str, onlyFirst) {
+    if (onlyFirst === undefined)
+        onlyFirst = false;
     if (typeof str !== 'string')
         return str;
-    return str.charAt(0).toLowerCase() + str.substring(1);
+    if (onlyFirst)
+        return str.charAt(0).toLowerCase() + str.substring(1);
+    else {
+        var regex = /[A-Z]*/;
+        var result = regex.exec(str);
+        var upperCaseLetters = result[0];
+        if (upperCaseLetters) {
+            if (upperCaseLetters.length > 1)
+                upperCaseLetters = upperCaseLetters.slice(0, upperCaseLetters.length - 1);
+            str = str.replace(upperCaseLetters, upperCaseLetters.toLowerCase());
+        }
+        return str;
+    }
 }
 
 
