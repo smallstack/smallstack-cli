@@ -74,7 +74,7 @@ config.smallstackComponentFound = function (directory) {
             return true;
         if (packageContent.smallstack.component.server)
             return true;
-    } catch (e) { }
+    } catch (e) {}
     return false;
 }
 
@@ -145,6 +145,10 @@ config.projectHasNativescriptApp = function () {
     return fs.existsSync(path.join(config.rootDirectory, "nativescript-app"));
 }
 
+config.projectHasFrontend = function () {
+    return fs.existsSync(path.join(config.rootDirectory, "frontend"));
+}
+
 
 config.getRootDirectory = function () {
 
@@ -201,6 +205,12 @@ try {
                 config.nativescriptSmallstackCoreCommonDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/core-common");
                 config.nativescriptSmallstackNativescriptDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/nativescript");
                 config.nativescriptDatalayerDirectory = path.join(config.rootDirectory, "nativescript-app", "node_modules", "@smallstack/datalayer");
+            }
+            if (config.projectHasFrontend()) {
+                config.frontendDirectory = path.join(config.rootDirectory, "frontend");
+                config.frontendSmallstackCoreClientDirectory = path.join(config.frontendDirectory, "node_modules", "@smallstack", "core-client");
+                config.frontendSmallstackCoreCommonDirectory = path.join(config.frontendDirectory, "node_modules", "@smallstack", "core-common");
+                config.frontendSmallstackDatalayerDirectory = path.join(config.frontendDirectory, "node_modules", "@smallstack", "datalayer");
             }
         }
         if (config.isSmallstackEnvironment()) {

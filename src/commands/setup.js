@@ -20,14 +20,11 @@ module.exports = function (params, done) {
         if (!params || params.linkOnly !== true)
             npmInstallModules(config.rootDirectory, true);
         done();
-    }
-    else if (config.isComponentEnvironment() || config.isNativescriptEnvironment()) {
+    } else if (config.isComponentEnvironment() || config.isNativescriptEnvironment()) {
         setupNPMProject(params, done);
-    }
-    else if (config.isProjectEnvironment()) {
+    } else if (config.isProjectEnvironment()) {
         setupSmallstackProject(params, done);
-    }
-    else throw new Error("Unknown Environment for 'smallstack setup', sorry!");
+    } else throw new Error("Unknown Environment for 'smallstack setup', sorry!");
 }
 
 
@@ -114,40 +111,41 @@ function askPackageModeQuestions(params, callbackFn) {
         });
 
     var questions = [{
-        name: "smallstack.mode",
-        type: 'list',
-        message: 'Which version shall be used? ',
-        choices: packageModes,
-        when: function () {
-            return !smallstackMode;
+            name: "smallstack.mode",
+            type: 'list',
+            message: 'Which version shall be used? ',
+            choices: packageModes,
+            when: function () {
+                return !smallstackMode;
+            }
+        },
+        {
+            name: "smallstack.path",
+            type: 'input',
+            message: 'relative path from project root to local smallstack directory :',
+            default: "../smallstack",
+            when: function (answers) {
+                return !smallstackMode && answers.smallstack.mode === "local" && smallstackPath === undefined;
+            }
+        },
+        {
+            name: "smallstack.filepath",
+            type: 'input',
+            message: 'relative path from project root to local file location :',
+            default: "../smallstack/dist/smallstack.zip",
+            when: function (answers) {
+                return !smallstackMode && answers.smallstack.mode === "file";
+            }
+        },
+        {
+            name: "smallstack.url",
+            type: 'input',
+            message: 'please enter the url where to download smallstack from :',
+            when: function (answers) {
+                return !smallstackMode && answers.smallstack.mode === "url" && smallstackUrl === undefined;
+            }
         }
-    },
-    {
-        name: "smallstack.path",
-        type: 'input',
-        message: 'relative path from project root to local smallstack directory :',
-        default: "../smallstack",
-        when: function (answers) {
-            return !smallstackMode && answers.smallstack.mode === "local" && smallstackPath === undefined;
-        }
-    },
-    {
-        name: "smallstack.filepath",
-        type: 'input',
-        message: 'relative path from project root to local file location :',
-        default: "../smallstack/dist/smallstack.zip",
-        when: function (answers) {
-            return !smallstackMode && answers.smallstack.mode === "file";
-        }
-    },
-    {
-        name: "smallstack.url",
-        type: 'input',
-        message: 'please enter the url where to download smallstack from :',
-        when: function (answers) {
-            return !smallstackMode && answers.smallstack.mode === "url" && smallstackUrl === undefined;
-        }
-    }];
+    ];
 
     inquirer.prompt(questions).then(function (answers) {
         if (!answers.smallstack)
@@ -156,7 +154,7 @@ function askPackageModeQuestions(params, callbackFn) {
         smallstackUrl = answers.smallstack.url || smallstackUrl;
         smallstackPath = answers.smallstack.path || smallstackPath;
         callbackFn(smallstackMode, smallstackUrl, smallstackPath);
-    }, function(error) {
+    }, function (error) {
         console.error(error);
         throw error;
     });
@@ -281,7 +279,15 @@ function copyMeteorDependencies(params, modulesPath, createModuleRootPackageJson
     if (fs.existsSync(meteorPackageJsonPath))
         content = require(meteorPackageJsonPath);
     else
-        content = { "name": "meteor-app", "scripts": { "start": "meteor run" }, "dependencies": {}, "devDependencies": {}, "private": true };
+        content = {
+            "name": "meteor-app",
+            "scripts": {
+                "start": "meteor run"
+            },
+            "dependencies": {},
+            "devDependencies": {},
+            "private": true
+        };
 
     if (!content.dependencies)
         content.dependencies = {};
@@ -426,6 +432,12 @@ function persistLocalConfiguration(smallstackPath, addDistBundlePath, linkResour
         createSymlink(absoluteModuleCoreCommonPath, config.nativescriptSmallstackCoreCommonDirectory);
         createSymlink(absoluteModuleNativescriptPath, config.nativescriptSmallstackNativescriptDirectory);
         createSymlink(absoluteDatalayerPath, config.nativescriptDatalayerDirectory);
+    }
+
+    if (config.projectHasFrontend()) {
+        createSymlink(absoluteModuleCoreClientPath, config.frontendSmallstackCoreClientDirectory);
+        createSymlink(absoluteModuleCoreCommonPath, config.frontendSmallstackCoreCommonDirectory);
+        createSymlink(absoluteDatalayerPath, config.frontendSmallstackDatalayerDirectory);
     }
 
     syncProjectFiles();
