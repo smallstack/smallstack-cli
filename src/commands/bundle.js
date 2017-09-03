@@ -54,6 +54,9 @@ module.exports = function (parameters, done) {
         exec("npm run bundle", {
             cwd: path.resolve(config.rootDirectory, "modules", "nativescript")
         });
+        exec("npm run bundle", {
+            cwd: path.resolve(config.rootDirectory, "modules", "frontend")
+        });
 
         console.log("modifying production package.json files...");
         modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core-client", "package.json"));
@@ -65,6 +68,7 @@ module.exports = function (parameters, done) {
         modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "meteor-common", "package.json"));
 
         modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "nativescript", "package.json"));
+        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "frontend", "package.json"));
 
         var version = require(path.resolve(config.rootDirectory, "dist", "modules", "core-common", "package.json")).version;
         var destinationFile = path.resolve(config.rootDirectory, "dist", "smallstack-" + version + ".zip");
@@ -84,7 +88,6 @@ module.exports = function (parameters, done) {
 
         output.on('close', function () {
             console.log(archive.pointer() + ' total bytes');
-            console.log('archiver has been finalized and the output file descriptor has closed.');
             done();
         });
 

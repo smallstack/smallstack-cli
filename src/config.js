@@ -210,6 +210,7 @@ try {
                 config.frontendDirectory = path.join(config.rootDirectory, "frontend");
                 config.frontendSmallstackCoreClientDirectory = path.join(config.frontendDirectory, "node_modules", "@smallstack", "core-client");
                 config.frontendSmallstackCoreCommonDirectory = path.join(config.frontendDirectory, "node_modules", "@smallstack", "core-common");
+                config.frontendSmallstackFrontendDirectory = path.join(config.frontendDirectory, "node_modules", "@smallstack", "frontend");
                 config.frontendSmallstackDatalayerDirectory = path.join(config.frontendDirectory, "node_modules", "@smallstack", "datalayer");
             }
         }
