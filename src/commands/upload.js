@@ -19,6 +19,7 @@ module.exports = function (parameters, done) {
         fileEnding = ".zip";
         defaultBucketName = "smallstack-releases";
         localFile = path.join(config.rootDirectory, "dist", "smallstack-" + version + ".zip");
+        remoteFileName = "smallstack-" + remoteFileName;
     } else if (config.isProjectEnvironment()) {
         localFile = path.join(config.builtDirectory, "/meteor.tar.gz")
     }
