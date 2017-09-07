@@ -8,10 +8,10 @@
     "url": "https://smallstack.io"
   },
   "homepage": "https://smallstack.io",
-  "bugs": "https://github.com/smallstack/smallstack-cli/issues",
+  "bugs": "https://gitlab.com/smallstack/smallstack-cli/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/smallstack/smallstack-cli.git"
+    "url": "https://gitlab.com/smallstack/smallstack-cli.git"
   },
   "main": "./smallstack",
   "bin": {
