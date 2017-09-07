@@ -53,5 +53,6 @@ publish:
   only:
     - tags
   script:
+    - npm install
     - npm run ci-publish
 
