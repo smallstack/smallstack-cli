@@ -1,4 +1,3 @@
-
 stages: 
  - test
  - deploy
@@ -31,12 +30,12 @@ node7test:
    - npm install -g
    - smallstack help
    
-node8test:
-  stage: test
-  image: node:8.4.0
-  script:
-   - npm install -g
-   - smallstack help
+#node8test:
+#  stage: test
+#  image: node:8.4.0
+#  script:
+#   - npm install -g
+#   - smallstack help
    
    
 osxtest:
