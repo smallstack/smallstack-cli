@@ -3,11 +3,26 @@ var AWS = require('aws-sdk');
 var fs = require("fs-extra");
 var gitState = require("git-state");
 var gitTagCheck = require("../functions/gitTagCheck");
+var path = require("path");
 
 module.exports = function (parameters, done) {
 
     var version = config.version;
     var bundleName = version;
+    var packageName = config.name;
+    var fileEnding = ".tar.gz";
+    var defaultBucketName = "smallstack-bundles";
+    var localFile;
+    var remotePath = "smallstack/" + packageName + "/";
+
+    if (config.isSmallstackEnvironment()) {
+        remotePath = "";
+        fileEnding = ".zip";
+        defaultBucketName = "smallstack-releases";
+        localFile = path.join(config.rootDirectory, "dist", "smallstack-" + version + ".zip");
+    } else if (config.isProjectEnvironment()) {
+        localFile = path.join(config.builtDirectory, "/meteor.tar.gz")
+    }
     var state = gitState.checkSync(config.rootDirectory);
     if (state !== undefined && state.branch !== undefined) {
         gitTagCheck();
@@ -17,10 +32,12 @@ module.exports = function (parameters, done) {
             bundleName = branchName.replace("heads_", "");
         }
     }
-    var region = parameters.region || "eu-central-1";
-    var bucketName = parameters.bucket || "smallstack-bundles";
-    var uploadName = parameters.filename || "smallstack/" + config.name + "/" + bundleName + ".tar.gz";
 
+    var region = parameters.region || "eu-central-1";
+    var bucketName = parameters.bucket || defaultBucketName;
+    var uploadName = parameters.filename || remotePath + bundleName + fileEnding;
+
+    console.log("Local File Name :  " + localFile);
     console.log("Target File Name : " + uploadName);
     console.log("AWS Region :       " + region);
     console.log("Bucket :           " + bucketName);
@@ -35,12 +52,11 @@ module.exports = function (parameters, done) {
             Bucket: bucketName
         }
     });
-    fs.readFile(config.builtDirectory + "/meteor.tar.gz", function (err, data) {
+    fs.readFile(localFile, function (err, data) {
         if (err) throw err;
         var params = {
             Key: uploadName,
-            Body: data,
-            ACL: 'public-read'
+            Body: data
         };
         s3bucket.upload(params, function (s3err, s3data) {
             if (s3err) {

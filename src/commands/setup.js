@@ -12,6 +12,7 @@ var SmallstackApi = require("../functions/smallstackApi");
 var semver = require("semver");
 var sortPackageJson = require("sort-package-json");
 var syncProjectFiles = require("./syncproject");
+var AWS = require('aws-sdk');
 
 module.exports = function (params, done) {
 
@@ -111,40 +112,40 @@ function askPackageModeQuestions(params, callbackFn) {
         });
 
     var questions = [{
-            name: "smallstack.mode",
-            type: 'list',
-            message: 'Which version shall be used? ',
-            choices: packageModes,
-            when: function () {
-                return !smallstackMode;
-            }
-        },
-        {
-            name: "smallstack.path",
-            type: 'input',
-            message: 'relative path from project root to local smallstack directory :',
-            default: "../smallstack",
-            when: function (answers) {
-                return !smallstackMode && answers.smallstack.mode === "local" && smallstackPath === undefined;
-            }
-        },
-        {
-            name: "smallstack.filepath",
-            type: 'input',
-            message: 'relative path from project root to local file location :',
-            default: "../smallstack/dist/smallstack.zip",
-            when: function (answers) {
-                return !smallstackMode && answers.smallstack.mode === "file";
-            }
-        },
-        {
-            name: "smallstack.url",
-            type: 'input',
-            message: 'please enter the url where to download smallstack from :',
-            when: function (answers) {
-                return !smallstackMode && answers.smallstack.mode === "url" && smallstackUrl === undefined;
-            }
+        name: "smallstack.mode",
+        type: 'list',
+        message: 'Which version shall be used? ',
+        choices: packageModes,
+        when: function () {
+            return !smallstackMode;
         }
+    },
+    {
+        name: "smallstack.path",
+        type: 'input',
+        message: 'relative path from project root to local smallstack directory :',
+        default: "../smallstack",
+        when: function (answers) {
+            return !smallstackMode && answers.smallstack.mode === "local" && smallstackPath === undefined;
+        }
+    },
+    {
+        name: "smallstack.filepath",
+        type: 'input',
+        message: 'relative path from project root to local file location :',
+        default: "../smallstack/dist/smallstack.zip",
+        when: function (answers) {
+            return !smallstackMode && answers.smallstack.mode === "file";
+        }
+    },
+    {
+        name: "smallstack.url",
+        type: 'input',
+        message: 'please enter the url where to download smallstack from :',
+        when: function (answers) {
+            return !smallstackMode && answers.smallstack.mode === "url" && smallstackUrl === undefined;
+        }
+    }
     ];
 
     inquirer.prompt(questions).then(function (answers) {
@@ -453,19 +454,47 @@ function persistLocalConfiguration(smallstackPath, addDistBundlePath, linkResour
 }
 
 function downloadAndExtractVersion(parameters, version, destination, doneCallback) {
-    var smallstackApi = new SmallstackApi(parameters);
-    request({
-        method: "GET",
-        url: smallstackApi.url + "/releases/" + version,
-        headers: {
-            "x-smallstack-apikey": smallstackApi.key
-        }
-    }, function (error, response, body) {
-        var body = JSON.parse(body);
-        if (!body.url)
-            throw new Error("Response didn't include url parameter!");
-        downloadAndExtract(body.url, destination, doneCallback);
+    AWS.config.region = "eu-central-1";
+    var targetFileName = path.join(config.tmpDirectory, "smallstack.zip");
+    fs.ensureDirSync(config.tmpDirectory);
+    if (fs.existsSync(targetFileName))
+        fs.removeSync(targetFileName);
+    var s3 = new AWS.S3();
+    var params = { Bucket: "smallstack-releases", Key: "smallstack-" + version + ".zip" };
+    var file = require("fs").createWriteStream(targetFileName);
+    var stream = s3.getObject(params).createReadStream();
+    stream.pipe(file);
+    console.log("downloading S3 File from 'smallstack-releases/smallstack-" + version + ".zip' to '" + targetFileName + "' and extracting to " + destination);
+
+    var had_error = false;
+    file.on("error", function (err) {
+        had_error = true;
+        console.error(err);
+        throw err;
     });
+    file.on("finish", function () {
+        console.log("Done!");
+        if (!had_error) {
+            fs.emptyDirSync(destination);
+
+            // unzip file
+            unzipSmallstackFile(targetFileName, destination, doneCallback);
+        }
+    });
+
+    // var smallstackApi = new SmallstackApi(parameters);
+    // request({
+    //     method: "GET",
+    //     url: smallstackApi.url + "/releases/" + version,
+    //     headers: {
+    //         "x-smallstack-apikey": smallstackApi.key
+    //     }
+    // }, function (error, response, body) {
+    //     var body = JSON.parse(body);
+    //     if (!body.url)
+    //         throw new Error("Response didn't include url parameter!");
+    //     downloadAndExtract(body.url, destination, doneCallback);
+    // });
 }
 
 function downloadAndExtract(url, destination, callback) {
