@@ -13,9 +13,10 @@ module.exports = function (parameters, done) {
     var fileEnding = ".tar.gz";
     var defaultBucketName = "smallstack-bundles";
     var localFile;
+    var remotePath = "smallstack/" + packageName + "/";
 
     if (config.isSmallstackEnvironment()) {
-        packageName = "smallstack";
+        remotePath = "";
         fileEnding = ".zip";
         defaultBucketName = "smallstack-releases";
         localFile = path.join(config.rootDirectory, "dist", "smallstack-" + version + ".zip");
@@ -34,7 +35,7 @@ module.exports = function (parameters, done) {
 
     var region = parameters.region || "eu-central-1";
     var bucketName = parameters.bucket || defaultBucketName;
-    var uploadName = parameters.filename || "smallstack/" + packageName + "/" + bundleName + fileEnding;
+    var uploadName = parameters.filename || remotePath + bundleName + fileEnding;
 
     console.log("Local File Name :  " + localFile);
     console.log("Target File Name : " + uploadName);
