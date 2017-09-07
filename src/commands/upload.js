@@ -8,12 +8,11 @@ var path = require("path");
 module.exports = function (parameters, done) {
 
     var version = config.version;
-    var bundleName = version;
-    var packageName = config.name;
+    var remoteFileName = getRemoteFileName();
     var fileEnding = ".tar.gz";
     var defaultBucketName = "smallstack-bundles";
     var localFile;
-    var remotePath = "smallstack/" + packageName + "/";
+    var remotePath = "smallstack/" + config.name + "/";
 
     if (config.isSmallstackEnvironment()) {
         remotePath = "";
@@ -23,20 +22,14 @@ module.exports = function (parameters, done) {
     } else if (config.isProjectEnvironment()) {
         localFile = path.join(config.builtDirectory, "/meteor.tar.gz")
     }
-    var state = gitState.checkSync(config.rootDirectory);
-    if (state !== undefined && state.branch !== undefined) {
-        gitTagCheck();
-        var branchName = state.branch.replace(new RegExp("/", "gi"), "_");
-        console.log("Branch Name :      " + branchName);
-        if (branchName.indexOf("heads_tags_") === -1 && branchName.indexOf("tags_") === -1) {
-            bundleName = branchName.replace("heads_", "");
-        }
-    }
+    gitTagCheck();
 
     var region = parameters.region || "eu-central-1";
     var bucketName = parameters.bucket || defaultBucketName;
-    var uploadName = parameters.filename || remotePath + bundleName + fileEnding;
+    var uploadName = parameters.filename || remotePath + remoteFileName + fileEnding;
 
+    console.log("Branch Name :      " + getBranchName());
+    console.log("Tag Name :         " + getTagName());
     console.log("Local File Name :  " + localFile);
     console.log("Target File Name : " + uploadName);
     console.log("AWS Region :       " + region);
@@ -74,6 +67,32 @@ module.exports = function (parameters, done) {
             }
         });
     });
+}
 
+function getTagName() {
+    var envTagName = process.env["CI_COMMIT_TAG"];
+    if (envTagName !== undefined)
+        return envTagName;
+    return undefined;
+}
 
+function getBranchName() {
+    var envBranchName = process.env["CI_COMMIT_REF_NAME"];
+    if (envBranchName !== undefined)
+        return envBranchName;
+
+    var state = gitState.checkSync(config.rootDirectory);
+    if (state !== undefined && state.branch !== undefined)
+        return state.branch.replace(new RegExp("/", "gi"), "_");
+    return undefined;
+}
+
+function getRemoteFileName() {
+    var tagName = getTagName();
+    if (tagName !== undefined)
+        return tagName;
+    var branchName = getBranchName();
+    if (branchName !== undefined)
+        return branchName;
+    throw new Error("Could not create remote file name due branch and tag names are undefined!");
 }
