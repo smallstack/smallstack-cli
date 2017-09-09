@@ -2,8 +2,9 @@ import * as requestPromise from "request-promise";
 import * as request from "request";
 import * as qs from "querystring";
 import { stringifyParametersWithoutPasswords } from "../functions/stringifyParametersWithoutPasswords";
+import { findIndex } from "underscore";
 
-export interface DockerCloudExternalRepository {
+export interface IDockerCloudExternalRepository {
     in_use: boolean;
     name: string;
     registry: string;
@@ -15,10 +16,25 @@ export interface DockerCloudExternalRepository {
     tags: string[];
 }
 
-export interface DockerCloudStack {
+export interface IDockerCloudStack {
+    deployed_datetime: string;
+    destroyed_datetime: string;
+    nickname: string;
+    name: string;
+    resource_uri: string;
+    services: string[];
+    state: string;
+    synchronized: boolean;
+    uuid: string;
 }
 
-export interface DockerCloudService extends DockerCloudContainer {
+export interface IDockerCloudLink {
+    from_service: string;
+    name?: string;
+    to_service: string;
+}
+
+export interface IDockerCloudService extends IDockerCloudContainer {
     autoredeploy: boolean;
     current_num_containers: number;
     deployment_strategy: string;
@@ -30,7 +46,29 @@ export interface DockerCloudService extends DockerCloudContainer {
     target_num_containers: number;
 }
 
-export interface DockerCloudContainer {
+/**
+ * If you get a service directly via UUID, you'll get an expand document back. this interface might not be complete yet!
+ */
+export interface IDockerCloudServiceDetail extends IDockerCloudService {
+
+    bindings: any[];
+    host_path: any[];
+    container_envvars: Array<{ key: string, value: string }>;
+    container_ports: Array<{
+        endpoint_uri: string;
+        inner_port: number;
+        outer_port: number;
+        port_name: string;
+        protocol: string;
+        published: boolean;
+    }>;
+    containers: string[];
+    dns: any[];
+    linked_from_service: IDockerCloudLink[];
+    linked_to_service: IDockerCloudLink[];
+}
+
+export interface IDockerCloudContainer {
     autodestroy: string;
     autorestart: string;
     container_ports: any;
@@ -64,7 +102,7 @@ export interface DockerCloudContainer {
     working_dir: string;
 }
 
-export interface DockerCloudPageable<T> {
+export interface IDockerCloudPageable<T> {
     meta: {
         limit: number;
         next: string;
@@ -81,19 +119,35 @@ export class DockerCloudService {
     private dockerApiVersion: string = "v1";
     private dockerApiUrl: string = "https://cloud.docker.com/api";
 
-    public getContainers(parameters?: any): Promise<DockerCloudPageable<DockerCloudContainer[]>> {
+    public getContainers(parameters?: any): Promise<IDockerCloudPageable<IDockerCloudContainer[]>> {
         return this.buildRequest("GET", "app", "container", parameters);
     }
 
-    public getStacks(parameters?: any): Promise<DockerCloudPageable<DockerCloudStack[]>> {
+    public getStacks(parameters?: any): Promise<IDockerCloudPageable<IDockerCloudStack[]>> {
         return this.buildRequest("GET", "app", "stack", parameters);
     }
 
-    public getServices(parameters?: any): Promise<DockerCloudPageable<DockerCloudService[]>> {
-        return this.buildRequest("GET", "app", "service", parameters);
+    public async getServices(parameters?: any): Promise<IDockerCloudPageable<IDockerCloudService[]>> {
+        // check if stack needs to be interpolated
+        if (typeof parameters.name === "string" && parameters.name.indexOf(".") !== -1) {
+            console.log("Found dot in service name, trying to find a stack...");
+            const serviceNameSplit: string[] = parameters.name.split(".");
+            if (serviceNameSplit.length !== 2)
+                throw new Error("Too many dots in service name. If you want to get a service inside a stack, please use STACK_NAME.SERVICE_NAME!");
+            const stacks: IDockerCloudPageable<IDockerCloudStack[]> = await this.getStacks({ name: serviceNameSplit[0] });
+            if (stacks.meta.total_count === 0)
+                throw new Error("Could not find stack with name " + serviceNameSplit[0]);
+            parameters.stack = stacks.objects[0].resource_uri;
+            parameters.name = serviceNameSplit[1];
+        }
+        return this.buildRequest("GET", "app", "service/", parameters);
     }
 
-    public registerExternalRepository(parameters: any): Promise<DockerCloudExternalRepository[]> {
+    public async getService(uuid: string): Promise<IDockerCloudServiceDetail> {
+        return this.buildRequest("GET", "app", "service/" + uuid + "/");
+    }
+
+    public registerExternalRepository(parameters: any): Promise<IDockerCloudExternalRepository[]> {
 
         // we have to register external repositories twice, see https://forums.docker.com/t/tags-from-external-registry-not-loading-net-err-content-decoding-failed/25831/4
         const namespacedUrl: string = this.getDockerCloudApiUrl("repo", "repository/");
@@ -130,7 +184,7 @@ export class DockerCloudService {
         if (parameters.name === undefined)
             throw new Error("name must be set");
         parameters.name = this.truncateServiceName(parameters.name);
-        return this.buildRequest("POST", "app", "service/", parameters);
+        return this.buildRequest("POST", "app", "service/", undefined, parameters);
     }
 
     public sendServiceCommand(uuid: string, command: "start" | "stop" | "scale" | "terminate"): Promise<void> {
@@ -140,6 +194,34 @@ export class DockerCloudService {
             return this.buildRequest("POST", "app", "service/" + uuid + "/" + command + "/");
         else
             return this.buildRequest("DELETE", "app", "service/" + uuid + "/");
+    }
+
+    public async linkServices(fromUUID: string, toUUID: string, linkName?: string): Promise<void> {
+
+        // get original links for from.to
+        const sourceService: IDockerCloudServiceDetail = await this.getService(fromUUID);
+        const linkedToServices: IDockerCloudLink[] = sourceService.linked_to_service;
+
+        // new link
+        let linkedService: any = { "to_service": "/api/app/v1/service/" + toUUID + "/" };
+        if (linkName !== undefined)
+            linkedService.name = linkName;
+        linkedToServices.push(linkedService);
+        return this.buildRequest("PATCH", "app", "service/" + fromUUID + "/", undefined, { linked_to_service: linkedToServices });
+    }
+
+    public async unlinkServices(fromUUID: string, toUUID: string): Promise<void> {
+        throw new Error("NOT YET IMPLEMENTED!");
+        // get original links for from.to
+        // const sourceService: IDockerCloudServiceDetail = await this.getService(fromUUID);
+        // const linkedToServices: IDockerCloudLink[] = sourceService.linked_to_service;
+        // const index: number = findIndex(linkedToServices, (ls: IDockerCloudLink) => ls.to_service)
+        // linkedToServices.splice(index, 1);
+
+        // // new link
+        // let linkedService: any = { "to_service": "/api/app/v1/service/" + toUUID + "/" };
+        // linkedToServices.push(linkedService);
+        // return this.buildRequest("PATCH", "app", "service/" + fromUUID + "/", undefined, { linked_to_service: linkedToServices });
     }
 
     public getDockerCloudBasicAuth() {
@@ -177,7 +259,7 @@ export class DockerCloudService {
         return this.dockerApiUrl + "/" + endpoint + "/" + this.dockerApiVersion + namespace + additionalPath;
     }
 
-    private buildRequest(method: "GET" | "POST" | "DELETE", endpoint: "app" | "repo", path: string, urlParams?: any, body?: any): Promise<any> {
+    private buildRequest(method: "GET" | "POST" | "DELETE" | "PATCH", endpoint: "app" | "repo", path: string, urlParams?: any, body?: any): Promise<any> {
         let queryParams = "";
         if (urlParams)
             queryParams = qs.stringify(urlParams);
