@@ -17,6 +17,10 @@
   "bin": {
     "smallstack": "./bin/smallstack"
   },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "engineStrict": true,
   "scripts": {
     "ci-publish": "ci-publish",
     "install": "tsc"
