@@ -1,3 +1,5 @@
+"use strict";
+
 var DockerCloudService = require("../services/DockerCloudService").DockerCloudService;
 var _ = require("underscore");
 var async = require('asyncawait/async');
