@@ -127,7 +127,9 @@ export class DockerCloudService {
     }
 
     public createService(parameters: any): Promise<DockerCloudService> {
-        console.log(parameters);
+        if (parameters.name === undefined)
+            throw new Error("name must be set");
+        parameters.name = this.truncateServiceName(parameters.name);
         return this.buildRequest("POST", "app", "service/", parameters);
     }
 
@@ -191,5 +193,9 @@ export class DockerCloudService {
             json: true,
             body
         }) as any;
+    }
+
+    private truncateServiceName(serviceName: string, limit: number = 30) {
+        return serviceName.substr(0, limit);
     }
 }
