@@ -13,9 +13,18 @@ module.exports = function (args) {
             if (commands.length === 0)
                 throw new Error("parameter given before first command!");
             var parameterSplit = arg.substring(2).split("=");
-            if (parameterSplit[1] === undefined)
-                parameterSplit[1] = true;
-            commands[(commands.length - 1)].parameters[parameterSplit[0]] = parameterSplit[1];
+            var key = parameterSplit[0];
+            var value = parameterSplit[1];
+            if (value === undefined)
+                value = true;
+            try {
+                // if array or object is passed, parse it as json
+                if (typeof value === "string") {
+                    value = value.replace(/'/g, "\"");
+                    value = JSON.parse(value);
+                }
+            } catch (e) { }
+            commands[(commands.length - 1)].parameters[key] = value;
         } else if (arg.indexOf("-") === 0) {
             throw new Error("please use -- as parameter indicator!");
         }

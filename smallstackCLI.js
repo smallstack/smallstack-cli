@@ -8,7 +8,7 @@ var _ = require("underscore");
 var colors = require("colors");
 var async = require("async");
 var moment = require("moment");
-
+var stringifyParametersWithoutPasswords = require("./src/functions/stringifyParametersWithoutPasswords").stringifyParametersWithoutPasswords;
 var parseArguments = require("./src/functions/parseArguments");
 
 // commands
@@ -33,6 +33,7 @@ commands.convert = require("./src/commands/convert");
 commands.watch = require("./src/commands/watch");
 commands.syncproject = require("./src/commands/syncproject");
 commands.modifyproductionpackagejson = require("./src/commands/modifyProductionPackageJson");
+commands.cloud = require("./src/commands/cloud");
 
 // show a nice logo
 logo();
@@ -85,7 +86,7 @@ if (parsedCommands.length === 0 || !allCommandsFine) {
         console.log(colors.gray("################################################################################"));
         console.log(colors.gray("##### Command : " + command.name));
         if (command.parameters !== undefined && _.keys(command.parameters).length > 0)
-            console.log(colors.gray("##### Parameters : ", JSON.stringify(command.parameters)));
+            console.log(colors.gray("##### Parameters : ", stringifyParametersWithoutPasswords(command.parameters)));
         console.log(colors.gray("################################################################################\n"));
         try {
             commands[command.name](command.parameters, done);
