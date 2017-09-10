@@ -91,9 +91,7 @@ export async function CLI() {
             }
             console.log(colors.gray("################################################################################\n"));
             try {
-                console.log("before")
                 await commands[command.name](command.parameters);
-                console.log("after")
             } catch (e) {
                 console.error(colors.red("ERROR:", e.message));
                 console.error(colors.red("Failure was executed in " + getDurationString()));
