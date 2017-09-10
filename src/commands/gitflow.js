@@ -13,7 +13,7 @@ var async = require('asyncawait/async');
 var await = require('asyncawait/await');
 var Promise = require('bluebird');
 
-module.exports = async(function (parameters, done) {
+module.exports = async(function (parameters) {
     var forceMode = parameters && parameters.force === true;
     var doneSomething = false;
     var releaseIsFirst = parameters && _.keys(parameters).indexOf("release") === 0;
@@ -69,8 +69,6 @@ module.exports = async(function (parameters, done) {
     if (!doneSomething) {
         throw new Error("No Operations were executed!");
     }
-
-    done();
 });
 
 var doRelease = async(function doRelease(tagName) {
