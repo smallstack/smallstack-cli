@@ -140,6 +140,8 @@ export class DockerCloudService {
             parameters.stack = stacks.objects[0].resource_uri;
             parameters.name = serviceNameSplit[1];
         }
+        if (parameters.name !== undefined)
+            parameters.name = this.truncateServiceName(parameters.name);
         return this.buildRequest("GET", "app", "service/", parameters);
     }
 
