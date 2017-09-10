@@ -85,8 +85,10 @@ if (parsedCommands.length === 0 || !allCommandsFine) {
     async.eachLimit(parsedCommands, 1, function (command, done) {
         console.log(colors.gray("################################################################################"));
         console.log(colors.gray("##### Command : " + command.name));
-        if (command.parameters !== undefined && _.keys(command.parameters).length > 0)
-            console.log(colors.gray("##### Parameters : ", stringifyParametersWithoutPasswords(command.parameters)));
+        if (command.parameters !== undefined && _.keys(command.parameters).length > 0) {
+            console.log(colors.gray("##### Parameters : "));
+            console.log(colors.gray(stringifyParametersWithoutPasswords(command.parameters, "#####  |- ")));
+        }
         console.log(colors.gray("################################################################################\n"));
         try {
             commands[command.name](command.parameters, done);
