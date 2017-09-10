@@ -1,3 +1,5 @@
 node_modules/
 src/functions/stringifyParametersWithoutPasswords.js
 src/services/DockerCloudService.js
+src/commands/cloud.js
+smallstackCLI.js

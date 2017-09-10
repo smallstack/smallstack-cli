@@ -1,41 +1,36 @@
-"use strict";
+import { DockerCloudService, IDockerCloudService } from "../services/DockerCloudService";
+import * as _ from "underscore";
 
-var DockerCloudService = require("../services/DockerCloudService").DockerCloudService;
-var _ = require("underscore");
-var async = require('asyncawait/async');
-var await = require('asyncawait/await');
-var Promise = require('bluebird');
-
-module.exports = async(function (parameters, done) {
+export async function cloud(parameters) {
 
     const dockerCloudService = new DockerCloudService();
 
     if (parameters.listContainers) {
-        const containers = await(dockerCloudService.getContainers(_.omit(parameters, "listContainers")));
+        const containers = await (dockerCloudService.getContainers(_.omit(parameters, "listContainers")));
         console.log(containers.objects);
         return;
     }
 
     if (parameters.listServices) {
-        const services = await(dockerCloudService.getServices(_.omit(parameters, "listServices")));
+        const services = await (dockerCloudService.getServices(_.omit(parameters, "listServices")));
         console.log(services.objects);
         return;
     }
 
     if (parameters.listStacks) {
-        const services = await(dockerCloudService.getStacks(_.omit(parameters, "listStacks")));
+        const services = await (dockerCloudService.getStacks(_.omit(parameters, "listStacks")));
         console.log(services.objects);
         return;
     }
 
     if (parameters.registerExternalRepository) {
-        const response = await(dockerCloudService.registerExternalRepository(_.omit(parameters, "registerExternalRepository")));
+        const response = await (dockerCloudService.registerExternalRepository(_.omit(parameters, "registerExternalRepository")));
         console.log("Successfully added " + response[0].name + " to docker cloud registry!");
         return;
     }
 
     if (parameters.createService) {
-        const service = await(dockerCloudService.createService(_.omit(parameters, "createService")));
+        const service = await (dockerCloudService.createService(_.omit(parameters, "createService")));
         console.log("Successfully created service!");
         console.log("  |- name:       " + service.name);
         console.log("  |- uuid:       " + service.uuid);
@@ -45,31 +40,32 @@ module.exports = async(function (parameters, done) {
     }
 
     if (parameters.startService) {
-        if (parameters.name) {
-            let service = await(dockerCloudService.getServices({ name: parameters.name, state: "Not running" }));
-            if (service.meta.total_count !== 1) {
-                service = await(dockerCloudService.getServices({ name: parameters.name, state: "Stopped" }));
-                if (service.meta.total_count !== 1)
-                    throw new Error("Couldn't find a non running or stopped service with the name '" + parameters.name + "'!");
-            }
-            const uuid = service.objects[0].uuid;
-            console.log("Starting Service with UUID " + uuid);
-            await(dockerCloudService.sendServiceCommand(uuid, "start"));
-            console.log("Service start command successfully sent!");
+        let service: IDockerCloudService;
+        try {
+            service = await dockerCloudService.getService(_.extend(_.omit(parameters, "startService"), { state: "Not running" }));
+        } catch (e) { }
+        if (!service) {
+            try {
+                service = await (dockerCloudService.getService(_.extend(_.omit(parameters, "startService"), { state: "Stopped" })));
+            } catch (e) { }
         }
-        else
-            throw new Error("Please provide a service name via --name parameter!");
+        if (!service)
+            throw new Error("Couldn't find a non running or stopped service for the provided parameters!");
+        const uuid = service.uuid;
+        console.log("Starting Service with UUID " + uuid);
+        await (dockerCloudService.sendServiceCommand(uuid, "start"));
+        console.log("Service start command successfully sent!");
         return;
     }
 
     if (parameters.stopService) {
         if (parameters.name) {
-            const service = await(dockerCloudService.getServices({ name: parameters.name, state: "Running" }));
+            const service = await (dockerCloudService.getServices({ name: parameters.name, state: "Running" }));
             if (service.meta.total_count !== 1)
                 throw new Error("Couldn't find a running service with the name '" + parameters.name + "'!");
             const uuid = service.objects[0].uuid;
             console.log("Stopping Service with UUID " + uuid);
-            await(dockerCloudService.sendServiceCommand(uuid, "stop"));
+            await (dockerCloudService.sendServiceCommand(uuid, "stop"));
             console.log("Service stop command successfully sent!");
         }
         else
@@ -79,12 +75,12 @@ module.exports = async(function (parameters, done) {
 
     if (parameters.terminateService) {
         if (parameters.name) {
-            const service = await(dockerCloudService.getServices({ name: parameters.name }));
+            const service = await (dockerCloudService.getServices({ name: parameters.name }));
             if (service.meta.total_count !== 1)
                 throw new Error("Couldn't find a service with the name '" + parameters.name + "'!");
             const uuid = service.objects[0].uuid;
             console.log("Terminating Service with UUID " + uuid);
-            await(dockerCloudService.sendServiceCommand(uuid, "terminate"));
+            await (dockerCloudService.sendServiceCommand(uuid, "terminate"));
             console.log("Service terminate command successfully sent!");
         }
         else
@@ -97,14 +93,14 @@ module.exports = async(function (parameters, done) {
             throw new Error("Please provide a --from and a --to parameter (service names)");
 
         console.log("Getting UUID for fromService...");
-        const fromUUIDs = await(dockerCloudService.getServices({ name: parameters.from }));
+        const fromUUIDs = await (dockerCloudService.getServices({ name: parameters.from }));
         console.log("     --> " + fromUUIDs.objects[0].uuid);
 
         console.log("Getting UUID for toService...");
-        const toUUIDs = await(dockerCloudService.getServices({ name: parameters.to }));
+        const toUUIDs = await (dockerCloudService.getServices({ name: parameters.to }));
         console.log("     --> " + toUUIDs.objects[0].uuid);
 
-        await(dockerCloudService.linkServices(fromUUIDs.objects[0].uuid, toUUIDs.objects[0].uuid, parameters.name));
+        await (dockerCloudService.linkServices(fromUUIDs.objects[0].uuid, toUUIDs.objects[0].uuid, parameters.name));
         console.log("Service linking was successful!");
         return;
     }
@@ -114,17 +110,15 @@ module.exports = async(function (parameters, done) {
             throw new Error("Please provide a --from and a --to parameter (service names)");
 
         console.log("Getting UUID for fromService...");
-        const fromUUIDs = await(dockerCloudService.getServices({ name: parameters.from }));
+        const fromUUIDs = await (dockerCloudService.getServices({ name: parameters.from }));
         console.log("     --> " + fromUUIDs.objects[0].uuid);
 
         console.log("Getting UUID for toService...");
-        const toUUIDs = await(dockerCloudService.getServices({ name: parameters.to }));
+        const toUUIDs = await (dockerCloudService.getServices({ name: parameters.to }));
         console.log("     --> " + toUUIDs.objects[0].uuid);
 
-        await(dockerCloudService.unlinkServices(fromUUIDs.objects[0].uuid, toUUIDs.objects[0].uuid));
+        await (dockerCloudService.unlinkServices(fromUUIDs.objects[0].uuid, toUUIDs.objects[0].uuid));
         console.log("Service unlinking was successful!");
         return;
     }
-
-
-});
+}
