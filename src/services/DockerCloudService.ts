@@ -144,8 +144,7 @@ export class DockerCloudService {
             parameters.name = this.truncateServiceName(parameters.name);
         return this.buildRequest("GET", "app", "service/", parameters);
     }
-
-    public async getService(uuid: string): Promise<IDockerCloudServiceDetail> {
+    public async getServiceDetail(uuid: string): Promise<IDockerCloudServiceDetail> {
         return this.buildRequest("GET", "app", "service/" + uuid + "/");
     }
 
@@ -182,7 +181,7 @@ export class DockerCloudService {
         return Promise.all([personalRegistryCall, namespacedRegistryCall]) as any;
     }
 
-    public createService(parameters: any): Promise<DockerCloudService> {
+    public createService(parameters: any): Promise<IDockerCloudService> {
         if (parameters.name === undefined)
             throw new Error("name must be set");
         parameters.name = this.truncateServiceName(parameters.name);
@@ -201,7 +200,7 @@ export class DockerCloudService {
     public async linkServices(fromUUID: string, toUUID: string, linkName?: string): Promise<void> {
 
         // get original links for from.to
-        const sourceService: IDockerCloudServiceDetail = await this.getService(fromUUID);
+        const sourceService: IDockerCloudServiceDetail = await this.getServiceDetail(fromUUID);
         const linkedToServices: IDockerCloudLink[] = sourceService.linked_to_service;
 
         // new link

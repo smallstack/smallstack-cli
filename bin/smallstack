@@ -1,3 +1,3 @@
 #!/usr/bin/env node
-
-require('../smallstackCLI');
+var CLI = require('../smallstackCLI').CLI;
+CLI();
