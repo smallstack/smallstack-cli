@@ -94,13 +94,31 @@ export async function cloud(parameters) {
 
         console.log("Getting UUID for fromService...");
         const fromUUIDs = await (dockerCloudService.getServices({ name: parameters.from }));
-        console.log("     --> " + fromUUIDs.objects[0].uuid);
+        let fromService: IDockerCloudService;
+        for (let from of fromUUIDs.objects) {
+            if (from.state !== "Terminated" && from.state !== "Terminating") {
+                fromService = from;
+                break;
+            }
+        }
+        if (!fromService)
+            throw new Error("Could not find from service...");
+        console.log("     --> " + fromService.uuid);
 
         console.log("Getting UUID for toService...");
         const toUUIDs = await (dockerCloudService.getServices({ name: parameters.to }));
-        console.log("     --> " + toUUIDs.objects[0].uuid);
+        let toService: IDockerCloudService;
+        for (let to of toUUIDs.objects) {
+            if (to.state !== "Terminated" && to.state !== "Terminating") {
+                toService = to;
+                break;
+            }
+        }
+        if (!toService)
+            throw new Error("Could not find to service...");
+        console.log("     --> " + toService.uuid);
 
-        await (dockerCloudService.linkServices(fromUUIDs.objects[0].uuid, toUUIDs.objects[0].uuid, parameters.name));
+        await (dockerCloudService.linkServices(fromService.uuid, toService.uuid, parameters.name));
         console.log("Service linking was successful!");
         return;
     }
