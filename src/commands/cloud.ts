@@ -1,7 +1,7 @@
-import { DockerCloudService } from "../services/DockerCloudService";
+import { DockerCloudService, IDockerCloudService } from "../services/DockerCloudService";
 import * as _ from "underscore";
 
-export async function cloud(parameters, done) {
+export async function cloud(parameters) {
 
     const dockerCloudService = new DockerCloudService();
 
@@ -40,21 +40,21 @@ export async function cloud(parameters, done) {
     }
 
     if (parameters.startService) {
-        if (parameters.name) {
-            let service = await (dockerCloudService.getServices({ name: parameters.name, state: "Not running" }));
-            if (service.meta.total_count)
-                if (service.meta.total_count !== 1) {
-                    service = await (dockerCloudService.getServices({ name: parameters.name, state: "Stopped" }));
-                    if (service.meta.total_count === 0)
-                        throw new Error("Couldn't find a non running or stopped service with the name '" + parameters.name + "'!");
-                }
-            const uuid = service.objects[0].uuid;
-            console.log("Starting Service with UUID " + uuid);
-            await (dockerCloudService.sendServiceCommand(uuid, "start"));
-            console.log("Service start command successfully sent!");
+        let service: IDockerCloudService;
+        try {
+            service = await dockerCloudService.getService(_.extend(_.omit(parameters, "startService"), { state: "Not running" }));
+        } catch (e) { }
+        if (!service) {
+            try {
+                service = await (dockerCloudService.getService(_.extend(_.omit(parameters, "startService"), { state: "Stopped" })));
+            } catch (e) { }
         }
-        else
-            throw new Error("Please provide a service name via --name parameter!");
+        if (!service)
+            throw new Error("Couldn't find a non running or stopped service for the provided parameters!");
+        const uuid = service.uuid;
+        console.log("Starting Service with UUID " + uuid);
+        await (dockerCloudService.sendServiceCommand(uuid, "start"));
+        console.log("Service start command successfully sent!");
         return;
     }
 
@@ -102,7 +102,6 @@ export async function cloud(parameters, done) {
 
         await (dockerCloudService.linkServices(fromUUIDs.objects[0].uuid, toUUIDs.objects[0].uuid, parameters.name));
         console.log("Service linking was successful!");
-        done();
         return;
     }
 

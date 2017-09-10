@@ -144,6 +144,20 @@ export class DockerCloudService {
             parameters.name = this.truncateServiceName(parameters.name);
         return this.buildRequest("GET", "app", "service/", parameters);
     }
+
+    public async getService(parameters?: any): Promise<IDockerCloudService> {
+        return new Promise<IDockerCloudService>((resolve, reject) => {
+            this.getServices(parameters).then((services: IDockerCloudPageable<IDockerCloudService[]>) => {
+                if (services.meta.total_count === 0)
+                    reject(new Error("No matching services found!"));
+                else if (services.meta.total_count > 1)
+                    reject(new Error("Found " + services.meta.total_count + " matching services! Please "));
+                else
+                    resolve(services.objects[0]);
+            });
+        });
+    }
+
     public async getServiceDetail(uuid: string): Promise<IDockerCloudServiceDetail> {
         return this.buildRequest("GET", "app", "service/" + uuid + "/");
     }
@@ -266,7 +280,7 @@ export class DockerCloudService {
             queryParams = qs.stringify(urlParams);
 
         const url: string = this.getDockerCloudApiUrl(endpoint, path) + "?" + queryParams;
-        console.log("[" + method + "] " + url);
+        console.log("  [" + method + "] " + url);
         return requestPromise({
             method,
             url,
