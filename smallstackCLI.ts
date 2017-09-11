@@ -90,7 +90,10 @@ export async function CLI() {
             try {
                 await commands[command.name](command.parameters, () => { });
             } catch (e) {
-                console.error(colors.red("ERROR:", e.message));
+                if (e.message)
+                    console.error(colors.red("ERROR:", e.message));
+                else
+                    console.error(colors.red("ERROR:", e));
                 console.error(colors.red("Failure was executed in " + getDurationString()));
                 if (command.parameters.debug)
                     throw e;
