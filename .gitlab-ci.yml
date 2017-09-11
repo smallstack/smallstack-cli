@@ -34,11 +34,22 @@ osxtest:
    - smallstack help
    
    
-publish:
+npm_publish:
   stage: deploy
   only:
     - tags
   script:
     - npm install
     - npm run ci-publish
+   
+docker_image:
+  stage: deploy
+  image: docker:1.11.2
+  only:
+    - tags
+  script:
+   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+   - docker build -t smallstack/cli:$CI_COMMIT_TAG .
+   - docker push smallstack/cli:$CI_COMMIT_TAG
+
 
