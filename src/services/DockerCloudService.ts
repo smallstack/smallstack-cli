@@ -244,7 +244,7 @@ export class DockerCloudService {
         if (parameters.state === undefined)
             throw new Error("No state given to check against!");
         return new Promise<any>(async (resolve, reject) => {
-            const timeout: number = 60000;
+            const timeout: number = 10 * 60 * 1000;
             const checkEvery: number = 5000;
             let timeoutHandler: NodeJS.Timer;
             let intervalHandler: NodeJS.Timer;
@@ -262,7 +262,7 @@ export class DockerCloudService {
                 timeoutHandler = setTimeout(() => {
                     if (intervalHandler)
                         clearInterval(intervalHandler);
-                    reject("ran into timeout of " + timeout + "ms!");
+                    reject(new Error("ran into timeout of " + timeout + "ms!"));
                 }, timeout);
             }
         });
