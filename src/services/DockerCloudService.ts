@@ -3,6 +3,7 @@ import * as request from "request";
 import * as qs from "querystring";
 import { stringifyParametersWithoutPasswords } from "../functions/stringifyParametersWithoutPasswords";
 import { findIndex } from "underscore";
+import { clearInterval, clearTimeout, setInterval, setTimeout } from "timers";
 
 export interface IDockerCloudExternalRepository {
     in_use: boolean;
@@ -239,6 +240,34 @@ export class DockerCloudService {
         // return this.buildRequest("PATCH", "app", "service/" + fromUUID + "/", undefined, { linked_to_service: linkedToServices });
     }
 
+    public async waitForState(parameters: any): Promise<any> {
+        if (parameters.state === undefined)
+            throw new Error("No state given to check against!");
+        return new Promise<any>(async (resolve, reject) => {
+            const timeout: number = 60000;
+            const checkEvery: number = 5000;
+            let timeoutHandler: NodeJS.Timer;
+            let intervalHandler: NodeJS.Timer;
+
+            let allServicesInCorrectState: boolean = await this.waitForStateInternal(parameters);
+            if (allServicesInCorrectState)
+                resolve();
+            else {
+                intervalHandler = setInterval(async () => {
+                    allServicesInCorrectState = await this.waitForStateInternal(parameters, timeoutHandler, intervalHandler);
+                    if (allServicesInCorrectState)
+                        resolve();
+                }, checkEvery);
+
+                timeoutHandler = setTimeout(() => {
+                    if (intervalHandler)
+                        clearInterval(intervalHandler);
+                    reject("ran into timeout of " + timeout + "ms!");
+                }, timeout);
+            }
+        });
+    }
+
     public getDockerCloudBasicAuth() {
         var username: string = process.env.DOCKERCLOUD_USER;
         if (username === undefined)
@@ -294,5 +323,36 @@ export class DockerCloudService {
 
     private truncateServiceName(serviceName: string, limit: number = 30) {
         return serviceName.substr(0, limit);
+    }
+
+    private waitForStateInternal(parameters: any, timeoutHandler?: NodeJS.Timer, intervalHandler?: NodeJS.Timer): Promise<boolean> {
+        return new Promise<boolean>((resolve) => {
+            let allServicesInCorrectState: boolean = true;
+
+            // get all services
+            this.getServices(parameters).then((services: IDockerCloudPageable<IDockerCloudService[]>) => {
+
+                // check status
+                if (services.meta.total_count === 0) {
+                    // fail if no services were found (maybe they will get created within the timeout)
+                    allServicesInCorrectState = false;
+                }
+                else {
+                    for (const service of services.objects) {
+                        if (service.state !== parameters.state) {
+                            allServicesInCorrectState = false;
+                            break;
+                        }
+                    }
+                }
+                if (allServicesInCorrectState) {
+                    if (timeoutHandler)
+                        clearTimeout(timeoutHandler);
+                    if (intervalHandler)
+                        clearInterval(intervalHandler);
+                }
+                resolve(allServicesInCorrectState);
+            });
+        });
     }
 }

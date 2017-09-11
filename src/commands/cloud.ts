@@ -1,5 +1,6 @@
 import { DockerCloudService, IDockerCloudService } from "../services/DockerCloudService";
 import * as _ from "underscore";
+import * as moment from "moment";
 
 export async function cloud(parameters) {
 
@@ -82,6 +83,10 @@ export async function cloud(parameters) {
             console.log("Terminating Service with UUID " + uuid);
             await (dockerCloudService.sendServiceCommand(uuid, "terminate"));
             console.log("Service terminate command successfully sent!");
+
+            console.log("Waiting for service to get into state 'Terminated'!");
+            await dockerCloudService.waitForState(_.extend(parameters, { state: "Terminated" }));
+            console.log("Service is now in state 'Terminated'!");
         }
         else
             throw new Error("Please provide a service name via --name parameter!");
@@ -137,6 +142,20 @@ export async function cloud(parameters) {
 
         await (dockerCloudService.unlinkServices(fromUUIDs.objects[0].uuid, toUUIDs.objects[0].uuid));
         console.log("Service unlinking was successful!");
+        return;
+    }
+
+    if (parameters.waitForState) {
+        if (parameters.name === undefined)
+            throw new Error("Please provide a service name via --name parameter!");
+        if (parameters.state === undefined)
+            throw new Error("Please provide a docker service state name via --state parameter!");
+        const waitStart: Date = new Date();
+        console.log("Waiting for service to get into state '" + parameters.state + "'!");
+        await dockerCloudService.waitForState(parameters);
+        const durationString: string = moment((new Date().getTime() - waitStart.getTime())).format('mm:ss.SSS');
+        console.log("Service is now in state " + parameters.state + " after waiting for " + durationString);
+
         return;
     }
 }
