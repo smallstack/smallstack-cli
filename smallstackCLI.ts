@@ -94,9 +94,13 @@ export async function CLI() {
                 console.error(colors.red("Failure was executed in " + getDurationString()));
                 if (command.parameters.debug)
                     throw e;
-                updateCheck.showResult(function () {
+                updateCheck.showResult();
+                if (command.parameters.failOnError === false) {
+                    console.warn("exiting process with code 0 since failOnError=false!");
+                    process.exit(0);
+                }
+                else
                     process.exit(1);
-                });
             }
         }
         // , function (error) {
