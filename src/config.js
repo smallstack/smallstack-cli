@@ -171,6 +171,9 @@ config.getRootDirectory = function () {
     } catch (e) {
         throw new Error("No suitable environment found! The smallstack CLI only works inside smallstack projects, smallstack module folders or nativescript apps!");
     }
+
+    // just a directory
+    return path.resolve("./");
 }
 
 

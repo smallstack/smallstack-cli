@@ -140,10 +140,25 @@ export class DockerCloudService {
             parameters.stack = stacks.objects[0].resource_uri;
             parameters.name = serviceNameSplit[1];
         }
+        if (parameters.name !== undefined)
+            parameters.name = this.truncateServiceName(parameters.name);
         return this.buildRequest("GET", "app", "service/", parameters);
     }
 
-    public async getService(uuid: string): Promise<IDockerCloudServiceDetail> {
+    public async getService(parameters?: any): Promise<IDockerCloudService> {
+        return new Promise<IDockerCloudService>((resolve, reject) => {
+            this.getServices(parameters).then((services: IDockerCloudPageable<IDockerCloudService[]>) => {
+                if (services.meta.total_count === 0)
+                    reject(new Error("No matching services found!"));
+                else if (services.meta.total_count > 1)
+                    reject(new Error("Found " + services.meta.total_count + " matching services! Please "));
+                else
+                    resolve(services.objects[0]);
+            });
+        });
+    }
+
+    public async getServiceDetail(uuid: string): Promise<IDockerCloudServiceDetail> {
         return this.buildRequest("GET", "app", "service/" + uuid + "/");
     }
 
@@ -180,7 +195,7 @@ export class DockerCloudService {
         return Promise.all([personalRegistryCall, namespacedRegistryCall]) as any;
     }
 
-    public createService(parameters: any): Promise<DockerCloudService> {
+    public createService(parameters: any): Promise<IDockerCloudService> {
         if (parameters.name === undefined)
             throw new Error("name must be set");
         parameters.name = this.truncateServiceName(parameters.name);
@@ -199,7 +214,7 @@ export class DockerCloudService {
     public async linkServices(fromUUID: string, toUUID: string, linkName?: string): Promise<void> {
 
         // get original links for from.to
-        const sourceService: IDockerCloudServiceDetail = await this.getService(fromUUID);
+        const sourceService: IDockerCloudServiceDetail = await this.getServiceDetail(fromUUID);
         const linkedToServices: IDockerCloudLink[] = sourceService.linked_to_service;
 
         // new link
@@ -265,7 +280,7 @@ export class DockerCloudService {
             queryParams = qs.stringify(urlParams);
 
         const url: string = this.getDockerCloudApiUrl(endpoint, path) + "?" + queryParams;
-        console.log("[" + method + "] " + url);
+        console.log("  [" + method + "] " + url);
         return requestPromise({
             method,
             url,
