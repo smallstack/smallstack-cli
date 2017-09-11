@@ -52,9 +52,6 @@ export async function CLI() {
         console.log("Environment:     NPM package");
     else if (config.calledWithCreateProjectCommand())
         console.log("Environment:     project creation");
-    else {
-        throw new Error("ERROR: No suitable environment found! The smallstack CLI only works inside smallstack projects, smallstack module folders and nativescript apps!");
-    }
     console.log("Root Directory: ", config.getRootDirectory());
     console.log("\n");
 
