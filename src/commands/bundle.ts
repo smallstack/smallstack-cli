@@ -107,9 +107,6 @@ function bundleSmallstack(): Promise<void> {
         exec("npm run bundle", {
             cwd: path.resolve(config.rootDirectory, "modules", "nativescript")
         });
-        exec("npm run bundle", {
-            cwd: path.resolve(config.rootDirectory, "modules", "frontend")
-        });
 
         console.log("modifying production package.json files...");
         modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core-client", "package.json"));
@@ -121,7 +118,6 @@ function bundleSmallstack(): Promise<void> {
         modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "meteor-common", "package.json"));
 
         modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "nativescript", "package.json"));
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "frontend", "package.json"));
 
         var version = require(path.resolve(config.rootDirectory, "dist", "modules", "core-common", "package.json")).version;
         var destinationFile = path.resolve(config.rootDirectory, "dist", "smallstack-" + version + ".zip");
