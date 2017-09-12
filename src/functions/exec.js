@@ -5,12 +5,14 @@ module.exports = function (command, options) {
     var execSync = require('child_process').execSync;
     var _ = require("underscore");
     var config = require("../config");
+    var cwd = options.cwd || config.rootDirectory;
 
     console.log("executing : ", command);
+    console.log("  |- CWD : ", cwd);
 
 
     var process = execSync(command, {
-        cwd: options.cwd || config.rootDirectory,
+        cwd: cwd,
         stdio: 'inherit'
     });
 
