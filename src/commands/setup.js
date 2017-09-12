@@ -249,9 +249,6 @@ function npmInstallModules(rootPath, alsoDevPackages) {
     exec(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "nativescript")
     });
-    exec(npmCommand, {
-        cwd: path.resolve(rootPath, "modules", "frontend")
-    });
 }
 
 function copyMeteorDependencies(params, modulesPath, createModuleRootPackageJson) {
@@ -385,10 +382,6 @@ function linkModules() {
     // nativescript
     createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "nativescript", "node_modules", "@smallstack", "core-common"));
     createSymlink(path.resolve(config.rootDirectory, "modules", "core-client"), path.resolve(config.rootDirectory, "modules", "nativescript", "node_modules", "@smallstack", "core-client"));
-
-    // frontend
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core-common"), path.resolve(config.rootDirectory, "modules", "frontend", "node_modules", "@smallstack", "core-common"));
-    createSymlink(path.resolve(config.rootDirectory, "modules", "core-client"), path.resolve(config.rootDirectory, "modules", "frontend", "node_modules", "@smallstack", "core-client"));
 }
 
 function persistLocalConfiguration(smallstackPath, addDistBundlePath, linkResources) {
@@ -404,7 +397,6 @@ function persistLocalConfiguration(smallstackPath, addDistBundlePath, linkResour
     var absoluteModuleMeteorClientPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor-client", additionalPath);
     var absoluteModuleMeteorServerPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor-server", additionalPath);
     var absoluteModuleMeteorCommonPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "meteor-common", additionalPath);
-    var absoluteModuleFrontendPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "frontend", additionalPath);
     var absoluteModuleNativescriptPath = path.resolve(config.rootDirectory, smallstackPath, "modules", "nativescript", additionalPath);
     var absoluteDatalayerPath = path.resolve(config.datalayerPath, "dist", "bundles");
     var absoluteResourcesPath = path.resolve(config.rootDirectory, smallstackPath, "resources");
@@ -444,9 +436,6 @@ function persistLocalConfiguration(smallstackPath, addDistBundlePath, linkResour
     }
 
     if (config.projectHasFrontend()) {
-        createSymlink(absoluteModuleCoreClientPath, config.frontendSmallstackCoreClientDirectory);
-        createSymlink(absoluteModuleCoreCommonPath, config.frontendSmallstackCoreCommonDirectory);
-        createSymlink(absoluteModuleFrontendPath, config.frontendSmallstackFrontendDirectory);
         createSymlink(absoluteDatalayerPath, config.frontendSmallstackDatalayerDirectory);
     }
 

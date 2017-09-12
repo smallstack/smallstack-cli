@@ -116,6 +116,14 @@ var toVersion = async(function toVersion(toVersion) {
                 throw new Error("No meteor package.json found!");
             replaceVersionInPackageJson(meteorPJP, toVersion);
 
+            // frontend app
+            if (config.projectHasFrontend()) {
+                var frontendPJP = path.resolve(config.frontendDirectory, "package.json");
+                if (!fs.existsSync(frontendPJP))
+                    throw new Error("No frontend package.json found!");
+                replaceVersionInPackageJson(frontendPJP, toVersion);
+            }
+
             // datalayer
             var datalayerPJP = path.resolve(config.datalayerPath, "package.json");
             if (!fs.existsSync(datalayerPJP))
