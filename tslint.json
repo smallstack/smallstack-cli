@@ -1,0 +1,33 @@
+{
+    "extends": "tslint:recommended",
+    "rulesDirectory": [],
+    "rules": {
+        "no-unused-expression": true,
+        "no-unused-variable": true,
+        "curly": false,
+        "no-consecutive-blank-lines": [
+            false
+        ],
+        "trailing-comma": [
+            false
+        ],
+        "object-literal-sort-keys": false,
+        "max-line-length": [
+            false
+        ],
+        "one-line": [
+            false
+        ],
+        "space-before-function-paren": false,
+        "radix": false,
+        "interface-name": [
+            "never-prefix"
+        ],
+        "indent": [
+            "error",
+            4
+        ],
+        "no-console": false
+    },
+    "jsRules": {}
+}

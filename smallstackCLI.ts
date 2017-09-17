@@ -1,19 +1,19 @@
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
 
 export async function CLI() {
-    var startDate: Date = new Date();
+    const startDate: Date = new Date();
 
     // modules
-    var logo = require("./src/functions/logo");
-    var config = require("./src/config");
-    var fs = require("fs-extra");
-    var _ = require("underscore");
-    var colors = require("colors");
-    var moment = require("moment");
-    var parseArguments = require("./src/functions/parseArguments");
+    const logo = require("./src/functions/logo");
+    const config = require("./src/config");
+    const fs = require("fs-extra");
+    const _ = require("underscore");
+    const colors = require("colors");
+    const moment = require("moment");
+    const parseArguments = require("./src/functions/parseArguments");
 
     // commands
-    var commands: any = {};
+    const commands: any = {};
     commands.help = require("./src/commands/help");
     commands.generate = require("./src/commands/generate");
     commands.create = require("./src/commands/create");
@@ -33,6 +33,7 @@ export async function CLI() {
     commands.watch = require("./src/commands/watch");
     commands.syncproject = require("./src/commands/syncproject");
     commands.modifyproductionpackagejson = require("./src/commands/modifyProductionPackageJson");
+    commands.createDockerImages = require("./src/commands/createDockerImages").createDockerImages;
     commands.cloud = require("./src/commands/cloud").cloud;
 
     // show a nice logo
@@ -55,14 +56,14 @@ export async function CLI() {
     console.log("\n");
 
     // update check
-    var updateCheck = require("./src/functions/updateCheck");
+    const updateCheck = require("./src/functions/updateCheck");
     updateCheck.doCheck();
 
-    var parsedCommands = parseArguments(process.argv);
+    const parsedCommands = parseArguments(process.argv);
 
     // first check all commands
-    var allCommandsFine = true;
-    _.each(parsedCommands, function (command) {
+    let allCommandsFine = true;
+    _.each(parsedCommands, (command) => {
         if (commands[command.name] === undefined) {
             console.error("Command not found : '" + command.name + "'");
             allCommandsFine = false;
@@ -70,7 +71,7 @@ export async function CLI() {
     });
 
     function getDurationString(): string {
-        return moment((new Date().getTime() - startDate.getTime())).format('mm:ss.SSS');
+        return moment((new Date().getTime() - startDate.getTime())).format("mm:ss.SSS");
     }
 
     // then execute
@@ -88,8 +89,10 @@ export async function CLI() {
             console.log(colors.gray("################################################################################\n"));
             try {
                 if (typeof commands[command.name] === "function")
-                    await commands[command.name](command.parameters, () => { });
-                else 
+                    await commands[command.name](command.parameters, () => {
+                        console.error("done callback is deprecated, please use async/await!");
+                    });
+                else
                     throw new Error("Could not find command " + command.name);
             } catch (e) {
                 if (e.message)
