@@ -1,4 +1,4 @@
-FROM node:7.10
+FROM node:6.11.3-alpine
 
 # install docker cli
 RUN apk add --no-cache \
