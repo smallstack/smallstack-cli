@@ -40,7 +40,8 @@ RUN set -ex; \
 # install smallstack cli
 ARG NPM_CONFIG_LOGLEVEL=error
 ENV NPM_CONFIG_LOGLEVEL=error
-RUN apk add --no-cache python make g++ curl
+RUN apk update
+RUN apk add --no-cache python make g++ curl bash
 RUN mkdir /home/cli
 WORKDIR /home/cli
 ADD . .
