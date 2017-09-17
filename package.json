@@ -67,5 +67,8 @@
     "typings-core": "2.2.0",
     "underscore": "1.8.3",
     "underscore.string": "3.3.4"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^4.0.2"
   }
 }

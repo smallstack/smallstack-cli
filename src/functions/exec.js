@@ -7,7 +7,7 @@ module.exports = function (command, options) {
     var config = require("../config");
     var cwd = options.cwd || config.rootDirectory;
 
-    console.log("executing : ", command);
+    console.log("executing : ", (options && options.commandString) ? options.commandString : command);
     console.log("  |- CWD : ", cwd);
 
 
