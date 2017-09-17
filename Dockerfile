@@ -38,6 +38,9 @@ RUN set -ex; \
 
 
 # install smallstack cli
+ARG NPM_CONFIG_LOGLEVEL=error
+ENV NPM_CONFIG_LOGLEVEL=error
+RUN apk add python make g++
 RUN mkdir /home/cli
 WORKDIR /home/cli
 ADD . .
