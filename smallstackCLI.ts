@@ -19,11 +19,10 @@ export async function CLI() {
     commands.create = require("./src/commands/create");
     commands.supersonicCreate = require("./src/commands/supersonicCreate");
     commands.showConfig = require("./src/commands/showConfig");
-    commands.compile = require("./src/commands/compile");
     commands.setup = require("./src/commands/setup");
     commands.clean = require("./src/commands/cleaner");
     commands.test = require("./src/commands/test");
-    commands.bundle = require("./src/commands/bundle");
+    commands.bundle = require("./src/commands/bundle").bundle;
     commands.jenkins = require("./src/commands/jenkins");
     commands.deploy = require("./src/commands/deploy");
     commands.compileNpmModule = require("./src/commands/compileNpmModule");
@@ -88,7 +87,10 @@ export async function CLI() {
             }
             console.log(colors.gray("################################################################################\n"));
             try {
-                await commands[command.name](command.parameters, () => { });
+                if (typeof commands[command.name] === "function")
+                    await commands[command.name](command.parameters, () => { });
+                else 
+                    throw new Error("Could not find command " + command.name);
             } catch (e) {
                 if (e.message)
                     console.error(colors.red("ERROR:", e.message));

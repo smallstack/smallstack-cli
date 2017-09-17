@@ -12,6 +12,7 @@ var SimpleGit = require('simple-git');
 var async = require('asyncawait/async');
 var await = require('asyncawait/await');
 var Promise = require('bluebird');
+var templating = require("../functions/templating");
 
 module.exports = async(function (parameters) {
     var forceMode = parameters && parameters.force === true;
@@ -115,6 +116,15 @@ var toVersion = async(function toVersion(toVersion) {
             if (!fs.existsSync(meteorPJP))
                 throw new Error("No meteor package.json found!");
             replaceVersionInPackageJson(meteorPJP, toVersion);
+            createMeteorVersionFile(toVersion);
+
+            // frontend app
+            if (config.projectHasFrontend()) {
+                var frontendPJP = path.resolve(config.frontendDirectory, "package.json");
+                if (!fs.existsSync(frontendPJP))
+                    throw new Error("No frontend package.json found!");
+                replaceVersionInPackageJson(frontendPJP, toVersion);
+            }
 
             // datalayer
             var datalayerPJP = path.resolve(config.datalayerPath, "package.json");
@@ -209,4 +219,16 @@ function replaceVersionInPackageJson(file, newVersion) {
     console.log("changing version of '" + jsonContent.name + "' from " + jsonContent.version + " to " + newVersion);
     jsonContent.version = newVersion;
     fs.writeJSONSync(file, jsonContent);
+}
+
+function createMeteorVersionFile(newVersion) {
+    var destinationFilePath = path.join(config.meteorDirectory, "server", "imports", "versions.ts");
+    var sourceFilePath = path.join(config.cliTemplatesPath, "versions.ts");
+    if (fs.existsSync(sourceFilePath)) {
+        var coreCommonPackageJson = require(path.join(config.meteorSmallstackCoreCommonDirectory, "package.json"));
+        templating.compileFileToFile(path.join(config.cliTemplatesPath, "versions.ts"), destinationFilePath, {
+            smallstackVersion: coreCommonPackageJson.version,
+            projectVersion: newVersion
+        });
+    }
 }
