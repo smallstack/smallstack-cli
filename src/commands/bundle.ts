@@ -48,7 +48,7 @@ function bundleFrontendProject(): Promise<void> {
         return Promise.resolve();
     }
     return new Promise<void>((resolve, reject) => {
-        const destinationFile: string = path.join(config.builtDirectory, "frontend.tar.gz");
+        const destinationFile: string = path.join(config.builtDirectory, "frontend.zip");
         fs.removeSync(destinationFile);
 
         console.log("Creating frontend bundle in directory : ", config.builtDirectory);

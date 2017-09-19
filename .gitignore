@@ -4,3 +4,4 @@ src/services/DockerCloudService.js
 src/commands/cloud.js
 smallstackCLI.js
 src/commands/bundle.js
+src/commands/createDockerImages.js
