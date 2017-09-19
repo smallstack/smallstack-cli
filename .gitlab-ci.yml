@@ -36,6 +36,7 @@ node7test:
    
 npm_publish:
   stage: deploy
+  image: node:latest
   only:
     - tags
   script:
