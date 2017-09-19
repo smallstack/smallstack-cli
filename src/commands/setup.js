@@ -324,11 +324,13 @@ function copyMeteorDependencies(params, modulesPath, createModuleRootPackageJson
 
     fs.writeJSONSync(meteorPackageJsonPath, content);
 
-    if (!params || params.offline !== true) {
-        exec("meteor npm install", {
-            cwd: config.meteorDirectory
-        });
-    }
+    // if (!params || params.offline !== true) {
+    //     exec("meteor npm install", {
+    //         cwd: config.meteorDirectory
+    //     });
+    // }
+
+    console.log(colors.blue("Warning: smallstack setup doesn't call 'meteor npm install' in the meteor folder anymore. If meteor dependencies have changed, please call that command manually!"));
 
     if (createModuleRootPackageJson) {
         // write module root package.json
