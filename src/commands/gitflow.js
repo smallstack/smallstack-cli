@@ -195,7 +195,10 @@ var toVersion = async(function toVersion(toVersion) {
                 resolve();
             });
         } else if (config.isNPMPackageEnvironment()) {
-            exec("npm version -f --git-tag-version=false " + toVersion);
+            replaceVersionInPackageJson(path.resolve(config.rootDirectory, "package.json"), toVersion);
+            var subPackageJson = path.resolve(config.rootDirectory, "src", "package.json");
+            if (fs.existsSync(subPackageJson))
+                replaceVersionInPackageJson(subPackageJson, toVersion);
             exec("git commit -a -m \"changing version to " + toVersion + "\"");
             resolve();
         } else throw new Error("Unsupported Environment!");
