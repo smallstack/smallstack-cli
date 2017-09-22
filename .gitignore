@@ -5,3 +5,4 @@ src/commands/cloud.js
 smallstackCLI.js
 src/commands/bundle.js
 src/commands/createDockerImages.js
+src/functions/createMeteorVersionFile.js
