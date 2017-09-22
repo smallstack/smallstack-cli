@@ -16,9 +16,10 @@ var config = require("../config");
 var createMeteorVersionFile = require("../functions/createMeteorVersionFile").createMeteorVersionFile;
 
 
-module.exports = function (params, done) {
+module.exports = function (params) {
 
-    createMeteorVersionFile();
+    if (config.isProjectEnvironment())
+        createMeteorVersionFile();
 
     var forcedGenerationMode = params.forcedGeneration === true;
 
@@ -339,9 +340,6 @@ module.exports = function (params, done) {
 
 
         notifier("Generating Source Code completed!");
-
-        if (typeof done === "function")
-            done();
 
     } catch (e) {
         console.error("Could not generate source code!", e);
