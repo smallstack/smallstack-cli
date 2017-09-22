@@ -1,10 +1,14 @@
-var config = require('../config')
-var path = require("path");
-var _ = require("underscore");
-var fs = require("fs-extra");
-var exec = require('../functions/exec');
-var archiver = require('archiver');
-var modifyProductionPackageJson = require("../functions/modifyProductionPackageJson");
+// tslint:disable:no-var-requires
+
+import { createMeteorVersionFile } from "../functions/createMeteorVersionFile";
+
+const config = require("../config");
+const path = require("path");
+const _ = require("underscore");
+const fs = require("fs-extra");
+const exec = require("../functions/exec");
+const archiver = require("archiver");
+const modifyProductionPackageJson = require("../functions/modifyProductionPackageJson");
 
 export function bundle(parameters): Promise<any> {
     if (parameters.skipBundle) {
@@ -13,6 +17,7 @@ export function bundle(parameters): Promise<any> {
     }
 
     if (config.isProjectEnvironment()) {
+        createMeteorVersionFile();
         if (parameters.frontendOnly)
             return bundleFrontendProject();
         if (parameters.meteorOnly)
@@ -35,7 +40,7 @@ function bundleMeteorProject(): Promise<void> {
 
         exec("meteor build " + path.relative(config.meteorDirectory, config.builtDirectory) + " --architecture os.linux.x86_64 --server-only", {
             cwd: config.meteorDirectory,
-            finished: function () {
+            finished: () => {
                 resolve();
             }
         });
@@ -55,22 +60,22 @@ function bundleFrontendProject(): Promise<void> {
 
         exec("npm install && npm run build:aot", {
             cwd: config.frontendDirectory,
-            finished: function () {
+            finished: () => {
 
                 const output = fs.createWriteStream(destinationFile);
-                const archive = archiver('zip', {
+                const archive = archiver("zip", {
                     store: true
                 });
 
                 archive.pipe(output);
 
-                archive.on('error', function (err) {
+                archive.on("error", (err) => {
                     console.error(err);
                     reject(err);
                 });
 
-                output.on('close', function () {
-                    console.log(archive.pointer() + ' total bytes');
+                output.on("close", () => {
+                    console.log(archive.pointer() + " total bytes");
                     resolve();
                 });
 
@@ -118,25 +123,25 @@ function bundleSmallstack(): Promise<void> {
 
         modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "nativescript", "package.json"));
 
-        var version = require(path.resolve(config.rootDirectory, "dist", "modules", "core-common", "package.json")).version;
-        var destinationFile = path.resolve(config.rootDirectory, "dist", "smallstack-" + version + ".zip");
+        const version = require(path.resolve(config.rootDirectory, "dist", "modules", "core-common", "package.json")).version;
+        const destinationFile = path.resolve(config.rootDirectory, "dist", "smallstack-" + version + ".zip");
         fs.removeSync(destinationFile);
         console.log("Packaging smallstack modules to ", destinationFile);
-        var output = fs.createWriteStream(destinationFile);
-        var archive = archiver('zip', {
+        const output = fs.createWriteStream(destinationFile);
+        const archive = archiver("zip", {
             store: true
         });
 
         archive.pipe(output);
 
-        archive.on('error', function (err) {
+        archive.on("error", (err) => {
             console.error(err);
             reject(err);
         });
 
-        output.on('close', function () {
+        output.on("close", () => {
             createSymlink(destinationFile, path.resolve(config.rootDirectory, "dist", "smallstack.zip"));
-            console.log(archive.pointer() + ' total bytes');
+            console.log(archive.pointer() + " total bytes");
             resolve();
         });
 
