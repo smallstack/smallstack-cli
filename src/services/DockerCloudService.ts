@@ -1,9 +1,9 @@
-import * as requestPromise from "request-promise";
-import * as request from "request";
 import * as qs from "querystring";
-import { stringifyParametersWithoutPasswords } from "../functions/stringifyParametersWithoutPasswords";
-import { findIndex } from "underscore";
+import * as request from "request";
+import * as requestPromise from "request-promise";
 import { clearInterval, clearTimeout, setInterval, setTimeout } from "timers";
+import { findIndex } from "underscore";
+import { stringifyParametersWithoutPasswords } from "../functions/stringifyParametersWithoutPasswords";
 
 export interface IDockerCloudExternalRepository {
     in_use: boolean;
@@ -55,14 +55,7 @@ export interface IDockerCloudServiceDetail extends IDockerCloudService {
     bindings: any[];
     host_path: any[];
     container_envvars: Array<{ key: string, value: string }>;
-    container_ports: Array<{
-        endpoint_uri: string;
-        inner_port: number;
-        outer_port: number;
-        port_name: string;
-        protocol: string;
-        published: boolean;
-    }>;
+    container_ports: IDockerCloudContainerPort[];
     containers: string[];
     dns: any[];
     linked_from_service: IDockerCloudLink[];
@@ -72,7 +65,7 @@ export interface IDockerCloudServiceDetail extends IDockerCloudService {
 export interface IDockerCloudContainer {
     autodestroy: string;
     autorestart: string;
-    container_ports: any;
+    container_ports: IDockerCloudContainerPort[];
     cpu_shares: any;
     deployed_datetime: string;
     destroyed_datetime: string;
@@ -101,6 +94,16 @@ export interface IDockerCloudContainer {
     synchronized: true;
     uuid: string;
     working_dir: string;
+}
+
+export interface IDockerCloudContainerPort {
+    endpoint_uri: string;
+    inner_port: number;
+    outer_port: number;
+    port_name: string;
+    protocol: string;
+    published: boolean;
+    uri_protocol: string;
 }
 
 export interface IDockerCloudPageable<T> {
@@ -161,6 +164,10 @@ export class DockerCloudService {
 
     public async getServiceDetail(uuid: string): Promise<IDockerCloudServiceDetail> {
         return this.buildRequest("GET", "app", "service/" + uuid + "/");
+    }
+
+    public async updateService(uuid: string, updateJSON: any): Promise<void> {
+        return this.buildRequest("PATCH", "app", "service/" + uuid + "/", {}, updateJSON);
     }
 
     public registerExternalRepository(parameters: any): Promise<IDockerCloudExternalRepository[]> {

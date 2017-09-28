@@ -1,6 +1,7 @@
-import { DockerCloudService, IDockerCloudService } from "../services/DockerCloudService";
-import * as _ from "underscore";
 import * as moment from "moment";
+import * as requestPromise from "request-promise";
+import * as _ from "underscore";
+import { DockerCloudService, IDockerCloudContainer, IDockerCloudPageable, IDockerCloudService, IDockerCloudServiceDetail } from "../services/DockerCloudService";
 
 export async function cloud(parameters) {
 
@@ -100,7 +101,7 @@ export async function cloud(parameters) {
         console.log("Getting UUID for fromService...");
         const fromUUIDs = await (dockerCloudService.getServices({ name: parameters.from }));
         let fromService: IDockerCloudService;
-        for (let from of fromUUIDs.objects) {
+        for (const from of fromUUIDs.objects) {
             if (from.state !== "Terminated" && from.state !== "Terminating") {
                 fromService = from;
                 break;
@@ -155,6 +156,50 @@ export async function cloud(parameters) {
         await dockerCloudService.waitForState(parameters);
         const durationString: string = moment((new Date().getTime() - waitStart.getTime())).format('mm:ss.SSS');
         console.log("Service is now in state " + parameters.state + " after waiting for " + durationString);
+
+        return;
+    }
+
+    if (parameters.redeploy) {
+
+        if (parameters.name === undefined)
+            throw new Error("Please provide a service name via --name parameter!");
+
+        // get the service
+        const services: IDockerCloudPageable<IDockerCloudService[]> = await dockerCloudService.getServices(parameters);
+        if (services.meta.total_count === 0)
+            throw new Error("Could not find any service called " + parameters.name);
+        const service: IDockerCloudService = services.objects[0];
+
+        // save current count of containers
+        const containers: IDockerCloudPageable<IDockerCloudContainer[]> = await dockerCloudService.getContainers({ service: service.resource_uri });
+        const containerCount: number = containers.meta.total_count;
+        console.log("Found service " + parameters.name + " with " + containerCount + " container(s)");
+
+        // get their versions
+        for (const container of containers.objects) {
+            const url: string = container.container_ports[0].endpoint_uri + "api/versions";
+            console.log("Querying " + url);
+            const response = JSON.parse(await requestPromise(url));
+            console.log(response.project);
+        }
+
+        // set new tag if given (could be 'master' or any other dynamic tag)
+        if (parameters.tag) {
+            const imageName: string = service.image_name.split(":")[0];
+            const newImageName: string = imageName + ":" + parameters.tag;
+            console.log("Changing image tag: " + service.image_name + " => " + newImageName);
+            service.image_name = newImageName;
+            await dockerCloudService.updateService(service.uuid, service);
+        }
+
+        // scale up if services.count === 1
+
+        // tear down other instance if services.count was 1
+
+        // scale down if services.count was 1
+
+
 
         return;
     }
