@@ -1,4 +1,4 @@
-var config = require("../config");
+var config = require("../Config").Config;
 var AWS = require('aws-sdk');
 var fs = require("fs-extra");
 var gitState = require("git-state");

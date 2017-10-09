@@ -1,11 +1,15 @@
+import { cloud } from "./src/commands/cloud";
+import { CreateDockerImages } from "./src/commands/CreateDockerImages";
+import { Config } from "./src/Config";
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
 
 export async function CLI() {
     const startDate: Date = new Date();
 
+    Config.init();
+
     // modules
     const logo = require("./src/functions/logo");
-    const config = require("./src/config");
     const fs = require("fs-extra");
     const _ = require("underscore");
     const colors = require("colors");
@@ -17,13 +21,11 @@ export async function CLI() {
     commands.help = require("./src/commands/help");
     commands.generate = require("./src/commands/generate");
     commands.create = require("./src/commands/create");
-    commands.supersonicCreate = require("./src/commands/supersonicCreate");
     commands.showConfig = require("./src/commands/showConfig");
     commands.setup = require("./src/commands/setup");
     commands.clean = require("./src/commands/cleaner");
     commands.test = require("./src/commands/test");
     commands.bundle = require("./src/commands/bundle").bundle;
-    commands.jenkins = require("./src/commands/jenkins");
     commands.deploy = require("./src/commands/deploy");
     commands.compileNpmModule = require("./src/commands/compileNpmModule");
     commands.gitflow = require("./src/commands/gitflow");
@@ -33,26 +35,26 @@ export async function CLI() {
     commands.watch = require("./src/commands/watch");
     commands.syncproject = require("./src/commands/syncproject");
     commands.modifyproductionpackagejson = require("./src/commands/modifyProductionPackageJson");
-    commands.createDockerImages = require("./src/commands/createDockerImages").createDockerImages;
-    commands.cloud = require("./src/commands/cloud").cloud;
+    commands.createDockerImages = CreateDockerImages;
+    commands.cloud = cloud;
 
     // show a nice logo
     logo();
 
     // display some information
-    if (config.isSmallstackEnvironment())
+    if (Config.isSmallstackEnvironment())
         console.log("Environment:     smallstack framework");
-    else if (config.isProjectEnvironment())
+    else if (Config.isProjectEnvironment())
         console.log("Environment:     smallstack project");
-    else if (config.isComponentEnvironment())
+    else if (Config.isComponentEnvironment())
         console.log("Environment:     smallstack component");
-    else if (config.isNativescriptEnvironment())
+    else if (Config.isNativescriptEnvironment())
         console.log("Environment:     nativescript app");
-    else if (config.isNPMPackageEnvironment())
+    else if (Config.isNPMPackageEnvironment())
         console.log("Environment:     NPM package");
-    else if (config.calledWithCreateProjectCommand())
+    else if (Config.calledWithCreateProjectCommand())
         console.log("Environment:     project creation");
-    console.log("Root Directory: ", config.getRootDirectory());
+    console.log("Root Directory: ", Config.getRootDirectory());
     console.log("\n");
 
     // update check
@@ -88,7 +90,10 @@ export async function CLI() {
             }
             console.log(colors.gray("################################################################################\n"));
             try {
-                if (typeof commands[command.name] === "function")
+                if (typeof commands[command.name].prototype.execute === "function") {
+                    await new commands[command.name]().execute(command, parsedCommands);
+                }
+                else if (typeof commands[command.name] === "function")
                     await commands[command.name](command.parameters, () => {
                         console.error("done callback is deprecated, please use async/await!");
                     });
@@ -101,7 +106,7 @@ export async function CLI() {
                     console.error(colors.red("ERROR:", e));
                 console.error(colors.red("Failure was executed in " + getDurationString()));
                 if (command.parameters.debug)
-                    throw e;
+                    console.error(colors.red(e.stack));
                 updateCheck.showResult();
                 if (command.parameters.failOnError === false) {
                     console.warn("exiting process with code 0 since failOnError=false!");

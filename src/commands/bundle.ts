@@ -1,8 +1,7 @@
 // tslint:disable:no-var-requires
 
+import { Config } from "../Config";
 import { createMeteorVersionFile } from "../functions/createMeteorVersionFile";
-
-const config = require("../config");
 const path = require("path");
 const _ = require("underscore");
 const fs = require("fs-extra");
@@ -16,7 +15,7 @@ export function bundle(parameters): Promise<any> {
         return Promise.resolve();
     }
 
-    if (config.isProjectEnvironment()) {
+    if (Config.isProjectEnvironment()) {
         createMeteorVersionFile();
         if (parameters.frontendOnly)
             return bundleFrontendProject();
@@ -25,7 +24,7 @@ export function bundle(parameters): Promise<any> {
         return Promise.all([bundleMeteorProject(), bundleFrontendProject()]);
     }
 
-    if (config.isSmallstackEnvironment()) {
+    if (Config.isSmallstackEnvironment()) {
         return bundleSmallstack();
     }
 
@@ -34,12 +33,12 @@ export function bundle(parameters): Promise<any> {
 
 function bundleMeteorProject(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        fs.removeSync(path.join(config.builtDirectory, "meteor.tar.gz"));
+        fs.removeSync(path.join(Config.builtDirectory, "meteor.tar.gz"));
 
-        console.log("Creating meteor bundle in directory : ", config.builtDirectory);
+        console.log("Creating meteor bundle in directory : ", Config.builtDirectory);
 
-        exec("meteor build " + path.relative(config.meteorDirectory, config.builtDirectory) + " --architecture os.linux.x86_64 --server-only", {
-            cwd: config.meteorDirectory,
+        exec("meteor build " + path.relative(Config.meteorDirectory, Config.builtDirectory) + " --architecture os.linux.x86_64 --server-only", {
+            cwd: Config.meteorDirectory,
             finished: () => {
                 resolve();
             }
@@ -48,18 +47,18 @@ function bundleMeteorProject(): Promise<void> {
 }
 
 function bundleFrontendProject(): Promise<void> {
-    if (config.frontendDirectory === undefined) {
+    if (Config.frontendDirectory === undefined) {
         console.log("No frontend directory found, skipping frontend bundling!");
         return Promise.resolve();
     }
     return new Promise<void>((resolve, reject) => {
-        const destinationFile: string = path.join(config.builtDirectory, "frontend.zip");
+        const destinationFile: string = path.join(Config.builtDirectory, "frontend.zip");
         fs.removeSync(destinationFile);
 
-        console.log("Creating frontend bundle in directory : ", config.builtDirectory);
+        console.log("Creating frontend bundle in directory : ", Config.builtDirectory);
 
         exec("npm install && npm run build:aot", {
-            cwd: config.frontendDirectory,
+            cwd: Config.frontendDirectory,
             finished: () => {
 
                 const output = fs.createWriteStream(destinationFile);
@@ -88,43 +87,43 @@ function bundleFrontendProject(): Promise<void> {
 
 function bundleSmallstack(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        fs.emptyDirSync(path.resolve(config.rootDirectory, "dist"));
+        fs.emptyDirSync(path.resolve(Config.rootDirectory, "dist"));
 
         exec("npm run bundle", {
-            cwd: path.resolve(config.rootDirectory, "modules", "core-common")
+            cwd: path.resolve(Config.rootDirectory, "modules", "core-common")
         });
         exec("npm run bundle", {
-            cwd: path.resolve(config.rootDirectory, "modules", "core-client")
+            cwd: path.resolve(Config.rootDirectory, "modules", "core-client")
         });
         exec("npm run bundle", {
-            cwd: path.resolve(config.rootDirectory, "modules", "core-server")
+            cwd: path.resolve(Config.rootDirectory, "modules", "core-server")
         });
         exec("npm run bundle", {
-            cwd: path.resolve(config.rootDirectory, "modules", "meteor-common")
+            cwd: path.resolve(Config.rootDirectory, "modules", "meteor-common")
         });
         exec("npm run bundle", {
-            cwd: path.resolve(config.rootDirectory, "modules", "meteor-client")
+            cwd: path.resolve(Config.rootDirectory, "modules", "meteor-client")
         });
         exec("npm run bundle", {
-            cwd: path.resolve(config.rootDirectory, "modules", "meteor-server")
+            cwd: path.resolve(Config.rootDirectory, "modules", "meteor-server")
         });
         exec("npm run bundle", {
-            cwd: path.resolve(config.rootDirectory, "modules", "nativescript")
+            cwd: path.resolve(Config.rootDirectory, "modules", "nativescript")
         });
 
         console.log("modifying production package.json files...");
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core-client", "package.json"));
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core-server", "package.json"));
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "core-common", "package.json"));
+        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "core-client", "package.json"));
+        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "core-server", "package.json"));
+        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "core-common", "package.json"));
 
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "meteor-client", "package.json"));
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "meteor-server", "package.json"));
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "meteor-common", "package.json"));
+        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "meteor-client", "package.json"));
+        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "meteor-server", "package.json"));
+        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "meteor-common", "package.json"));
 
-        modifyProductionPackageJson(path.resolve(config.rootDirectory, "dist", "modules", "nativescript", "package.json"));
+        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "nativescript", "package.json"));
 
-        const version = require(path.resolve(config.rootDirectory, "dist", "modules", "core-common", "package.json")).version;
-        const destinationFile = path.resolve(config.rootDirectory, "dist", "smallstack-" + version + ".zip");
+        const version = require(path.resolve(Config.rootDirectory, "dist", "modules", "core-common", "package.json")).version;
+        const destinationFile = path.resolve(Config.rootDirectory, "dist", "smallstack-" + version + ".zip");
         fs.removeSync(destinationFile);
         console.log("Packaging smallstack modules to ", destinationFile);
         const output = fs.createWriteStream(destinationFile);
@@ -140,7 +139,7 @@ function bundleSmallstack(): Promise<void> {
         });
 
         output.on("close", () => {
-            createSymlink(destinationFile, path.resolve(config.rootDirectory, "dist", "smallstack.zip"));
+            createSymlink(destinationFile, path.resolve(Config.rootDirectory, "dist", "smallstack.zip"));
             console.log(archive.pointer() + " total bytes");
             resolve();
         });

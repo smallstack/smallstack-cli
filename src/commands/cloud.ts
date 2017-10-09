@@ -1,6 +1,6 @@
-import { DockerCloudService, IDockerCloudService } from "../services/DockerCloudService";
-import * as _ from "underscore";
 import * as moment from "moment";
+import * as _ from "underscore";
+import { DockerCloudService, IDockerCloudService } from "../services/DockerCloudService";
 
 export async function cloud(parameters) {
 
@@ -100,7 +100,7 @@ export async function cloud(parameters) {
         console.log("Getting UUID for fromService...");
         const fromUUIDs = await (dockerCloudService.getServices({ name: parameters.from }));
         let fromService: IDockerCloudService;
-        for (let from of fromUUIDs.objects) {
+        for (const from of fromUUIDs.objects) {
             if (from.state !== "Terminated" && from.state !== "Terminating") {
                 fromService = from;
                 break;

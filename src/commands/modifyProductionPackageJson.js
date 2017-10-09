@@ -1,7 +1,7 @@
 var path = require("path");
 var _ = require("underscore");
 var fs = require("fs-extra");
-var config = require("../config");
+var config = require("../Config").Config;
 var modifyProductionPackageJson = require("../functions/modifyProductionPackageJson");
 
 module.exports = function (parameters, done) {

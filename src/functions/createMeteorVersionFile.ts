@@ -1,18 +1,18 @@
 // tslint:disable:no-var-requires
-const config = require("../config");
 const templating = require("./templating");
 import * as fs from "fs-extra";
 import { join } from "path";
+import { Config } from "../Config";
 
 export function createMeteorVersionFile() {
 
-    const destinationFilePath: string = join(config.meteorDirectory, "server", "imports", "versions.ts");
-    const sourceFilePath: string = join(config.cliTemplatesPath, "versions.ts");
+    const destinationFilePath: string = join(Config.meteorDirectory, "server", "imports", "versions.ts");
+    const sourceFilePath: string = join(Config.cliTemplatesPath, "versions.ts");
     if (fs.existsSync(sourceFilePath)) {
-        const coreCommonPackageJson: any = require(join(config.meteorSmallstackCoreCommonDirectory, "package.json"));
-        templating.compileFileToFile(join(config.cliTemplatesPath, "versions.ts"), destinationFilePath, {
+        const coreCommonPackageJson: any = require(join(Config.meteorSmallstackCoreCommonDirectory, "package.json"));
+        templating.compileFileToFile(join(Config.cliTemplatesPath, "versions.ts"), destinationFilePath, {
             smallstackVersion: coreCommonPackageJson.version,
-            projectVersion: config.version
+            projectVersion: Config.project.version
         });
         console.log("Updated versions.ts file: " + destinationFilePath);
     }

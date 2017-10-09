@@ -1,4 +1,4 @@
-var config = require("../config");
+var config = require("../Config").Config;
 var request = require("request");
 var semver = require("semver");
 var colors = require("colors");

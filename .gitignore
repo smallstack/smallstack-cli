@@ -6,3 +6,7 @@ smallstackCLI.js
 src/commands/bundle.js
 src/commands/createDockerImages.js
 src/functions/createMeteorVersionFile.js
+src/commands/CLICommand.js
+index.js
+src/config.js
+src/commands/ICommand.js

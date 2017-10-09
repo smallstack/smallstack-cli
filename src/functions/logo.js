@@ -1,6 +1,6 @@
 module.exports = function () {
 
-    var config = require("../config");
+    var config = require("../Config").Config;
     var figlet = require("figlet");
     var colors = require("colors");
 

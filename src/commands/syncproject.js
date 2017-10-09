@@ -1,4 +1,4 @@
-var config = require('../config')
+var config = require('../Config').Config;
 var path = require("path");
 var _ = require("underscore");
 var fs = require("fs-extra");

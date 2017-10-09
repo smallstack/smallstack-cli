@@ -4,7 +4,7 @@ module.exports = function (command, options) {
 
     var execSync = require('child_process').execSync;
     var _ = require("underscore");
-    var config = require("../config");
+    var config = require("../Config").Config;
     var cwd = options.cwd || config.rootDirectory;
 
     console.log("executing : ", (options && options.commandString) ? options.commandString : command);

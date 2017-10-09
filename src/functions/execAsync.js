@@ -4,7 +4,7 @@ module.exports = function (command, options) {
 
     var exec = require('child_process').exec;
     var _ = require("underscore");
-    var config = require("../config");
+    var config = require("../Config").Config;
 
     console.log("executing : ", command);
 

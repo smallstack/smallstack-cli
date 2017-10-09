@@ -11,7 +11,7 @@ var templating = require("../functions/templating");
 var notifier = require("../functions/notifier");
 var exec = require("../functions/exec");
 var genFunctions = require("../functions/generateSourcesFunctions");
-var config = require("../config");
+var config = require("../Config").Config;
 
 var createMeteorVersionFile = require("../functions/createMeteorVersionFile").createMeteorVersionFile;
 

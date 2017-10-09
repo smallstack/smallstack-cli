@@ -1,5 +1,5 @@
 module.exports = function () {
-    var config = require("../config");
+    var config = require("../config").Config;
 
     console.log("Project Directory :    " + config.rootDirectory);
     console.log("Temp Directory :       " + config.tmpDirectory);

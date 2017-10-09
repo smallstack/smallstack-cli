@@ -34,15 +34,17 @@ module.exports = function () {
         process.stdout.write("\n");
     }
 
-    console.log("Usage : command [options] [command [options] ...]");
-    console.log(" ");
-    console.log("     Example: smallstack clean setup generate compile --watch");
-    console.log(" ");
-    console.log("Available Commands : ");
-    console.log(" ");
-    helpEntry("setup", "", "sets up/updates a smallstack project or smallstack module");
-    helpEntry("clean", "", "cleans generated and compiled files in a project or module");
-    helpEntry("generate", "", "generates source files from *.smallstack.json");
-    helpEntry("compile", ["--watch"], "compiles *.ts files in smallstack modules");
-    helpEntry("bundle", "", "bundles smallstack modules");
+
+    throw new Error("help needs an update");
+    // console.log("Usage : command [options] [command [options] ...]");
+    // console.log(" ");
+    // console.log("     Example: smallstack clean setup generate compile --watch");
+    // console.log(" ");
+    // console.log("Available Commands : ");
+    // console.log(" ");
+    // helpEntry("setup", "", "sets up/updates a smallstack project or smallstack module");
+    // helpEntry("clean", "", "cleans generated and compiled files in a project or module");
+    // helpEntry("generate", "", "generates source files from *.smallstack.json");
+    // helpEntry("compile", ["--watch"], "compiles *.ts files in smallstack modules");
+    // helpEntry("bundle", "", "bundles smallstack modules");
 }

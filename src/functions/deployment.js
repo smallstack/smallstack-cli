@@ -1,6 +1,6 @@
 var path = require("path");
 var fs = require("fs-extra");
-var config = require("../config");
+var config = require("../Config").Config;
 var templating = require("./templating");
 var moment = require('moment');
 var genFunctions = require('./generateSourcesFunctions');

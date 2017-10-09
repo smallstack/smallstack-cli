@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2015",
-    "module": "commonjs"
+    "module": "commonjs",
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": false
   }
 }

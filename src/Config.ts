@@ -1,0 +1,273 @@
+import * as fs from "fs-extra";
+import * as path from "path";
+import * as _ from "underscore";
+// tslint:disable-next-line:no-var-requires
+const cliPackageJson = require(__dirname + "/../package.json");
+
+export class Config {
+
+    public static frontendSmallstackDatalayerDirectory: string;
+    public static frontendSmallstackFrontendDirectory: string;
+    public static frontendSmallstackCoreCommonDirectory: string;
+    public static frontendSmallstackCoreClientDirectory: string;
+    public static frontendDirectory: string;
+    public static nativescriptDatalayerDirectory: string;
+    public static nativescriptSmallstackNativescriptDirectory: string;
+    public static nativescriptSmallstackCoreCommonDirectory: string;
+    public static nativescriptSmallstackCoreClientDirectory: string;
+    public static nativescriptDirectory: string;
+    public static datalayerTemplatesPath: string;
+    public static cliTemplatesPath: string;
+    public static cliResourcesPath: string;
+    public static datalayerSmallstackCoreCommonDirectory: string;
+    public static datalayerPath: string;
+    public static meteorDatalayerPath: string;
+    public static meteorSmallstackMeteorCommonDirectory: string;
+    public static meteorSmallstackMeteorServerDirectory: string;
+    public static meteorSmallstackMeteorClientDirectory: string;
+    public static meteorSmallstackCoreCommonDirectory: string;
+    public static meteorSmallstackCoreServerDirectory: string;
+    public static meteorSmallstackCoreClientDirectory: string;
+    public static meteorSmallstackDependenciesDirectory: string;
+    public static smallstackDirectory: string;
+    public static meteorTestsDirectory: string;
+    public static meteorDirectory: string;
+    public static builtDirectory: string;
+    public static rootDirectory: string;
+    public static tmpDirectory: string;
+
+    public static cli: any = cliPackageJson;
+    public static project: any;
+
+    public static init() {
+        try {
+            this.rootDirectory = this.getRootDirectory();
+
+            if (this.rootDirectory) {
+                this.tmpDirectory = path.join(this.rootDirectory, "tmp");
+                if (this.isProjectEnvironment()) {
+                    this.builtDirectory = path.join(this.rootDirectory, "built");
+                    this.meteorDirectory = path.join(this.rootDirectory, "meteor");
+                    this.meteorTestsDirectory = path.join(this.meteorDirectory, "tests");
+                    this.smallstackDirectory = path.join(this.rootDirectory, "smallstack");
+                    this.meteorSmallstackDependenciesDirectory = path.join(this.meteorDirectory, "node_modules", "@smallstack");
+                    this.meteorSmallstackCoreClientDirectory = path.join(this.meteorSmallstackDependenciesDirectory, "core-client");
+                    this.meteorSmallstackCoreServerDirectory = path.join(this.meteorSmallstackDependenciesDirectory, "core-server");
+                    this.meteorSmallstackCoreCommonDirectory = path.join(this.meteorSmallstackDependenciesDirectory, "core-common");
+                    this.meteorSmallstackMeteorClientDirectory = path.join(this.meteorSmallstackDependenciesDirectory, "meteor-client");
+                    this.meteorSmallstackMeteorServerDirectory = path.join(this.meteorSmallstackDependenciesDirectory, "meteor-server");
+                    this.meteorSmallstackMeteorCommonDirectory = path.join(this.meteorSmallstackDependenciesDirectory, "meteor-common");
+                    this.meteorDatalayerPath = path.join(this.meteorSmallstackDependenciesDirectory, "datalayer");
+                    this.datalayerPath = path.join(this.rootDirectory, "datalayer");
+                    this.datalayerSmallstackCoreCommonDirectory = path.join(this.datalayerPath, "node_modules", "@smallstack/core-common");
+                    this.cliResourcesPath = path.join(this.smallstackDirectory, "resources");
+                    this.cliTemplatesPath = path.join(this.cliResourcesPath, "templates");
+                    this.datalayerTemplatesPath = path.join(this.cliTemplatesPath, "datalayer");
+
+                    if (this.projectHasNativescriptApp()) {
+                        this.nativescriptDirectory = path.join(this.rootDirectory, "nativescript-app");
+                        this.nativescriptSmallstackCoreClientDirectory = path.join(this.rootDirectory, "nativescript-app", "node_modules", "@smallstack/core-client");
+                        this.nativescriptSmallstackCoreCommonDirectory = path.join(this.rootDirectory, "nativescript-app", "node_modules", "@smallstack/core-common");
+                        this.nativescriptSmallstackNativescriptDirectory = path.join(this.rootDirectory, "nativescript-app", "node_modules", "@smallstack/nativescript");
+                        this.nativescriptDatalayerDirectory = path.join(this.rootDirectory, "nativescript-app", "node_modules", "@smallstack/datalayer");
+                    }
+                    if (this.projectHasFrontend()) {
+                        this.frontendDirectory = path.join(this.rootDirectory, "frontend");
+                        this.frontendSmallstackCoreClientDirectory = path.join(this.frontendDirectory, "node_modules", "@smallstack", "core-client");
+                        this.frontendSmallstackCoreCommonDirectory = path.join(this.frontendDirectory, "node_modules", "@smallstack", "core-common");
+                        this.frontendSmallstackFrontendDirectory = path.join(this.frontendDirectory, "node_modules", "@smallstack", "frontend");
+                        this.frontendSmallstackDatalayerDirectory = path.join(this.frontendDirectory, "node_modules", "@smallstack", "datalayer");
+                    }
+                }
+                if (this.isSmallstackEnvironment()) {
+                    this.cliResourcesPath = path.join(this.rootDirectory, "", "resources");
+                    this.cliTemplatesPath = path.join(this.cliResourcesPath, "templates");
+                    this.datalayerTemplatesPath = path.join(this.cliTemplatesPath, "datalayer");
+                }
+                if (this.isComponentEnvironment()) {
+                    this.smallstackDirectory = path.join(this.rootDirectory, "smallstack");
+                }
+            }
+
+            if (fs.existsSync(this.rootDirectory + "/package.json")) {
+                this.project = require(this.rootDirectory + "/package.json");
+                _.extend(this, require(this.rootDirectory + "/package.json"));
+                console.log("read in package.json")
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    /**
+     * Determines how a project can be found
+     */
+    public static projectFound(directory) {
+        try {
+            if (directory === undefined)
+                directory = this.getRootDirectory();
+            const meteorPackagesFilePath = path.join(directory, "meteor", ".meteor", "packages");
+            return fs.existsSync(meteorPackagesFilePath);
+        } catch (e) {
+            return false;
+        }
+    }
+
+
+    public static checkModule(modulePath, name) {
+        if (!fs.existsSync(modulePath))
+            return false;
+        const packageContent = require(modulePath);
+        return packageContent.name === name;
+    }
+
+
+
+    public static smallstackFound(directory) {
+        try {
+            // core common module available?
+            if (this.checkModule(path.join(directory, "modules", "core-common", "package.json"), "@smallstack/core-common"))
+                return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    public static smallstackModuleFound(directory) {
+        try {
+            if (this.checkModule(path.join(directory, "package.json"), "@smallstack/core-common"))
+                return true;
+            if (this.checkModule(path.join(directory, "package.json"), "@smallstack/core-client"))
+                return true;
+            if (this.checkModule(path.join(directory, "package.json"), "@smallstack/core-server"))
+                return true;
+            if (this.checkModule(path.join(directory, "package.json"), "@smallstack/meteor-common"))
+                return true;
+            if (this.checkModule(path.join(directory, "package.json"), "@smallstack/meteor-client"))
+                return true;
+            if (this.checkModule(path.join(directory, "package.json"), "@smallstack/meteor-server"))
+                return true;
+            if (this.checkModule(path.join(directory, "package.json"), "@smallstack/nativescript-client"))
+                return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    public static smallstackComponentFound(directory) {
+        if (!directory)
+            return false;
+        const packageJSONPath = path.join(directory, "package.json");
+        if (!fs.existsSync(packageJSONPath))
+            return false;
+        const packageContent = require(packageJSONPath);
+        try {
+            if (packageContent.smallstack.component.nativescript)
+                return true;
+            if (packageContent.smallstack.component.web)
+                return true;
+            if (packageContent.smallstack.component.server)
+                return true;
+        } catch (e) {
+            // shit happens
+        }
+        return false;
+    }
+
+    public static nativescriptAppFound(directory) {
+        if (!directory)
+            return false;
+        const packageJSONPath = path.join(directory, "package.json");
+        if (!fs.existsSync(packageJSONPath))
+            return false;
+        const packageContent = require(packageJSONPath);
+        return packageContent.nativescript !== undefined && packageContent.nativescript.id !== undefined;
+    }
+
+    public static npmPackageFound(directory) {
+        if (!directory)
+            return false;
+        if (fs.existsSync(path.join(directory, ".meteor")) || this.smallstackFound(directory))
+            return false;
+        const packageJSONPath = path.join(directory, "package.json");
+        if (!fs.existsSync(packageJSONPath))
+            return false;
+        const packageContent = require(packageJSONPath);
+        return packageContent.name !== undefined;
+    }
+
+    public static isSmallstackEnvironment() {
+        return this.smallstackFound(this.getRootDirectory());
+    }
+
+    public static isProjectEnvironment() {
+        return this.projectFound(this.getRootDirectory());
+    }
+
+    public static isComponentEnvironment() {
+        return this.smallstackComponentFound(this.getRootDirectory());
+    }
+
+    public static isNativescriptEnvironment() {
+        return this.nativescriptAppFound(this.getRootDirectory());
+    }
+
+    public static isNPMPackageEnvironment() {
+        return this.npmPackageFound(this.getRootDirectory());
+    }
+
+    public static calledWithCreateProjectCommand() {
+        return process.argv[2] === "create" && process.argv[2] !== undefined;
+    }
+
+
+    public static calledWithNonProjectCommand() {
+        return process.argv[2] === "compileNpmModule";
+    }
+
+    public static meteorProjectAvailable() {
+        return fs.existsSync(this.meteorDirectory);
+    }
+
+    public static smallstackDirectoryAvailable() {
+        return fs.existsSync(this.smallstackDirectory);
+    }
+
+    public static projectHasNativescriptApp() {
+        return fs.existsSync(path.join(this.getRootDirectory(), "nativescript-app"));
+    }
+
+    public static projectHasFrontend() {
+        return fs.existsSync(path.join(this.getRootDirectory(), "frontend"));
+    }
+
+
+    public static getRootDirectory() {
+
+        let root = path.resolve("./");
+        try {
+            for (let tryIt = 0; tryIt < 15; tryIt++) {
+                if (this.projectFound(root))
+                    return root;
+                if (this.smallstackFound(root))
+                    return root;
+                if (this.npmPackageFound(root))
+                    return root;
+                if (this.nativescriptAppFound(root))
+                    return root;
+                if (this.smallstackComponentFound(root))
+                    return root;
+
+                root = path.resolve(path.join(root, "../"));
+            }
+        } catch (e) {
+            throw new Error("No suitable environment found! The smallstack CLI only works inside smallstack projects, smallstack module folders or nativescript apps!");
+        }
+
+        // just a directory
+        return path.resolve("./");
+    }
+
+}
+
+Config.init();
