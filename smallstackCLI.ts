@@ -1,3 +1,4 @@
+import { CLICommandOption } from "./src/commands/CLICommand";
 import { cloud } from "./src/commands/cloud";
 import { CreateDockerImages } from "./src/commands/CreateDockerImages";
 import { Config } from "./src/Config";
@@ -61,7 +62,7 @@ export async function CLI() {
     const updateCheck = require("./src/functions/updateCheck");
     updateCheck.doCheck();
 
-    const parsedCommands = parseArguments(process.argv);
+    const parsedCommands: CLICommandOption[] = parseArguments(process.argv);
 
     // first check all commands
     let allCommandsFine = true;
