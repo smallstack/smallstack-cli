@@ -1,6 +1,7 @@
 import { cloud } from "./src/commands/cloud";
 import { CreateDockerImages } from "./src/commands/CreateDockerImages";
 import { Config } from "./src/Config";
+import { parseArguments } from "./src/functions/parseArguments";
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
 
 export async function CLI() {
@@ -14,7 +15,6 @@ export async function CLI() {
     const _ = require("underscore");
     const colors = require("colors");
     const moment = require("moment");
-    const parseArguments = require("./src/functions/parseArguments");
 
     // commands
     const commands: any = {};

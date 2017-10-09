@@ -92,7 +92,6 @@ export class Config {
             if (fs.existsSync(this.rootDirectory + "/package.json")) {
                 this.project = require(this.rootDirectory + "/package.json");
                 _.extend(this, require(this.rootDirectory + "/package.json"));
-                console.log("read in package.json")
             }
         } catch (e) {
             console.error(e);

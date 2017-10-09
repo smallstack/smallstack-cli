@@ -16,8 +16,6 @@ export class CreateDockerImages implements CLICommand {
     }
 
     public execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any> {
-        console.log("current", current);
-        console.log("allCommands", allCommands);
         if (current.parameters.dockerRegistry === undefined)
             current.parameters.dockerRegistry = "registry.gitlab.com";
 

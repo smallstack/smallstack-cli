@@ -1,10 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const _ = require("underscore");
-function parseArguments(args) {
+import * as _ from "underscore";
+
+export function parseArguments(args) {
     if (!(args instanceof Array))
         throw new Error("No Arguments given!");
+
     args.splice(0, 2);
+
     const commands = [];
     _.each(args, (arg) => {
         if (arg.indexOf("--") === 0) {
@@ -21,13 +22,11 @@ function parseArguments(args) {
                     value = value.replace(/'/g, "\"");
                     value = JSON.parse(value);
                 }
-            }
-            catch (e) {
+            } catch (e) {
                 // shit happens
-            }
+             }
             commands[(commands.length - 1)].parameters[key] = value;
-        }
-        else if (arg.indexOf("-") === 0) {
+        } else if (arg.indexOf("-") === 0) {
             throw new Error("please use -- as parameter indicator!");
         }
         else {
@@ -35,6 +34,6 @@ function parseArguments(args) {
             commands.push(command);
         }
     });
+
     return commands;
 }
-exports.parseArguments = parseArguments;
