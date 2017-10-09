@@ -14,7 +14,7 @@ export function parseArguments(args: string[]): CLICommandOption[] {
                 throw new Error("parameter given before first command!");
             const parameterSplit = arg.substring(2).split("=");
             const key = parameterSplit[0];
-            let value = parameterSplit[1];
+            let value: any = parameterSplit[1];
             if (value === undefined)
                 value = true;
             try {
