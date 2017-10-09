@@ -10,3 +10,4 @@ src/commands/CLICommand.js
 index.js
 src/config.js
 src/commands/ICommand.js
+src/functions/parseArguments.js
