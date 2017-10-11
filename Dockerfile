@@ -1,5 +1,7 @@
 FROM kristophjunge/nativescript
 
+USER root
+
 # install docker cli
 RUN apt-get --yes --force-yes update
 RUN apt-get --yes --force-yes install apt-transport-https ca-certificates curl gnupg2 software-properties-common
@@ -21,3 +23,5 @@ WORKDIR /home
 
 # install meteor
 RUN curl -sL https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh
+
+USER nativescript
