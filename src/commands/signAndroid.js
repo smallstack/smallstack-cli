@@ -1,6 +1,6 @@
 module.exports = function (parameters) {
 
-    var config = require('../config').Config;
+    var config = require('../Config').Config;
     var path = require("path");
     var _ = require("underscore");
     var fs = require("fs-extra");

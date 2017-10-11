@@ -1,9 +1,9 @@
-import * as requestPromise from "request-promise";
-import * as request from "request";
 import * as qs from "querystring";
-import { stringifyParametersWithoutPasswords } from "../functions/stringifyParametersWithoutPasswords";
-import { findIndex } from "underscore";
+import * as request from "request";
+import * as requestPromise from "request-promise";
 import { clearInterval, clearTimeout, setInterval, setTimeout } from "timers";
+import { findIndex } from "underscore";
+import { stringifyParametersWithoutPasswords } from "../functions/stringifyParametersWithoutPasswords";
 
 export interface IDockerCloudExternalRepository {
     in_use: boolean;

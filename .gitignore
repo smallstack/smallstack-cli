@@ -8,7 +8,7 @@ src/commands/createDockerImages.js
 src/functions/createMeteorVersionFile.js
 src/commands/CLICommand.js
 index.js
-src/config.js
+src/Config.js
 src/commands/ICommand.js
 src/functions/parseArguments.js
 src/commands/help.js
