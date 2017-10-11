@@ -1,4 +1,4 @@
-FROM node:6.11.3
+FROM kristophjunge/nativescript
 
 # install docker cli
 RUN apt-get --yes --force-yes update
@@ -18,19 +18,6 @@ WORKDIR /home/cli
 ADD . .
 RUN npm install -g
 WORKDIR /home
-
-# install android
-RUN add-apt-repository "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" -y
-RUN apt-get update
-RUN apt-get --yes --force-yes install oracle-java8-installer oracle-java8-set-default lib32stdc++6 lib32z1 wget
-RUN wget http://dl.google.com/android/android-sdk_r24.2-linux.tgz
-RUN tar -xvf android-sdk_r24.2-linux.tgz
-RUN /home/android-sdk-linux/tools/android update sdk --no-ui
-ENV PATH="/home/android-sdk-linux/tools:/home/android-sdk-linux/platform-tools:${PATH}"
-ENV ANDROID_HOME=/home/android-sdk-linux
-
-# install nativescript
-RUN npm install -g nativescript
 
 # install meteor
 RUN curl -sL https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh
