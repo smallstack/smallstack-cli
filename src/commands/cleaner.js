@@ -2,7 +2,7 @@ var fs = require("fs-extra");
 var _ = require("underscore");
 var glob = require("glob");
 var path = require("path");
-var config = require("../config").Config;
+var config = require("../Config").Config;
 var notifier = require("../functions/notifier");
 var exec = require("../functions/exec");
 

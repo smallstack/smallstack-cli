@@ -108,7 +108,7 @@ export async function CLI() {
                 else
                     console.error(colors.red("ERROR:", e));
                 console.error(colors.red("Failure was executed in " + getDurationString()));
-                if (command.parameters.debug)
+                if (e.stack)
                     console.error(colors.red(e.stack));
                 updateCheck.showResult();
                 if (command.parameters.failOnError === false) {

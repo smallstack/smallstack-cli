@@ -1,6 +1,6 @@
 var fs = require("fs-extra");
 var path = require("path");
-var config = require("../config").Config;
+var config = require("../Config").Config;
 
 module.exports = function () {
 
