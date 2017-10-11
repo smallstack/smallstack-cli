@@ -20,7 +20,7 @@ RUN npm install -g
 WORKDIR /home
 
 # install android
-RUN add-apt-repository ppa:webupd8team/java -y
+RUN add-apt-repository "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" -y
 RUN apt-get update
 RUN apt-get --yes --force-yes install oracle-java8-installer oracle-java8-set-default lib32stdc++6 lib32z1 wget
 RUN wget http://dl.google.com/android/android-sdk_r24.2-linux.tgz
