@@ -41,7 +41,7 @@ module.exports = {
             envName: deployment.name,
             rootUrl: deployment.url,
             databaseName: deployment.database.name,
-            projectName: config.name
+            projectName: config.project.name
         }));
         console.log("\n##############################################################################\n");
 
@@ -60,10 +60,10 @@ module.exports = {
         var standardDeployment = {
             "dev": {
                 "type": "rootserver",
-                "url": "http://" + config.name + ".dev.projects.smallstack.io",
-                "rootServerPath": "/var/www/apps/" + config.name + "/dev",
+                "url": "http://" + config.project.name + ".dev.projects.smallstack.io",
+                "rootServerPath": "/var/www/apps/" + config.project.name + "/dev",
                 "repository": {
-                    "url": "https://bitbucket.org/smallstack/project-" + config.name + ".git",
+                    "url": "https://bitbucket.org/smallstack/project-" + config.project.name + ".git",
                     "branch": "develop"
                 },
                 "smallstack": {
@@ -73,10 +73,10 @@ module.exports = {
             },
             "prod": {
                 "type": "rootserver",
-                "url": "http://" + config.name + ".prod.projects.smallstack.io",
-                "rootServerPath": "/var/www/apps/" + config.name + "/prod",
+                "url": "http://" + config.project.name + ".prod.projects.smallstack.io",
+                "rootServerPath": "/var/www/apps/" + config.project.name + "/prod",
                 "repository": {
-                    "url": "https://bitbucket.org/smallstack/project-" + config.name + ".git",
+                    "url": "https://bitbucket.org/smallstack/project-" + config.project.name + ".git",
                     "branch": "master"
                 },
                 "smallstack": {
@@ -96,7 +96,7 @@ module.exports = {
         if (fs.existsSync(mobileTemplate)) {
             templating.compileFileToFile(mobileTemplate, path.join(config.meteorDirectory, "mobile-config.js"), {
                 deployment: deployment,
-                projectName: config.name,
+                projectName: config.project.name,
                 f: genFunctions
             });
         }

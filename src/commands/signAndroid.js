@@ -14,8 +14,8 @@ module.exports = function (parameters) {
         throw new Error("Please set ANDROID_HOME environment variable!");
     var buildToolVersion = "23.0.3";
     var buildToolsDirectory = path.join(sdkDir, "build-tools", buildToolVersion);
-    var keystoreAlias = config.name;
-    var keystorePassword = parameters.keystorePassword || config.name + "654321!";
+    var keystoreAlias = config.project.name;
+    var keystorePassword = parameters.keystorePassword || config.project.name + "654321!";
     if (!parameters.keystoreFilePath)
         console.warn("Warning: No --keystoreFilePath given, using default : deployment/android/dev.keystore");
     var keystoreFilePath = parameters.keystoreFilePath || "deployment/android/dev.keystore";

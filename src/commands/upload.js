@@ -12,7 +12,7 @@ module.exports = function (parameters, done) {
     var fileEnding = ".tar.gz";
     var defaultBucketName = "smallstack-bundles";
     var localFile;
-    var remotePath = "smallstack/" + config.name + "/";
+    var remotePath = "smallstack/" + config.project.name + "/";
 
     if (config.isSmallstackEnvironment()) {
         remotePath = "";

@@ -24,7 +24,7 @@ module.exports = function () {
     content += "\tsmallstack: \"" + version + "\",\n";
     content += "\tproject: \"" + config.version + "\",\n";
     content += "\tcompileDate: " + new Date().getTime() + ",\n";
-    content += "\tprojectName: \"" + config.name + "\"\n";
+    content += "\tprojectName: \"" + config.project.name + "\"\n";
     content += "}\n";
 
     fs.ensureDirSync(config.datalayerPath);
