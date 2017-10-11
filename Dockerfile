@@ -20,7 +20,9 @@ RUN npm install -g
 WORKDIR /home
 
 # install android
-RUN apt-get --yes --force-yes install openjdk-8-jdk lib32stdc++6 lib32z1 wget
+RUN add-apt-repository ppa:webupd8team/java -y
+RUN apt-get update
+RUN apt-get --yes --force-yes install oracle-java8-installer oracle-java8-set-default lib32stdc++6 lib32z1 wget
 RUN wget http://dl.google.com/android/android-sdk_r24.2-linux.tgz
 RUN tar -xvf android-sdk_r24.2-linux.tgz
 RUN /home/android-sdk-linux/tools/android update sdk --no-ui
