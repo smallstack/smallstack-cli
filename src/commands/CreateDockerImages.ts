@@ -3,19 +3,22 @@ import { copySync } from "fs-extra";
 import * as path from "path";
 import { Config } from "../Config";
 const exec = require("../functions/exec");
-import { CLICommand, CLICommandOption } from "./CLICommand";
+import { CLICommandOption } from "./CLICommand";
 
-export class CreateDockerImages implements CLICommand {
+export class CreateDockerImages {
 
-    public getHelpSummary(): string {
+    public static getHelpSummary(): string {
         return "Creates docker images for frontend and meteor apps (if available).";
     }
 
-    public getParameters(): { [parameterKey: string]: string } {
-        return {};
+    public static getParameters(): { [parameterKey: string]: string } {
+        return {
+            frontendOnly: "set to true if you only want to create a docker image for the frontend",
+            meteorOnly: "set to true if you only want to create a docker image for the meteor backend",
+        };
     }
 
-    public execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any> {
+    public static execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any> {
         if (current.parameters.dockerRegistry === undefined)
             current.parameters.dockerRegistry = "registry.gitlab.com";
 
@@ -31,7 +34,7 @@ export class CreateDockerImages implements CLICommand {
         }
     }
 
-    private createMeteorImage(parameters): Promise<any> {
+    private static createMeteorImage(parameters): Promise<any> {
         return new Promise<boolean>((resolve, reject) => {
 
             if (parameters.meteorImageName === undefined)
@@ -52,7 +55,7 @@ export class CreateDockerImages implements CLICommand {
         });
     }
 
-    private createFrontendImage(parameters): Promise<any> {
+    private static createFrontendImage(parameters): Promise<any> {
         if (Config.frontendDirectory === undefined) {
             // tslint:disable-next-line:no-console
             console.log("No frontend directory found, skipping frontend docker image creation!");

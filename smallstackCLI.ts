@@ -1,6 +1,9 @@
+import { CLICommandStatic } from "./index";
+import { BundleCommand } from "./src/commands/bundle";
 import { CLICommandOption } from "./src/commands/CLICommand";
 import { cloud } from "./src/commands/cloud";
 import { CreateDockerImages } from "./src/commands/CreateDockerImages";
+import { HelpCommand } from "./src/commands/help";
 import { Config } from "./src/Config";
 import { parseArguments } from "./src/functions/parseArguments";
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
@@ -18,15 +21,14 @@ export async function CLI() {
     const moment = require("moment");
 
     // commands
-    const commands: any = {};
-    commands.help = require("./src/commands/help");
+    const commands: { [name: string]: CLICommandStatic } = {};
     commands.generate = require("./src/commands/generate");
     commands.create = require("./src/commands/create");
     commands.showConfig = require("./src/commands/showConfig");
     commands.setup = require("./src/commands/setup");
     commands.clean = require("./src/commands/cleaner");
     commands.test = require("./src/commands/test");
-    commands.bundle = require("./src/commands/bundle").bundle;
+    commands.bundle = BundleCommand;
     commands.deploy = require("./src/commands/deploy");
     commands.compileNpmModule = require("./src/commands/compileNpmModule");
     commands.gitflow = require("./src/commands/gitflow");
@@ -37,7 +39,7 @@ export async function CLI() {
     commands.syncproject = require("./src/commands/syncproject");
     commands.modifyproductionpackagejson = require("./src/commands/modifyProductionPackageJson");
     commands.createDockerImages = CreateDockerImages;
-    commands.cloud = cloud;
+    commands.cloud = cloud as any;
 
     // show a nice logo
     logo();
@@ -67,7 +69,7 @@ export async function CLI() {
     // first check all commands
     let allCommandsFine = true;
     _.each(parsedCommands, (command) => {
-        if (commands[command.name] === undefined) {
+        if (commands[command.name] === undefined && command.name !== "help") {
             console.error("Command not found : '" + command.name + "'");
             allCommandsFine = false;
         }
@@ -78,8 +80,8 @@ export async function CLI() {
     }
 
     // then execute
-    if (parsedCommands.length === 0 || !allCommandsFine) {
-        commands.help();
+    if (parsedCommands.length === 0 || !allCommandsFine || parsedCommands[0].name === "help") {
+        new HelpCommand().showHelp(commands);
         updateCheck.showResult();
     } else if (allCommandsFine) {
         for (const command of parsedCommands) {
@@ -91,11 +93,11 @@ export async function CLI() {
             }
             console.log(colors.gray("################################################################################\n"));
             try {
-                if (typeof commands[command.name].prototype.execute === "function") {
-                    await new commands[command.name]().execute(command, parsedCommands);
+                if (typeof commands[command.name].execute === "function") {
+                    await commands[command.name].execute(command, parsedCommands);
                 }
                 else if (typeof commands[command.name] === "function")
-                    await commands[command.name](command.parameters, () => {
+                    await (commands[command.name] as any)(command.parameters, () => {
                         console.error("done callback is deprecated, please use async/await!");
                     });
                 else

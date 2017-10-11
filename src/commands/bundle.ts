@@ -2,6 +2,7 @@
 
 import { Config } from "../Config";
 import { createMeteorVersionFile } from "../functions/createMeteorVersionFile";
+import { CLICommandOption } from "./CLICommand";
 const path = require("path");
 const _ = require("underscore");
 const fs = require("fs-extra");
@@ -9,26 +10,40 @@ const exec = require("../functions/exec");
 const archiver = require("archiver");
 const modifyProductionPackageJson = require("../functions/modifyProductionPackageJson");
 
-export function bundle(parameters): Promise<any> {
-    if (parameters.skipBundle) {
-        console.log("Skipping building bundle...");
-        return Promise.resolve();
+export class BundleCommand {
+
+    public static getParameters(): { [parameterKey: string]: string } {
+        return {
+            skipBundle: "can be used to skip the whole process (e.g. in a CI environment)"
+        };
     }
 
-    if (Config.isProjectEnvironment()) {
-        createMeteorVersionFile();
-        if (parameters.frontendOnly)
-            return bundleFrontendProject();
-        if (parameters.meteorOnly)
-            return bundleMeteorProject();
-        return Promise.all([bundleMeteorProject(), bundleFrontendProject()]);
+    public static getHelpSummary(): string {
+        return "creates a meteor bundle";
     }
 
-    if (Config.isSmallstackEnvironment()) {
-        return bundleSmallstack();
+    public static execute(currentCLICommandOption: CLICommandOption, allCommands: CLICommandOption[]): Promise<any> {
+        if (currentCLICommandOption.parameters.skipBundle) {
+            console.log("Skipping building bundle...");
+            return Promise.resolve(true);
+        }
+
+        if (Config.isProjectEnvironment()) {
+            createMeteorVersionFile();
+            if (currentCLICommandOption.parameters.frontendOnly)
+                return bundleFrontendProject();
+            if (currentCLICommandOption.parameters.meteorOnly)
+                return bundleMeteorProject();
+            return Promise.all([bundleMeteorProject(), bundleFrontendProject()]);
+        }
+
+        if (Config.isSmallstackEnvironment()) {
+            return bundleSmallstack();
+        }
+
+        throw new Error("Bundling only works for smallstack projects and for smallstack modules!");
     }
 
-    throw new Error("Bundling only works for smallstack projects and for smallstack modules!");
 }
 
 function bundleMeteorProject(): Promise<void> {

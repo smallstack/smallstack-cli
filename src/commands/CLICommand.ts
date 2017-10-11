@@ -5,7 +5,7 @@ export interface CLICommandOption {
 }
 
 
-export interface CLICommand {
+export interface CLICommandStatic {
 
     /**
      * Prints the parameters
