@@ -24,14 +24,14 @@ node7test:
 #   - smallstack help
    
    
-# osxtest:
-#   stage: test
-#   tags: 
-#    - osx
-#   image: node:8.4.0
-#   script:
-#    - npm install -g
-#    - smallstack help
+osxtest:
+  stage: test
+  tags: 
+   - osx
+  image: node:6.11.3
+  script:
+   - npm install -g
+   - smallstack help
    
    
 npm_publish:
