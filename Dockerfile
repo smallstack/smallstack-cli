@@ -23,8 +23,7 @@ WORKDIR /home
 RUN apt-get --yes --force-yes install openjdk-7-jdk lib32stdc++6 lib32z1 wget
 RUN wget http://dl.google.com/android/android-sdk_r24.2-linux.tgz
 RUN tar -xvf android-sdk_r24.2-linux.tgz
-RUN cd android-sdk-linux/tools
-RUN ./android update sdk --no-ui
+RUN /home/android-sdk-linux/tools/android update sdk --no-ui
 ENV PATH="/home/android-sdk-linux/tools:/home/android-sdk-linux/platform-tools:${PATH}"
 ENV ANDROID_HOME=/home/android-sdk-linux
 
