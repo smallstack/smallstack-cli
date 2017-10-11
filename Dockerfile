@@ -23,5 +23,3 @@ WORKDIR /home
 
 # install meteor
 RUN curl -sL https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh
-
-USER nativescript
