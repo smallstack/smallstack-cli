@@ -29,3 +29,6 @@ ENV ANDROID_HOME=/home/android-sdk-linux
 
 # install nativescript
 RUN npm install -g nativescript
+
+# install meteor
+RUN curl -sL https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh
