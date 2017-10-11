@@ -1,4 +1,4 @@
-FROM smallstack/docker-nativescript
+FROM niccolomeloni/docker-nativescript-cli
 
 USER root
 
