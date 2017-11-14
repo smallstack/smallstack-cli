@@ -7,6 +7,7 @@ import { HelpCommand } from "./src/commands/help";
 import { Config } from "./src/Config";
 import { parseArguments } from "./src/functions/parseArguments";
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
+import { SyncProject } from "./src/commands/syncproject";
 
 export async function CLI() {
     const startDate: Date = new Date();
@@ -35,7 +36,7 @@ export async function CLI() {
     commands.upload = require("./src/commands/upload");
     commands.convert = require("./src/commands/convert");
     commands.watch = require("./src/commands/watch");
-    commands.syncproject = require("./src/commands/syncproject");
+    commands.syncproject = SyncProject;
     commands.modifyproductionpackagejson = require("./src/commands/modifyProductionPackageJson");
     commands.createDockerImages = CreateDockerImages;
     commands.cloud = cloud as any;

@@ -12,3 +12,4 @@ src/Config.js
 src/commands/ICommand.js
 src/functions/parseArguments.js
 src/commands/help.js
+src/commands/SyncProject.js
