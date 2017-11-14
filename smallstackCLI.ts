@@ -23,7 +23,6 @@ export async function CLI() {
     // commands
     const commands: { [name: string]: CLICommandStatic } = {};
     commands.generate = require("./src/commands/generate");
-    commands.create = require("./src/commands/create");
     commands.showConfig = require("./src/commands/showConfig");
     commands.setup = require("./src/commands/setup");
     commands.clean = require("./src/commands/cleaner");
