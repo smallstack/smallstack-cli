@@ -7,7 +7,7 @@ import { HelpCommand } from "./src/commands/help";
 import { Config } from "./src/Config";
 import { parseArguments } from "./src/functions/parseArguments";
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
-import { SyncProject } from "./src/commands/syncproject";
+import { SyncProject } from "./src/commands/SyncProject";
 
 export async function CLI() {
     const startDate: Date = new Date();
