@@ -11,7 +11,6 @@ var DecompressZip = require("decompress-zip");
 var SmallstackApi = require("../functions/smallstackApi");
 var semver = require("semver");
 var sortPackageJson = require("sort-package-json");
-var syncProjectFiles = require("./syncproject");
 var AWS = require('aws-sdk');
 
 module.exports = function (params, done) {
@@ -440,8 +439,6 @@ function persistLocalConfiguration(smallstackPath, addDistBundlePath, linkResour
     if (config.projectHasFrontend()) {
         createSymlink(absoluteDatalayerPath, config.frontendSmallstackDatalayerDirectory);
     }
-
-    syncProjectFiles();
 }
 
 function downloadAndExtractVersion(parameters, version, destination, doneCallback) {
