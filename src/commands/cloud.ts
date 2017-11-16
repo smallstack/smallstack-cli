@@ -1,6 +1,7 @@
 import * as moment from "moment";
 import * as _ from "underscore";
 import { DockerCloudService, IDockerCloudService } from "../services/DockerCloudService";
+import * as request from "request-promise";
 
 export async function cloud(parameters) {
 
@@ -156,6 +157,23 @@ export async function cloud(parameters) {
         const durationString: string = moment((new Date().getTime() - waitStart.getTime())).format('mm:ss.SSS');
         console.log("Service is now in state " + parameters.state + " after waiting for " + durationString);
 
+        return;
+    }
+
+    if (parameters.httpReachableTest) {
+        if (parameters.url === undefined)
+            throw new Error("Please provide a url via --url parameter!");
+        const waitStart: Date = new Date();
+        console.log(`Testing url ${parameters.url} to return "HTTP 200 OK"...`);
+        const options = {
+            method: 'GET',
+            uri: parameters.url,
+            resolveWithFullResponse: true
+        };
+        const response: any = await request(options);
+        if (response.statusCode !== 200)
+            throw new Error(`GET ${parameters.url} returned status code ${response.statusCode}!`);
+        console.log(`GET ${parameters.url} returned status code ${response.statusCode}!`);
         return;
     }
 }
