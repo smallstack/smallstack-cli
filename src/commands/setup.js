@@ -4,7 +4,7 @@ var inquirer = require("inquirer");
 var fs = require("fs-extra");
 var config = require("../Config").Config;
 var colors = require("colors");
-var exec = require("../functions/exec");
+var execNPM = require("../functions/execNPM");
 var path = require("path");
 var request = require("request");
 var DecompressZip = require("decompress-zip");
@@ -227,25 +227,25 @@ function npmInstallModules(rootPath, alsoDevPackages) {
     if (alsoDevPackages !== true)
         npmCommand += " --production";
 
-    exec(npmCommand, {
+    execNPM(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "core-common")
     });
-    exec(npmCommand, {
+    execNPM(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "core-client")
     });
-    exec(npmCommand, {
+    execNPM(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "core-server")
     });
-    exec(npmCommand, {
+    execNPM(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "meteor-common")
     });
-    exec(npmCommand, {
+    execNPM(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "meteor-client")
     });
-    exec(npmCommand, {
+    execNPM(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "meteor-server")
     });
-    exec(npmCommand, {
+    execNPM(npmCommand, {
         cwd: path.resolve(rootPath, "modules", "nativescript")
     });
 }
@@ -324,7 +324,7 @@ function copyMeteorDependencies(params, modulesPath, createModuleRootPackageJson
     fs.writeJSONSync(meteorPackageJsonPath, content);
 
     if (!params || params.offline !== true) {
-        exec("meteor npm install", {
+        execNPM("npm install", {
             cwd: config.meteorDirectory
         });
     }
@@ -352,7 +352,7 @@ function copyMeteorDependencies(params, modulesPath, createModuleRootPackageJson
         fs.writeJSONSync(path.join(modulesPath, "package.json"), modulesDependencies);
 
         if (!params || params.offline !== true) {
-            exec("npm install", {
+            execNPM("npm install", {
                 cwd: modulesPath
             });
         }
