@@ -268,6 +268,42 @@ export class DockerCloudService {
         });
     }
 
+    public async waitForURL(url: string): Promise<any> {
+        if (url === undefined)
+            throw new Error("No url given to wait for!");
+        return new Promise<any>(async (resolve, reject) => {
+            const timeout: number = 5 * 60 * 1000;
+            const checkEvery: number = 5000;
+            let timeoutHandler: NodeJS.Timer;
+            let intervalHandler: NodeJS.Timer;
+
+
+            console.log(`Testing url ${url} to return "HTTP 200 OK"...`);
+            let httpStatusCode: number = await this.getHTTPStatusCode(url);
+            console.log(`   --> got ${httpStatusCode}`);
+            if (httpStatusCode === 200)
+                resolve();
+            else {
+                intervalHandler = setInterval(async () => {
+                    httpStatusCode = await this.getHTTPStatusCode(url);
+                    console.log(`   --> got ${httpStatusCode}`);
+                    if (httpStatusCode === 200) {
+                        clearInterval(intervalHandler);
+                        if (timeoutHandler)
+                            clearTimeout(timeoutHandler);
+                        resolve();
+                    }
+                }, checkEvery);
+
+                timeoutHandler = setTimeout(() => {
+                    if (intervalHandler)
+                        clearInterval(intervalHandler);
+                    reject(new Error("ran into timeout of " + timeout + "ms!"));
+                }, timeout);
+            }
+        });
+    }
+
     public getDockerCloudBasicAuth() {
         var username: string = process.env.DOCKERCLOUD_USER;
         if (username === undefined)
@@ -353,6 +389,25 @@ export class DockerCloudService {
                 }
                 resolve(allServicesInCorrectState);
             });
+        });
+    }
+
+    private getHTTPStatusCode(url: string): Promise<number> {
+        return new Promise<number>(async (resolve, reject) => {
+            const options = {
+                method: 'GET',
+                uri: url,
+                resolveWithFullResponse: true
+            };
+            try {
+                const response: any = await requestPromise(options);
+                resolve(response.statusCode);
+            } catch (e) {
+                if (e.statusCode)
+                    resolve(e.statusCode);
+                else
+                    reject(e);
+            }
         });
     }
 }

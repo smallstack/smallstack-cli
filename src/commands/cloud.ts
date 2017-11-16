@@ -161,19 +161,7 @@ export async function cloud(parameters) {
     }
 
     if (parameters.httpReachableTest) {
-        if (parameters.url === undefined)
-            throw new Error("Please provide a url via --url parameter!");
-        const waitStart: Date = new Date();
-        console.log(`Testing url ${parameters.url} to return "HTTP 200 OK"...`);
-        const options = {
-            method: 'GET',
-            uri: parameters.url,
-            resolveWithFullResponse: true
-        };
-        const response: any = await request(options);
-        if (response.statusCode !== 200)
-            throw new Error(`GET ${parameters.url} returned status code ${response.statusCode}!`);
-        console.log(`GET ${parameters.url} returned status code ${response.statusCode}!`);
+        await dockerCloudService.waitForURL(parameters.url);
         return;
     }
 }
