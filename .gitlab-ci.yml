@@ -24,14 +24,14 @@ node7test:
 #   - smallstack help
    
    
-osxtest:
-  stage: test
-  tags: 
-   - osx
-   - shell
-  script:
-   - npm install -g
-   - smallstack help
+# osxtest:
+#   stage: test
+#   tags: 
+#    - osx
+#    - shell
+#   script:
+#    - npm install -g
+#    - smallstack help
    
    
 npm_publish:
