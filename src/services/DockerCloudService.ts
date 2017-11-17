@@ -110,7 +110,7 @@ export interface IDockerCloudPageable<T> {
         offset: number;
         previous: string;
         total_count: number;
-    },
+    };
     objects: T;
 }
 
@@ -219,7 +219,7 @@ export class DockerCloudService {
         const linkedToServices: IDockerCloudLink[] = sourceService.linked_to_service;
 
         // new link
-        let linkedService: any = { "to_service": "/api/app/v1/service/" + toUUID + "/" };
+        const linkedService: any = { to_service: "/api/app/v1/service/" + toUUID + "/" };
         if (linkName !== undefined)
             linkedService.name = linkName;
         linkedToServices.push(linkedService);
@@ -305,10 +305,10 @@ export class DockerCloudService {
     }
 
     public getDockerCloudBasicAuth() {
-        var username: string = process.env.DOCKERCLOUD_USER;
+        const username: string = process.env.DOCKERCLOUD_USER;
         if (username === undefined)
             throw new Error("Please set 'DOCKERCLOUD_USER' as environment variable!");
-        var apiKey: string = process.env.DOCKERCLOUD_APIKEY;
+        const apiKey: string = process.env.DOCKERCLOUD_APIKEY;
         if (apiKey === undefined)
             throw new Error("Please set 'DOCKERCLOUD_APIKEY' as environment variable!");
         return "Basic " + new Buffer(username + ":" + apiKey).toString("base64");
@@ -350,7 +350,7 @@ export class DockerCloudService {
             method,
             url,
             headers: {
-                "Authorization": this.getDockerCloudBasicAuth()
+                Authorization: this.getDockerCloudBasicAuth()
             },
             json: true,
             body
@@ -395,7 +395,7 @@ export class DockerCloudService {
     private getHTTPStatusCode(url: string): Promise<number> {
         return new Promise<number>(async (resolve, reject) => {
             const options = {
-                method: 'GET',
+                method: "GET",
                 uri: url,
                 resolveWithFullResponse: true
             };
