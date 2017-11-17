@@ -1,7 +1,7 @@
 import * as moment from "moment";
+import * as request from "request-promise";
 import * as _ from "underscore";
 import { DockerCloudService, IDockerCloudService } from "../services/DockerCloudService";
-import * as request from "request-promise";
 
 export async function cloud(parameters) {
 
@@ -42,11 +42,15 @@ export async function cloud(parameters) {
     if (parameters.startService) {
         try {
             currentService = await dockerCloudService.getService(_.extend(_.omit(parameters, "startService"), { state: "Not running" }));
-        } catch (e) { }
+        } catch (e) {
+            // can happen
+        }
         if (!currentService) {
             try {
                 currentService = await (dockerCloudService.getService(_.extend(_.omit(parameters, "startService"), { state: "Stopped" })));
-            } catch (e) { }
+            } catch (e) {
+                // can happen
+            }
         }
         if (!currentService)
             throw new Error("Couldn't find a non running or stopped service for the provided parameters!");
@@ -110,7 +114,7 @@ export async function cloud(parameters) {
         console.log("Getting UUID for toService...");
         const toUUIDs = await (dockerCloudService.getServices({ name: parameters.to }));
         let toService: IDockerCloudService;
-        for (let to of toUUIDs.objects) {
+        for (const to of toUUIDs.objects) {
             if (to.state !== "Terminated" && to.state !== "Terminating") {
                 toService = to;
                 break;
@@ -148,11 +152,14 @@ export async function cloud(parameters) {
         const waitStart: Date = new Date();
         console.log("Waiting for service to get into state '" + parameters.state + "'!");
         await dockerCloudService.waitForState(parameters);
-        const durationString: string = moment((new Date().getTime() - waitStart.getTime())).format('mm:ss.SSS');
+        const durationString: string = moment((new Date().getTime() - waitStart.getTime())).format("mm:ss.SSS");
         console.log("Service is now in state " + parameters.state + " after waiting for " + durationString);
     }
 
     if (parameters.httpReachableTest) {
-        await dockerCloudService.waitForURL(parameters.url);
+        if (parameters.url === undefined && currentService !== undefined)
+            await dockerCloudService.waitForURL("http://" + currentService.public_dns);
+        else
+            await dockerCloudService.waitForURL(parameters.url);
     }
 }
