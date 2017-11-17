@@ -1,7 +1,7 @@
 import * as moment from "moment";
 import * as request from "request-promise";
 import * as _ from "underscore";
-import { DockerCloudService, IDockerCloudService } from "../services/DockerCloudService";
+import { DockerCloudService, IDockerCloudService, IDockerCloudContainer, IDockerCloudPageable } from "../services/DockerCloudService";
 
 export async function cloud(parameters) {
 
@@ -157,8 +157,15 @@ export async function cloud(parameters) {
     }
 
     if (parameters.httpReachableTest) {
-        if (parameters.url === undefined && currentService !== undefined)
-            await dockerCloudService.waitForURL("http://" + currentService.public_dns);
+        if (parameters.url === undefined && currentService !== undefined) {
+            // refreshing current service to get updated public dns
+            const containers: IDockerCloudPageable<IDockerCloudContainer[]> = await dockerCloudService.getContainers({ service: currentService.resource_uri });
+            if (containers.meta.total_count === 0)
+                throw new Error("No containers found for current service!");
+            // pick first container
+            const container: IDockerCloudContainer = containers.objects[0];
+            await dockerCloudService.waitForURL(container.container_ports[0].endpoint_uri);
+        }
         else
             await dockerCloudService.waitForURL(parameters.url);
     }

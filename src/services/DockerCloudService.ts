@@ -47,6 +47,16 @@ export interface IDockerCloudService extends IDockerCloudContainer {
     target_num_containers: number;
 }
 
+export interface IDockerCloudContainerPorts {
+    endpoint_uri: string;
+    inner_port: number;
+    outer_port: number;
+    port_name: string;
+    protocol: string;
+    published: boolean;
+    uri_protocol: string;
+}
+
 /**
  * If you get a service directly via UUID, you'll get an expand document back. this interface might not be complete yet!
  */
@@ -55,14 +65,7 @@ export interface IDockerCloudServiceDetail extends IDockerCloudService {
     bindings: any[];
     host_path: any[];
     container_envvars: Array<{ key: string, value: string }>;
-    container_ports: Array<{
-        endpoint_uri: string;
-        inner_port: number;
-        outer_port: number;
-        port_name: string;
-        protocol: string;
-        published: boolean;
-    }>;
+    container_ports: IDockerCloudContainerPorts[];
     containers: string[];
     dns: any[];
     linked_from_service: IDockerCloudLink[];
@@ -72,7 +75,7 @@ export interface IDockerCloudServiceDetail extends IDockerCloudService {
 export interface IDockerCloudContainer {
     autodestroy: string;
     autorestart: string;
-    container_ports: any;
+    container_ports: IDockerCloudContainerPorts[];
     cpu_shares: any;
     deployed_datetime: string;
     destroyed_datetime: string;
@@ -406,7 +409,7 @@ export class DockerCloudService {
                 if (e.statusCode)
                     resolve(e.statusCode);
                 else
-                    reject(e);
+                    resolve(501);
             }
         });
     }
