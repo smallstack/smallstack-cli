@@ -127,16 +127,6 @@ var toVersion = async(function toVersion(toVersion) {
                 replaceVersionInPackageJson(frontendPJP, toVersion);
             }
 
-            // datalayer
-            var datalayerPJP = path.resolve(config.datalayerPath, "package.json");
-            if (!fs.existsSync(datalayerPJP))
-                throw new Error("No datalayer package.json found!");
-            replaceVersionInPackageJson(datalayerPJP, toVersion);
-            var datalayerBundlePJP = path.resolve(config.datalayerPath, "package_bundle.json");
-            if (!fs.existsSync(datalayerBundlePJP))
-                throw new Error("No datalayer package_bundle.json found!");
-            replaceVersionInPackageJson(datalayerBundlePJP, toVersion);
-
             // nativescript app
             if (config.projectHasNativescriptApp()) {
 
