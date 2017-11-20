@@ -2,6 +2,9 @@ FROM niccolomeloni/docker-nativescript-cli
 
 USER root
 
+# update nativescript cli
+RUN npm install nativescript -g --unsafe-perm
+
 # install docker cli
 RUN apt-get --yes --force-yes update
 RUN apt-get --yes --force-yes install apt-transport-https ca-certificates curl gnupg2 software-properties-common
