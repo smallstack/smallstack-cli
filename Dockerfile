@@ -1,9 +1,9 @@
 FROM niccolomeloni/docker-nativescript-cli
 
-USER root
-
 # update nativescript cli
 RUN npm install nativescript -g --unsafe-perm
+
+USER root
 
 # install docker cli
 RUN apt-get --yes --force-yes update
