@@ -60,40 +60,6 @@ export async function cloud(parameters) {
         console.log("Service start command successfully sent!");
     }
 
-    if (parameters.stopService) {
-        if (parameters.name) {
-            const services = await (dockerCloudService.getServices({ name: parameters.name, state: "Running" }));
-            if (services.meta.total_count !== 1)
-                throw new Error("Couldn't find a running service with the name '" + parameters.name + "'!");
-            currentService = services.objects[0];
-            const uuid = currentService.uuid;
-            console.log("Stopping Service with UUID " + uuid);
-            await (dockerCloudService.sendServiceCommand(uuid, "stop"));
-            console.log("Service stop command successfully sent!");
-        }
-        else
-            throw new Error("Please provide a service name via --name parameter!");
-    }
-
-    if (parameters.terminateService) {
-        if (parameters.name) {
-            const services = await (dockerCloudService.getServices({ name: parameters.name }));
-            if (services.meta.total_count !== 1)
-                throw new Error("Couldn't find a service with the name '" + parameters.name + "'!");
-            currentService = services.objects[0];
-            const uuid: string = currentService.uuid;
-            console.log("Terminating Service with UUID " + uuid);
-            await (dockerCloudService.sendServiceCommand(uuid, "terminate"));
-            console.log("Service terminate command successfully sent!");
-
-            console.log("Waiting for service to get into state 'Terminated'!");
-            await dockerCloudService.waitForState(_.extend(parameters, { state: "Terminated" }));
-            console.log("Service is now in state 'Terminated'!");
-        }
-        else
-            throw new Error("Please provide a service name via --name parameter!");
-    }
-
     if (parameters.linkServices) {
         if (typeof parameters.from !== "string" || typeof parameters.to !== "string")
             throw new Error("Please provide a --from and a --to parameter (service names)");
@@ -168,5 +134,54 @@ export async function cloud(parameters) {
         }
         else
             await dockerCloudService.waitForURL(parameters.url);
+    }
+
+    if (parameters.stopService) {
+        if (parameters.name) {
+            const services = await (dockerCloudService.getServices({ name: parameters.name, state: "Running" }));
+            if (services.meta.total_count === 0)
+                throw new Error("Couldn't find a running service with the name '" + parameters.name + "'!");
+            _.each(services.objects, async (service: IDockerCloudService) => {
+                const uuid = service.uuid;
+                if (service.state === "Stopped")
+                    console.log("Service with UUID " + uuid + " is already stopped!");
+                else if (service.state === "Stopping")
+                    console.log("Service with UUID " + uuid + " is currently stopping!");
+                else if (["Not running", "Starting", "Scaling", "Redeploying", "Terminating", "Terminated"].indexOf(service.state) !== -1)
+                    console.log("Not stopping service with UUID " + uuid + " since its in state " + service.state + "!");
+                else {
+                    console.log("Stopping Service with UUID " + uuid);
+                    await (dockerCloudService.sendServiceCommand(uuid, "stop"));
+                    console.log("Service stop command successfully sent!");
+                }
+            });
+        }
+        else
+            throw new Error("Please provide a service name via --name parameter!");
+    }
+
+    if (parameters.terminateService) {
+        if (parameters.name) {
+            const services = await (dockerCloudService.getServices({ name: parameters.name }));
+            if (services.meta.total_count === 0)
+                throw new Error("Couldn't find a service with the name '" + parameters.name + "'!");
+            _.each(services.objects, async (service: IDockerCloudService) => {
+                const uuid: string = service.uuid;
+                if (service.state === "Terminated")
+                    console.log("Service with UUID " + uuid + " is already terminated!");
+                else if (service.state === "Terminating")
+                    console.log("Service with UUID " + uuid + " is currently terminating!");
+                else {
+                    console.log("Terminating Service with UUID " + uuid);
+                    await (dockerCloudService.sendServiceCommand(uuid, "terminate"));
+                    console.log("Service terminate command successfully sent!");
+                    console.log("Waiting for service to get into state 'Terminated'!");
+                    await dockerCloudService.waitForState(_.extend(parameters, { state: "Terminated" }));
+                    console.log("Service is now in state 'Terminated'!");
+                }
+            });
+        }
+        else
+            throw new Error("Please provide a service name via --name parameter!");
     }
 }
