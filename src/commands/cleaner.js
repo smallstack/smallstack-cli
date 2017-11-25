@@ -104,6 +104,13 @@ function cleanModuleFolder(parameters) {
         removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor-server", "node_modules"));
         removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor-common", "node_modules"));
         removeDirOrFile(path.resolve(config.rootDirectory, "modules", "nativescript", "node_modules"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "core-client", "package-lock.json"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "core-server", "package-lock.json"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "core-common", "package-lock.json"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor-client", "package-lock.json"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor-server", "package-lock.json"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "meteor-common", "package-lock.json"));
+        removeDirOrFile(path.resolve(config.rootDirectory, "modules", "nativescript", "package-lock.json"));
     }
 }
 
