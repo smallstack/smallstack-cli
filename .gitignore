@@ -13,3 +13,5 @@ src/commands/ICommand.js
 src/functions/parseArguments.js
 src/commands/help.js
 src/commands/SyncProject.js
+src/commands/Setup.js
+src/functions/UpdateCheck.js

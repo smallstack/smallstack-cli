@@ -4,10 +4,12 @@ import { CLICommandOption } from "./src/commands/CLICommand";
 import { cloud } from "./src/commands/cloud";
 import { CreateDockerImages } from "./src/commands/CreateDockerImages";
 import { HelpCommand } from "./src/commands/help";
+import { Setup } from "./src/commands/Setup";
+import { SyncProject } from "./src/commands/SyncProject";
 import { Config } from "./src/Config";
 import { parseArguments } from "./src/functions/parseArguments";
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
-import { SyncProject } from "./src/commands/SyncProject";
+import { UpdateCheck } from "./src/functions/UpdateCheck";
 
 export async function CLI() {
     const startDate: Date = new Date();
@@ -25,7 +27,7 @@ export async function CLI() {
     const commands: { [name: string]: CLICommandStatic } = {};
     commands.generate = require("./src/commands/generate");
     commands.showConfig = require("./src/commands/showConfig");
-    commands.setup = require("./src/commands/setup");
+    commands.setup = Setup;
     commands.clean = require("./src/commands/cleaner");
     commands.test = require("./src/commands/test");
     commands.bundle = BundleCommand;
@@ -60,11 +62,11 @@ export async function CLI() {
     console.log("Root Directory: ", Config.getRootDirectory());
     console.log("\n");
 
-    // update check
-    const updateCheck = require("./src/functions/updateCheck");
-    updateCheck.doCheck();
-
     const parsedCommands: CLICommandOption[] = parseArguments(process.argv);
+
+    // update check
+    if (await UpdateCheck.check())
+        return;
 
     // first check all commands
     let allCommandsFine = true;
@@ -82,7 +84,6 @@ export async function CLI() {
     // then execute
     if (parsedCommands.length === 0 || !allCommandsFine || parsedCommands[0].name === "help") {
         new HelpCommand().showHelp(commands);
-        updateCheck.showResult();
     } else if (allCommandsFine) {
         for (const command of parsedCommands) {
             console.log(colors.gray("################################################################################"));
@@ -97,9 +98,7 @@ export async function CLI() {
                     await commands[command.name].execute(command, parsedCommands);
                 }
                 else if (typeof commands[command.name] === "function")
-                    await (commands[command.name] as any)(command.parameters, () => {
-                        console.error("done callback is deprecated, please use async/await!");
-                    });
+                    await (commands[command.name] as any)(command.parameters);
                 else
                     throw new Error("Could not find command " + command.name);
             } catch (e) {
@@ -110,7 +109,6 @@ export async function CLI() {
                 console.error(colors.red("Failure was executed in " + getDurationString()));
                 if (e.stack)
                     console.error(colors.red(e.stack));
-                updateCheck.showResult();
                 if (command.parameters.failOnError === false) {
                     console.warn("exiting process with code 0 since failOnError=false!");
                     process.exit(0);
@@ -119,19 +117,5 @@ export async function CLI() {
                     process.exit(1);
             }
         }
-        // , function (error) {
-        //     var executionText = "Command Execution finished in " + getDurationString();
-        //     if (error) {
-        //         console.error(colors.red(error + " " + executionText));
-        //         updateCheck.showResult(function () {
-        //             process.exit(1);
-        //         });
-        //     } else {
-        //         console.log(colors.green("Success! " + executionText));
-        //         updateCheck.showResult(function () {
-        //             process.exit(0);
-        //         });
-        //     }
-        // });
     }
 }
