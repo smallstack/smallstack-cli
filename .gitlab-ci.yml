@@ -27,15 +27,14 @@ node7test:
    - npm install -g
    - smallstack help
    
-# node8test:
-#   stage: test
-#   image: node:8.9.1
-#   script:
-#    - node -v
-#    - npm -v
-#    - npm install
-#    - npm install -g
-#    - smallstack help
+node8test:
+  stage: test
+  image: node:8.9.1
+  retry: 10
+  script:
+   - node -v
+   - npm install -g
+   - smallstack help
    
    
 osxtest:
