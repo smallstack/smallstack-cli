@@ -33,8 +33,8 @@ node8test:
   script:
    - node -v
    - npm -v
-   - npm install -g  npm-install-retry
-   - npm-install-retry --wait 500 --attempts 10 -- --production -g
+   - npm install
+   - npm install -g
    - smallstack help
    
    
