@@ -29,7 +29,7 @@ node8test:
   script:
    - node -v
    - npm -v
-   - npm install -g
+   - npm install -g --unsafe-perm
    - smallstack help
    
    
