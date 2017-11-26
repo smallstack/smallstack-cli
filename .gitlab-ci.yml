@@ -41,6 +41,7 @@ osxtest:
   stage: test
   tags: 
    - osx
+  retry: 2
   script:
    - node -v
    - npm -v
