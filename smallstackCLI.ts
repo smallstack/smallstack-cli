@@ -108,14 +108,15 @@ export async function CLI() {
                     console.error(colors.red("ERROR:", e));
                 console.error(colors.red("Failure was executed in " + getDurationString()));
                 if (e.stack)
-                    console.error(colors.red(e.stack));
+                console.error(colors.red(e.stack));
                 if (command.parameters.failOnError === false) {
                     console.warn("exiting process with code 0 since failOnError=false!");
                     process.exit(0);
                 }
                 else
-                    process.exit(1);
+                process.exit(1);
             }
         }
+        console.info(colors.green("Executed in " + getDurationString()));
     }
 }
