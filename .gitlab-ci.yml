@@ -27,14 +27,14 @@ node7test:
    - npm install -g
    - smallstack help
    
-node8test:
-  stage: test
-  image: node:8.9.1
-  allow_failure: true
-  script:
-   - node -v
-   - npm install -g
-   - smallstack help
+# node8test:
+#   stage: test
+#   image: node:8.9.1
+#   allow_failure: true
+#   script:
+#    - node -v
+#    - npm install -g
+#    - smallstack help
    
    
 osxtest:
