@@ -1,4 +1,4 @@
-module.exports = function (parameters, done) {
+module.exports = function (parameters) {
 
     var propertiesParser = require("properties-parser");
     var flat = require("flat");

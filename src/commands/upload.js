@@ -5,7 +5,7 @@ var gitState = require("git-state");
 var gitTagCheck = require("../functions/gitTagCheck");
 var path = require("path");
 
-module.exports = function (parameters, done) {
+module.exports = function (parameters) {
 
     var version = config.version;
     var remoteFileName = getRemoteFileName();
@@ -63,7 +63,6 @@ module.exports = function (parameters, done) {
                     Expires: 60 * 60
                 }, function (err, url) {
                     console.log('Signed URL: ' + url);
-                    done();
                 });
             }
         });

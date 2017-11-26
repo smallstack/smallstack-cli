@@ -10,7 +10,7 @@ var SmallstackApi = require("../functions/smallstackApi");
 var gitState = require("git-state");
 var colors = require("colors");
 
-module.exports = function (parameters, done) {
+module.exports = function (parameters) {
 
     var smallstackApi = new SmallstackApi(parameters);
     var forceMode = parameters && parameters.force === true;
@@ -150,7 +150,6 @@ module.exports = function (parameters, done) {
                                             console.log("Update command triggered!")
                                     }
                                     spinner.stop(true);
-                                    done();
                                 });
                             }));
                         }
