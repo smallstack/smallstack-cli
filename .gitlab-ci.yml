@@ -30,7 +30,7 @@ node7test:
 node8test:
   stage: test
   image: node:8.9.1
-  retry: 10
+  retry: 2
   script:
    - node -v
    - npm install -g
