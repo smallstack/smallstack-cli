@@ -5,7 +5,7 @@ import { createMeteorVersionFile } from "../functions/createMeteorVersionFile";
 import { CLICommandOption } from "./CLICommand";
 const path = require("path");
 const _ = require("underscore");
-const fs = require("fs-extra");
+import * as fs from "fs-extra";
 const exec = require("../functions/exec");
 const archiver = require("archiver");
 const modifyProductionPackageJson = require("../functions/modifyProductionPackageJson");
@@ -103,41 +103,18 @@ function bundleFrontendProject(): Promise<void> {
 function bundleSmallstack(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         fs.emptyDirSync(path.resolve(Config.rootDirectory, "dist"));
+        const version = require(path.resolve(Config.rootDirectory, "modules", "core-common", "package.json")).version;
 
-        exec("npm run bundle", {
-            cwd: path.resolve(Config.rootDirectory, "modules", "core-common")
-        });
-        exec("npm run bundle", {
-            cwd: path.resolve(Config.rootDirectory, "modules", "core-client")
-        });
-        exec("npm run bundle", {
-            cwd: path.resolve(Config.rootDirectory, "modules", "core-server")
-        });
-        exec("npm run bundle", {
-            cwd: path.resolve(Config.rootDirectory, "modules", "meteor-common")
-        });
-        exec("npm run bundle", {
-            cwd: path.resolve(Config.rootDirectory, "modules", "meteor-client")
-        });
-        exec("npm run bundle", {
-            cwd: path.resolve(Config.rootDirectory, "modules", "meteor-server")
-        });
-        exec("npm run bundle", {
-            cwd: path.resolve(Config.rootDirectory, "modules", "nativescript")
+        const moduleNames: string[] = ["core-common", "core-client", "core-server", "meteor-common", "meteor-client", "meteor-server", "nativescript"];
+
+        _.each(moduleNames, (moduleName: string) => {
+            console.log("packaging module " + moduleName);
+            exec("npm run bundle && npm pack", {
+                cwd: path.resolve(Config.rootDirectory, "modules", moduleName)
+            });
+            fs.copySync(path.resolve(Config.rootDirectory, "modules", moduleName, "smallstack-" + moduleName + "-" + version + ".tgz"), path.resolve(Config.rootDirectory, "dist/smallstack-" + moduleName + "-" + version + ".tgz"));
         });
 
-        console.log("modifying production package.json files...");
-        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "core-client", "package.json"));
-        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "core-server", "package.json"));
-        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "core-common", "package.json"));
-
-        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "meteor-client", "package.json"));
-        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "meteor-server", "package.json"));
-        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "meteor-common", "package.json"));
-
-        modifyProductionPackageJson(path.resolve(Config.rootDirectory, "dist", "modules", "nativescript", "package.json"));
-
-        const version = require(path.resolve(Config.rootDirectory, "dist", "modules", "core-common", "package.json")).version;
         const destinationFile = path.resolve(Config.rootDirectory, "dist", "smallstack-" + version + ".zip");
         fs.removeSync(destinationFile);
         console.log("Packaging smallstack modules to ", destinationFile);
@@ -159,7 +136,11 @@ function bundleSmallstack(): Promise<void> {
             resolve();
         });
 
-        archive.directory("dist/modules", "modules");
+        _.each(moduleNames, (moduleName: string) => {
+            const modulePath: string = "dist/smallstack-" + moduleName + "-" + version + ".tgz";
+            console.log("zipping " + modulePath);
+            archive.file(path.resolve(Config.rootDirectory, modulePath), { name: moduleName + ".tgz" });
+        });
         archive.directory("resources", "resources");
         archive.finalize();
     });

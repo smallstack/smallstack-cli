@@ -44,7 +44,7 @@ export class Setup {
 
     public static async execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any> {
         if (Config.isSmallstackEnvironment()) {
-            await this.linkModules();
+            await this.linkSmallstackModules();
             if (current.parameters.linkOnly !== true)
                 await this.npmInstallModules(Config.rootDirectory, true);
         } else if (Config.isComponentEnvironment() || Config.isNativescriptEnvironment()) {
@@ -394,7 +394,7 @@ export class Setup {
 
     }
 
-    private static linkModules() {
+    private static linkSmallstackModules() {
 
         // core-client
         this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "core-client", "node_modules", "@smallstack", "core-common"));
