@@ -6,11 +6,10 @@ var config = require("../Config").Config;
 var notifier = require("../functions/notifier");
 var exec = require("../functions/exec");
 
-module.exports = function (parameters, done) {
+module.exports = function (parameters) {
 
     if (config.isSmallstackEnvironment()) {
         cleanModuleFolder(parameters);
-        done();
         return;
     }
 
@@ -64,7 +63,6 @@ module.exports = function (parameters, done) {
     // removeDirOrFile("tmp");
 
     notifier("Cleaning completed!");
-    done();
 }
 
 function cleanModuleFolder(parameters) {

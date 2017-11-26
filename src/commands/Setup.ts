@@ -45,7 +45,7 @@ export class Setup {
     public static async execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any> {
         if (Config.isSmallstackEnvironment()) {
             await this.linkModules();
-            if (!current.parameters.linkOnly !== true)
+            if (current.parameters.linkOnly !== true)
                 await this.npmInstallModules(Config.rootDirectory, true);
         } else if (Config.isComponentEnvironment() || Config.isNativescriptEnvironment()) {
             this.setupNPMProject(current);

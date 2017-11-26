@@ -16,22 +16,21 @@ node7test:
    - npm install -g
    - smallstack help
    
-# node8test:
-#  stage: test
-#  image: node:8.4.0
-#  script:
-#   - npm install -g
-#   - smallstack help
+node8test:
+ stage: test
+ image: node:8.9.1
+ script:
+  - npm install -g
+  - smallstack help
    
    
-# osxtest:
-#   stage: test
-#   tags: 
-#    - osx
-#    - shell
-#   script:
-#    - npm install -g
-#    - smallstack help
+osxtest:
+  stage: test
+  tags: 
+   - osx
+  script:
+   - npm install -g
+   - smallstack help
    
    
 npm_publish:
