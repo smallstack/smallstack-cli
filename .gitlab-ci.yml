@@ -6,6 +6,8 @@ node6test:
   stage: test
   image: node:6.11.3
   script:
+   - node -v
+   - npm -v
    - npm install -g
    - smallstack help
    
@@ -13,6 +15,8 @@ node7test:
   stage: test
   image: node:7.10.1
   script:
+   - node -v
+   - npm -v
    - npm install -g
    - smallstack help
    
@@ -20,6 +24,8 @@ node8test:
  stage: test
  image: node:8.9.1
  script:
+   - node -v
+   - npm -v
   - npm install -g
   - smallstack help
    
@@ -29,6 +35,8 @@ osxtest:
   tags: 
    - osx
   script:
+   - node -v
+   - npm -v
    - npm install -g
    - smallstack help
    
