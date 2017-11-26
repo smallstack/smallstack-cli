@@ -21,13 +21,13 @@ node7test:
    - smallstack help
    
 node8test:
- stage: test
- image: node:8.9.1
- script:
+  stage: test
+  image: node:8.9.1
+  script:
    - node -v
    - npm -v
-  - npm install -g
-  - smallstack help
+   - npm install -g
+   - smallstack help
    
    
 osxtest:
