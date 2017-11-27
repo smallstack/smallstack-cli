@@ -60,6 +60,44 @@ export class Setup {
     }
 
 
+    private static setupSmallstackProject(current: CLICommandOption): Promise<void> {
+        return new Promise<void>(async (resolve) => {
+            const answers: PackageModeAnswers = await this.askPackageModeQuestions(current);
+            console.log("cleaning local smallstack path : " + Config.smallstackDirectory);
+            fs.emptyDirSync(Config.smallstackDirectory);
+            switch (answers.smallstackMode) {
+                case "local":
+                    this.persistLocalConfiguration(answers.smallstackPath, true);
+                    resolve();
+                    break;
+                case "projectVersion":
+                    this.downloadAndExtractVersion(current, Config.project.smallstack.version, Config.smallstackDirectory, () => {
+                        this.persistLocalConfiguration(Config.smallstackDirectory);
+                        resolve();
+                    });
+                    break;
+                case "file":
+                    fs.emptyDirSync(Config.smallstackDirectory);
+                    this.unzipSmallstackFile(path.join(Config.rootDirectory, answers.smallstackFilePath), Config.smallstackDirectory, () => {
+                        this.persistTGZConfiguration(Config.smallstackDirectory);
+                        resolve();
+                    });
+                    break;
+                case "url":
+                    fs.emptyDirSync(Config.smallstackDirectory);
+                    this.downloadAndExtract(answers.smallstackUrl, Config.smallstackDirectory, () => {
+                        this.persistLocalConfiguration(Config.smallstackDirectory);
+                        resolve();
+                    });
+                    break;
+                default:
+                    throw new Error(answers.smallstackMode + " is an unknown way of getting smallstack packages!");
+            }
+        });
+    }
+
+
+
     private static setupNPMProject(commandOptions: CLICommandOption): Promise<void> {
         return new Promise(async (resolve, reject) => {
             const answers: PackageModeAnswers = await this.askPackageModeQuestions(commandOptions);
@@ -201,41 +239,6 @@ export class Setup {
     }
 
 
-    private static setupSmallstackProject(current: CLICommandOption): Promise<void> {
-        return new Promise<void>(async (resolve) => {
-            const answers: PackageModeAnswers = await this.askPackageModeQuestions(current);
-            console.log("cleaning local smallstack path : " + Config.smallstackDirectory);
-            fs.emptyDirSync(Config.smallstackDirectory);
-            switch (answers.smallstackMode) {
-                case "local":
-                    this.persistLocalConfiguration(answers.smallstackPath, true);
-                    resolve();
-                    break;
-                case "projectVersion":
-                    this.downloadAndExtractVersion(current, Config.project.smallstack.version, Config.smallstackDirectory, () => {
-                        this.persistLocalConfiguration(Config.smallstackDirectory);
-                        resolve();
-                    });
-                    break;
-                case "file":
-                    fs.emptyDirSync(Config.smallstackDirectory);
-                    this.unzipSmallstackFile(path.join(Config.rootDirectory, answers.smallstackFilePath), Config.smallstackDirectory, () => {
-                        this.persistTGZConfiguration(Config.smallstackDirectory);
-                        resolve();
-                    });
-                    break;
-                case "url":
-                    fs.emptyDirSync(Config.smallstackDirectory);
-                    this.downloadAndExtract(answers.smallstackUrl, Config.smallstackDirectory, () => {
-                        this.persistLocalConfiguration(Config.smallstackDirectory);
-                        resolve();
-                    });
-                    break;
-                default:
-                    throw new Error(answers.smallstackMode + " is an unknown way of getting smallstack packages!");
-            }
-        });
-    }
 
     private static createSymlink(from: string, to: string) {
 
