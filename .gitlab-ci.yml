@@ -7,7 +7,8 @@ cache:
 
 stages: 
  - test
- - deploy
+ - npmDeploy
+ - dockerDeploy
 
 node6test:
   stage: test
@@ -50,7 +51,7 @@ osxtest:
    
    
 npm_publish:
-  stage: deploy
+  stage: npmDeploy
   image: node:latest
   only:
     - tags
@@ -59,7 +60,7 @@ npm_publish:
     - npm run ci-publish
    
 docker_image:
-  stage: deploy
+  stage: dockerDeploy
   image: docker:1.11.2
   only:
     - tags

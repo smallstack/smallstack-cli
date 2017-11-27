@@ -100,8 +100,7 @@ RUN apt-get --yes --force-yes install docker-ce
 ARG NPM_CONFIG_LOGLEVEL=error
 ENV NPM_CONFIG_LOGLEVEL=error
 RUN apt-get --yes --force-yes install python make g++
-ADD . .
-RUN npm install -g --unsafe-perm
+RUN npm install -g @smallstack/cli --unsafe-perm
 
 # install meteor
 RUN curl -sL https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh
