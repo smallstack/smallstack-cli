@@ -3,6 +3,7 @@
     "target": "ES2015",
     "module": "commonjs",
     "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": true,
     "sourceMap": false
   }
 }

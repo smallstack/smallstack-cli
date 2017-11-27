@@ -10,6 +10,7 @@ import { Config } from "./src/Config";
 import { parseArguments } from "./src/functions/parseArguments";
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
 import { UpdateCheck } from "./src/functions/UpdateCheck";
+import * as _ from "underscore";
 
 export async function CLI() {
     const startDate: Date = new Date();
@@ -18,8 +19,6 @@ export async function CLI() {
 
     // modules
     const logo = require("./src/functions/logo");
-    const fs = require("fs-extra");
-    const _ = require("underscore");
     const colors = require("colors");
     const moment = require("moment");
 
@@ -108,13 +107,13 @@ export async function CLI() {
                     console.error(colors.red("ERROR:", e));
                 console.error(colors.red("Failure was executed in " + getDurationString()));
                 if (e.stack)
-                console.error(colors.red(e.stack));
+                    console.error(colors.red(e.stack));
                 if (command.parameters.failOnError === false) {
                     console.warn("exiting process with code 0 since failOnError=false!");
                     process.exit(0);
                 }
                 else
-                process.exit(1);
+                    process.exit(1);
             }
         }
         console.info(colors.green("Executed in " + getDurationString()));
