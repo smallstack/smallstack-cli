@@ -26,8 +26,8 @@ RUN dpkg --add-architecture i386 && \
 						usbutils
 
 # install node 8.9.1
-RUN groupadd --gid 1000 node \
-  && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
+RUN groupadd --gid 1004 node \
+  && useradd --uid 1004 --gid node --shell /bin/bash --create-home node
 
 RUN set -ex \
   && for key in \
