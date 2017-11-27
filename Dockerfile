@@ -67,7 +67,7 @@ RUN apt-get --yes --force-yes install python make g++
 RUN mkdir /home/cli
 WORKDIR /home/cli
 ADD . .
-RUN npm install -g
+RUN npm install -g --unsafe-perm
 WORKDIR /home
 
 # install meteor
