@@ -285,28 +285,26 @@ export class Setup {
 
     private static linkSmallstackModules() {
 
-        console.log("Not linking smallstack modules anymore, they do that on their own now...");
+        // core-client
+        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "core-client", "node_modules", "@smallstack", "core-common"));
 
-        // // core-client
-        // this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "core-client", "node_modules", "@smallstack", "core-common"));
+        // core-server
+        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "core-server", "node_modules", "@smallstack", "core-common"));
 
-        // // core-server
-        // this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "core-server", "node_modules", "@smallstack", "core-common"));
+        // meteor-common
+        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "meteor-common", "node_modules", "@smallstack", "core-common"));
 
-        // // meteor-common
-        // this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "meteor-common", "node_modules", "@smallstack", "core-common"));
+        // meteor-client
+        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "meteor-client", "node_modules", "@smallstack", "core-common"));
+        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-client"), path.resolve(Config.rootDirectory, "modules", "meteor-client", "node_modules", "@smallstack", "core-client"));
 
-        // // meteor-client
-        // this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "meteor-client", "node_modules", "@smallstack", "core-common"));
-        // this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-client"), path.resolve(Config.rootDirectory, "modules", "meteor-client", "node_modules", "@smallstack", "core-client"));
+        // meteor-server
+        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "meteor-server", "node_modules", "@smallstack", "core-common"));
+        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-server"), path.resolve(Config.rootDirectory, "modules", "meteor-server", "node_modules", "@smallstack", "core-server"));
 
-        // // meteor-server
-        // this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "meteor-server", "node_modules", "@smallstack", "core-common"));
-        // this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-server"), path.resolve(Config.rootDirectory, "modules", "meteor-server", "node_modules", "@smallstack", "core-server"));
-
-        // // nativescript
-        // this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "nativescript", "node_modules", "@smallstack", "core-common"));
-        // this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-client"), path.resolve(Config.rootDirectory, "modules", "nativescript", "node_modules", "@smallstack", "core-client"));
+        // nativescript
+        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "nativescript", "node_modules", "@smallstack", "core-common"));
+        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-client"), path.resolve(Config.rootDirectory, "modules", "nativescript", "node_modules", "@smallstack", "core-client"));
     }
 
     private static persistTGZConfiguration(smallstackPath: string) {
@@ -324,11 +322,11 @@ export class Setup {
         if (Config.projectHasDatalayerNG())
             absoluteDatalayerPath = path.resolve(Config.datalayerPath);
 
-        _.each(packageNames, (packageName: string) => {
-            execNPM("npm install ../smallstack/" + packageName + ".tgz", {
-                cwd: Config.meteorDirectory
-            });
-        });
+        // _.each(packageNames, (packageName: string) => {
+        //     execNPM("npm install ../smallstack/" + packageName + ".tgz", {
+        //         cwd: Config.meteorDirectory
+        //     });
+        // });
 
 
         // meteor linking

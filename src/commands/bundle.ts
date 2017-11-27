@@ -38,7 +38,7 @@ export class BundleCommand {
         }
 
         if (Config.isSmallstackEnvironment()) {
-            return bundleSmallstack();
+            return bundleSmallstack(currentCLICommandOption);
         }
 
         throw new Error("Bundling only works for smallstack projects and for smallstack modules!");
@@ -100,14 +100,24 @@ function bundleFrontendProject(): Promise<void> {
     });
 }
 
-function bundleSmallstack(): Promise<void> {
+function bundleSmallstack(currentCLICommandOption: CLICommandOption): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        fs.emptyDirSync(path.resolve(Config.rootDirectory, "dist"));
+        if (currentCLICommandOption.parameters.buildPackages === undefined)
+            fs.emptyDirSync(path.resolve(Config.rootDirectory, "dist"));
+        else
+            console.log("skipping deletion of dist directory since not all bundles will get rebuild...");
+
         const version = require(path.resolve(Config.rootDirectory, "modules", "core-common", "package.json")).version;
 
-        const moduleNames: string[] = ["core-common", "core-client", "core-server", "meteor-common", "meteor-client", "meteor-server", "nativescript"];
+        let bundleModuleNames: string[] = ["core-common", "core-client", "core-server", "meteor-common", "meteor-client", "meteor-server", "nativescript"];
+        if (currentCLICommandOption.parameters.bundlePackages !== undefined && typeof currentCLICommandOption.parameters.bundlePackages === "string")
+            bundleModuleNames = currentCLICommandOption.parameters.bundlePackages.split(",");
 
-        _.each(moduleNames, (moduleName: string) => {
+        let buildModuleNames: string[] = ["core-common", "core-client", "core-server", "meteor-common", "meteor-client", "meteor-server", "nativescript"];
+        if (currentCLICommandOption.parameters.buildPackages !== undefined && typeof currentCLICommandOption.parameters.buildPackages === "string")
+            buildModuleNames = currentCLICommandOption.parameters.buildPackages.split(",");
+
+        _.each(buildModuleNames, (moduleName: string) => {
             console.log("packaging module " + moduleName);
             exec("npm run bundle && npm pack", {
                 cwd: path.resolve(Config.rootDirectory, "modules", moduleName)
@@ -136,7 +146,7 @@ function bundleSmallstack(): Promise<void> {
             resolve();
         });
 
-        _.each(moduleNames, (moduleName: string) => {
+        _.each(bundleModuleNames, (moduleName: string) => {
             const modulePath: string = "dist/smallstack-" + moduleName + "-" + version + ".tgz";
             console.log("zipping " + modulePath);
             archive.file(path.resolve(Config.rootDirectory, modulePath), { name: moduleName + ".tgz" });
