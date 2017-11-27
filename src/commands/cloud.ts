@@ -1,5 +1,4 @@
 import * as moment from "moment";
-import * as request from "request-promise";
 import * as _ from "underscore";
 import { DockerCloudService, IDockerCloudService, IDockerCloudContainer, IDockerCloudPageable } from "../services/DockerCloudService";
 

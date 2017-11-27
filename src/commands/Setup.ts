@@ -44,8 +44,8 @@ export class Setup {
     public static async execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any> {
         if (Config.isSmallstackEnvironment()) {
             await this.linkSmallstackModules();
-            // if (current.parameters.linkOnly !== true)
-            //     await this.npmInstallModules(Config.rootDirectory, true);
+            if (current.parameters.linkOnly !== true)
+                await this.npmInstallModules(Config.rootDirectory, true);
             // } else if (Config.isComponentEnvironment() || Config.isNativescriptEnvironment()) {
             //     this.setupNPMProject(current);
         } else if (Config.isProjectEnvironment()) {
@@ -266,33 +266,33 @@ export class Setup {
         }
     }
 
-    // private static npmInstallModules(rootPath, alsoDevPackages) {
-    //     let npmCommand = "npm install";
-    //     if (alsoDevPackages !== true)
-    //         npmCommand += " --production";
+    private static npmInstallModules(rootPath: string, alsoDevPackages: boolean = true) {
+        let npmCommand = "npm install";
+        if (alsoDevPackages !== true)
+            npmCommand += " --production";
 
-    //     execNPM(npmCommand, {
-    //         cwd: path.resolve(rootPath, "modules", "core-common")
-    //     });
-    //     execNPM(npmCommand, {
-    //         cwd: path.resolve(rootPath, "modules", "core-client")
-    //     });
-    //     execNPM(npmCommand, {
-    //         cwd: path.resolve(rootPath, "modules", "core-server")
-    //     });
-    //     execNPM(npmCommand, {
-    //         cwd: path.resolve(rootPath, "modules", "meteor-common")
-    //     });
-    //     execNPM(npmCommand, {
-    //         cwd: path.resolve(rootPath, "modules", "meteor-client")
-    //     });
-    //     execNPM(npmCommand, {
-    //         cwd: path.resolve(rootPath, "modules", "meteor-server")
-    //     });
-    //     execNPM(npmCommand, {
-    //         cwd: path.resolve(rootPath, "modules", "nativescript")
-    //     });
-    // }
+        execNPM(npmCommand, {
+            cwd: path.resolve(rootPath, "modules", "core-common")
+        });
+        execNPM(npmCommand, {
+            cwd: path.resolve(rootPath, "modules", "core-client")
+        });
+        execNPM(npmCommand, {
+            cwd: path.resolve(rootPath, "modules", "core-server")
+        });
+        execNPM(npmCommand, {
+            cwd: path.resolve(rootPath, "modules", "meteor-common")
+        });
+        execNPM(npmCommand, {
+            cwd: path.resolve(rootPath, "modules", "meteor-client")
+        });
+        execNPM(npmCommand, {
+            cwd: path.resolve(rootPath, "modules", "meteor-server")
+        });
+        execNPM(npmCommand, {
+            cwd: path.resolve(rootPath, "modules", "nativescript")
+        });
+    }
 
 
     private static linkSmallstackModules() {

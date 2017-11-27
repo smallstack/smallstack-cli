@@ -1,5 +1,5 @@
 import * as _ from "underscore";
-import { CLICommandOption, CLICommandStatic } from "./CLICommand";
+import { CLICommandStatic } from "./CLICommand";
 
 
 export class HelpCommand {

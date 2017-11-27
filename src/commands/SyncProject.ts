@@ -1,7 +1,5 @@
 var templating = require("../functions/templating");
-import * as fs from "fs-extra";
 import * as path from "path";
-import { copySync } from "fs-extra";
 import { Config } from "../Config";
 import { CLICommandOption } from "./CLICommand";
 import * as glob from "glob";

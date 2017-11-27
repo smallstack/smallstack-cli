@@ -8,7 +8,6 @@ const _ = require("underscore");
 import * as fs from "fs-extra";
 const exec = require("../functions/exec");
 const archiver = require("archiver");
-const modifyProductionPackageJson = require("../functions/modifyProductionPackageJson");
 
 export class BundleCommand {
 
