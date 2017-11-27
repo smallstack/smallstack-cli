@@ -25,7 +25,7 @@ RUN dpkg --add-architecture i386 && \
 						unzip \
 						usbutils
 
-RUN curl -sL https://deb.nodesource.com/setup_7.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
     apt-get update && \
     apt-get install -y --no-install-recommends 	nodejs						
 
