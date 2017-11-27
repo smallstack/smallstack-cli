@@ -240,6 +240,13 @@ export class Config {
         return fs.existsSync(path.join(this.getRootDirectory(), "frontend"));
     }
 
+    public static projectHasDatalayerNG() {
+        const datalayerPackageJSON = require(path.join(this.datalayerPath, "package.json"));
+        if (!datalayerPackageJSON)
+            throw new Error("No datalayer/package.json found!");
+        return datalayerPackageJSON.smallstack && datalayerPackageJSON.smallstack.typesystem !== undefined;
+    }
+
 
     public static getRootDirectory() {
 

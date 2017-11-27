@@ -75,3 +75,6 @@ RUN curl -sL https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh
 
 # install node-gyp
 RUN npm install -g node-gyp
+
+# install rimraf
+RUN npm install -g rimraf

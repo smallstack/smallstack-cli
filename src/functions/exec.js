@@ -11,12 +11,14 @@ module.exports = function (command, options) {
     console.log("  |- CWD : ", cwd);
 
 
-    var process = execSync(command, {
-        cwd: cwd,
-        stdio: 'inherit'
-    });
+    try {
+        var process = execSync(command, {
+            cwd: cwd,
+            stdio: 'inherit'
+        });
+    } catch (e) {
+        throw new Error(e.message);
+    }
 
-    if (options.finished)
-        options.finished();
 
 }
