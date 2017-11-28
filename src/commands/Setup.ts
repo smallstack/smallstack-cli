@@ -43,6 +43,7 @@ export class Setup {
 
     public static async execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any> {
         if (Config.isSmallstackEnvironment()) {
+            await this.createSmallstackLinkableDistFolder();
             await this.npmInstallModules(Config.rootDirectory, true);
             // } else if (Config.isComponentEnvironment() || Config.isNativescriptEnvironment()) {
             //     this.setupNPMProject(current);
@@ -95,6 +96,22 @@ export class Setup {
         if (!fs.existsSync(path.join(distFolder, "modules", "core-common")))
             throw new Error("Dist Folder exists, but core-common not : " + distFolder);
         return this.linkDistFolderToProject(distFolder);
+    }
+
+
+
+    private static createSmallstackLinkableDistFolder() {
+        const distPath: string = path.join(Config.rootDirectory, "dist");
+        fs.ensureDirSync(distPath);
+        _.each(Config.getModuleNames(), (moduleName: string) => {
+            fs.ensureDirSync(path.join(distPath, "modules", moduleName));
+            const from: string = path.join(Config.rootDirectory, "modules", moduleName);
+            const to: string = path.join(distPath, "modules", moduleName);
+            console.log("Linking from " + from + " to " + to);
+            // fs.ensureDirSync(from);
+            fs.ensureSymlinkSync(path.join(from, "dist"), path.join(to, "dist"), "dir");
+            fs.ensureSymlinkSync(path.join(from, "package.json"), path.join(to, "package.json"));
+        });
     }
 
 
