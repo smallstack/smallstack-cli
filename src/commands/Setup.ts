@@ -108,7 +108,8 @@ export class Setup {
             const from: string = path.join(Config.rootDirectory, "modules", moduleName);
             const to: string = path.join(distPath, "modules", moduleName);
             console.log("Linking from " + from + " to " + to);
-            // fs.ensureDirSync(from);
+            console.log("Creating directory : " + path.join(from, "dist"));
+            fs.ensureDirSync(path.join(from, "dist"));
             fs.ensureSymlinkSync(path.join(from, "dist"), path.join(to, "dist"), "dir");
             fs.ensureSymlinkSync(path.join(from, "package.json"), path.join(to, "package.json"));
         });
