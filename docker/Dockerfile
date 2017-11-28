@@ -94,13 +94,8 @@ RUN curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID"
 RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable"
 RUN apt-get --yes --force-yes update
 RUN apt-get --yes --force-yes install docker-ce
-
-
-# install smallstack cli
-ARG NPM_CONFIG_LOGLEVEL=error
-ENV NPM_CONFIG_LOGLEVEL=error
 RUN apt-get --yes --force-yes install python make g++
-RUN npm install -g @smallstack/cli --unsafe-perm
+
 
 # install meteor
 RUN curl -sL https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh
@@ -110,3 +105,9 @@ RUN npm install -g node-gyp
 
 # install rimraf
 RUN npm install -g rimraf
+
+# install smallstack cli
+ADD . .
+ARG NPM_CONFIG_LOGLEVEL=error
+ENV NPM_CONFIG_LOGLEVEL=error
+RUN npm install -g @smallstack/cli --unsafe-perm
