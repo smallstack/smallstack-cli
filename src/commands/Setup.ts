@@ -2,15 +2,15 @@
 
 import * as AWS from "aws-sdk";
 import * as colors from "colors";
-import * as DecompressZip from "decompress-zip";
 import * as decompress from "decompress";
 import * as  decompressTargz from "decompress-targz";
+import * as DecompressZip from "decompress-zip";
 import * as fs from "fs-extra";
 import * as glob from "glob";
 import * as inquirer from "inquirer";
 import * as path from "path";
 import * as request from "request";
-// import * as _ from "underscore";
+import * as _ from "underscore";
 import { Config } from "../Config";
 import { CLICommandOption } from "./CLICommand";
 
@@ -43,9 +43,7 @@ export class Setup {
 
     public static async execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any> {
         if (Config.isSmallstackEnvironment()) {
-            await this.linkSmallstackModules();
-            if (current.parameters.linkOnly !== true)
-                await this.npmInstallModules(Config.rootDirectory, true);
+            await this.npmInstallModules(Config.rootDirectory, true);
             // } else if (Config.isComponentEnvironment() || Config.isNativescriptEnvironment()) {
             //     this.setupNPMProject(current);
         } else if (Config.isProjectEnvironment()) {
@@ -271,54 +269,12 @@ export class Setup {
         if (alsoDevPackages !== true)
             npmCommand += " --production";
 
-        execNPM(npmCommand, {
-            cwd: path.resolve(rootPath, "modules", "core-common")
-        });
-        execNPM(npmCommand, {
-            cwd: path.resolve(rootPath, "modules", "core-client")
-        });
-        execNPM(npmCommand, {
-            cwd: path.resolve(rootPath, "modules", "core-server")
-        });
-        execNPM(npmCommand, {
-            cwd: path.resolve(rootPath, "modules", "meteor-common")
-        });
-        execNPM(npmCommand, {
-            cwd: path.resolve(rootPath, "modules", "meteor-client")
-        });
-        execNPM(npmCommand, {
-            cwd: path.resolve(rootPath, "modules", "meteor-server")
-        });
-        execNPM(npmCommand, {
-            cwd: path.resolve(rootPath, "modules", "nativescript")
+        _.each(Config.getModuleNames(), (moduleName: string) => {
+            execNPM(npmCommand, {
+                cwd: path.resolve(rootPath, "modules", moduleName)
+            });
         });
     }
-
-
-    private static linkSmallstackModules() {
-
-        // core-client
-        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "core-client"));
-
-        // core-server
-        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "core-server"));
-
-        // meteor-common
-        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "meteor-common"));
-
-        // meteor-client
-        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "meteor-client"));
-        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-client"), path.resolve(Config.rootDirectory, "modules", "meteor-client"));
-
-        // meteor-server
-        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "meteor-server"));
-        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-server"), path.resolve(Config.rootDirectory, "modules", "meteor-server"));
-
-        // nativescript
-        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-common"), path.resolve(Config.rootDirectory, "modules", "nativescript"));
-        this.createSymlink(path.resolve(Config.rootDirectory, "modules", "core-client"), path.resolve(Config.rootDirectory, "modules", "nativescript"));
-    }
-
 
     private static linkDistFolderToProject(smallstackPath: string): Promise<void> {
         if (smallstackPath === undefined)

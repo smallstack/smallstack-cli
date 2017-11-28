@@ -247,6 +247,13 @@ export class Config {
         return datalayerPackageJSON.smallstack && datalayerPackageJSON.smallstack.typesystem !== undefined;
     }
 
+    public static getModuleNames(): string[] {
+        if (!this.isSmallstackEnvironment())
+            throw new Error("this is not a smallstack module environment!");
+
+        // this is static and should be changed if new products have arrived
+        return ["core-common", "core-client", "core-server", "meteor-client", "meteor-server", "meteor-common", "nativescript"];
+    }
 
     public static getRootDirectory() {
 

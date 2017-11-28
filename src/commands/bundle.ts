@@ -101,6 +101,7 @@ function bundleFrontendProject(): Promise<void> {
 
 function bundleSmallstack(currentCLICommandOption: CLICommandOption): Promise<void> {
     return new Promise<void>((resolve, reject) => {
+        const createArchive: boolean = currentCLICommandOption.parameters.createArchive === true;
         if (currentCLICommandOption.parameters.buildPackages === undefined)
             fs.emptyDirSync(path.resolve(Config.rootDirectory, "dist"));
         else
@@ -108,50 +109,60 @@ function bundleSmallstack(currentCLICommandOption: CLICommandOption): Promise<vo
 
         const version = require(path.resolve(Config.rootDirectory, "modules", "core-common", "package.json")).version;
 
-        let bundleModuleNames: string[] = ["core-common", "core-client", "core-server", "meteor-common", "meteor-client", "meteor-server", "nativescript"];
+        let bundleModuleNames: string[] = Config.getModuleNames();
         if (currentCLICommandOption.parameters.bundlePackages !== undefined && typeof currentCLICommandOption.parameters.bundlePackages === "string")
             bundleModuleNames = currentCLICommandOption.parameters.bundlePackages.split(",");
 
-        let buildModuleNames: string[] = ["core-common", "core-client", "core-server", "meteor-common", "meteor-client", "meteor-server", "nativescript"];
+        let buildModuleNames: string[] = Config.getModuleNames();
         if (currentCLICommandOption.parameters.buildPackages !== undefined && typeof currentCLICommandOption.parameters.buildPackages === "string")
             buildModuleNames = currentCLICommandOption.parameters.buildPackages.split(",");
 
+        let npmCommand: string = "npm run bundle";
+        if (createArchive)
+            npmCommand += " && npm pack";
+
         _.each(buildModuleNames, (moduleName: string) => {
             console.log("packaging module " + moduleName);
-            exec("npm run bundle && npm pack", {
+            exec(npmCommand, {
                 cwd: path.resolve(Config.rootDirectory, "modules", moduleName)
             });
-            fs.copySync(path.resolve(Config.rootDirectory, "modules", moduleName, "smallstack-" + moduleName + "-" + version + ".tgz"), path.resolve(Config.rootDirectory, "dist/smallstack-" + moduleName + "-" + version + ".tgz"));
+            if (createArchive)
+                fs.copySync(path.resolve(Config.rootDirectory, "modules", moduleName, "smallstack-" + moduleName + "-" + version + ".tgz"), path.resolve(Config.rootDirectory, "dist/smallstack-" + moduleName + "-" + version + ".tgz"));
         });
 
-        const destinationFile = path.resolve(Config.rootDirectory, "dist", "smallstack-" + version + ".zip");
-        fs.removeSync(destinationFile);
-        console.log("Packaging smallstack modules to ", destinationFile);
-        const output = fs.createWriteStream(destinationFile);
-        const archive = archiver("zip", {
-            store: true
-        });
+        if (createArchive) {
+            const destinationFile = path.resolve(Config.rootDirectory, "dist", "smallstack-" + version + ".zip");
+            fs.removeSync(destinationFile);
+            console.log("Packaging smallstack modules to ", destinationFile);
+            const output = fs.createWriteStream(destinationFile);
+            const archive = archiver("zip", {
+                store: true
+            });
 
-        archive.pipe(output);
+            archive.pipe(output);
 
-        archive.on("error", (err) => {
-            console.error(err);
-            reject(err);
-        });
+            archive.on("error", (err) => {
+                console.error(err);
+                reject(err);
+            });
 
-        output.on("close", () => {
-            createSymlink(destinationFile, path.resolve(Config.rootDirectory, "dist", "smallstack.zip"));
-            console.log(archive.pointer() + " total bytes");
+            output.on("close", () => {
+                createSymlink(destinationFile, path.resolve(Config.rootDirectory, "dist", "smallstack.zip"));
+                console.log(archive.pointer() + " total bytes");
+                resolve();
+            });
+
+            _.each(bundleModuleNames, (moduleName: string) => {
+                const modulePath: string = "dist/smallstack-" + moduleName + "-" + version + ".tgz";
+                console.log("zipping " + modulePath);
+                archive.file(path.resolve(Config.rootDirectory, modulePath), { name: moduleName + ".tgz" });
+            });
+            archive.directory("resources", "resources");
+            archive.finalize();
+        }
+        else {
             resolve();
-        });
-
-        _.each(bundleModuleNames, (moduleName: string) => {
-            const modulePath: string = "dist/smallstack-" + moduleName + "-" + version + ".tgz";
-            console.log("zipping " + modulePath);
-            archive.file(path.resolve(Config.rootDirectory, modulePath), { name: moduleName + ".tgz" });
-        });
-        archive.directory("resources", "resources");
-        archive.finalize();
+        }
     });
 }
 

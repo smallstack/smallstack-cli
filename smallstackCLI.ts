@@ -1,16 +1,17 @@
+import * as _ from "underscore";
 import { CLICommandStatic } from "./index";
 import { BundleCommand } from "./src/commands/bundle";
 import { CLICommandOption } from "./src/commands/CLICommand";
 import { cloud } from "./src/commands/cloud";
 import { CreateDockerImages } from "./src/commands/CreateDockerImages";
 import { HelpCommand } from "./src/commands/help";
+import { PublishCommand } from "./src/commands/Publish";
 import { Setup } from "./src/commands/Setup";
 import { SyncProject } from "./src/commands/SyncProject";
 import { Config } from "./src/Config";
 import { parseArguments } from "./src/functions/parseArguments";
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
 import { UpdateCheck } from "./src/functions/UpdateCheck";
-import * as _ from "underscore";
 
 export async function CLI() {
     const startDate: Date = new Date();
@@ -41,6 +42,7 @@ export async function CLI() {
     commands.modifyproductionpackagejson = require("./src/commands/modifyProductionPackageJson");
     commands.createDockerImages = CreateDockerImages;
     commands.cloud = cloud as any;
+    commands.publish = PublishCommand;
 
     // show a nice logo
     logo();
