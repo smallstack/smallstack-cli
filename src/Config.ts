@@ -281,6 +281,10 @@ export class Config {
         return path.resolve("./");
     }
 
+    public static isCIMode() {
+        return process.env.CI !== undefined;
+    }
+
 }
 
 Config.init();

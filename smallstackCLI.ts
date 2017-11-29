@@ -66,7 +66,7 @@ export async function CLI() {
     const parsedCommands: CLICommandOption[] = parseArguments(process.argv);
 
     // update check
-    if (process.argv.indexOf("--skipUpdateCheck") === -1 && await UpdateCheck.check())
+    if (!Config.isCIMode() && process.argv.indexOf("--skipUpdateCheck") === -1 && await UpdateCheck.check())
         return;
 
     // first check all commands
