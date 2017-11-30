@@ -68,6 +68,8 @@ export class Setup {
                 return this.handleLocalFile(answers.smallstackFilePath);
             case "url":
                 return this.handleRemoteFile(answers.smallstackUrl);
+            case "npm":
+                return this.linkStuffWhenNPMVersionsAreBeingUsed();
             default:
                 throw new Error(answers.smallstackMode + " is an unknown way of getting smallstack packages!");
         }
@@ -184,6 +186,9 @@ export class Setup {
             let smallstackFilePath = commandOption.parameters.filePath;
 
             const packageModes = [{
+                name: "use NPM versions declared in package.json files (just link datalayer etc.)",
+                value: "npm"
+            }, {
                 name: "local checkout",
                 value: "local"
             }, {
@@ -257,7 +262,9 @@ export class Setup {
         });
     }
 
-
+    private static linkStuffWhenNPMVersionsAreBeingUsed() {
+        console.log("Nothing to do so far...");
+    }
 
     private static createSymlink(from: string, to: string) {
 
