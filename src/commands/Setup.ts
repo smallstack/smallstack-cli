@@ -290,7 +290,7 @@ export class Setup {
     }
 
     private static npmInstallModules(rootPath: string, alsoDevPackages: boolean = true) {
-        let npmCommand = "npm install";
+        let npmCommand = "npm install --unsafe-perm";
         if (alsoDevPackages !== true)
             npmCommand += " --production";
 
