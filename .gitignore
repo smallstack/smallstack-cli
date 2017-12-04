@@ -16,3 +16,4 @@ src/commands/SyncProject.js
 src/commands/Setup.js
 src/functions/UpdateCheck.js
 src/commands/Publish.js
+src/commands/CreatePluginPackageJSON.js
