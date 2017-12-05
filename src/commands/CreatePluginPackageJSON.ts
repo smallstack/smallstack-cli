@@ -24,8 +24,10 @@ export class CreatePluginPackageJSON {
             delete packageJSON.devDependencies;
             delete packageJSON.scripts;
             delete packageJSON.dependencies;
-            packageJSON.main = "./index.umd.js";
-
+            if (packageJSON.main)
+                packageJSON.main = "./index.umd.js";
+            if (packageJSON.types)
+                packageJSON.types = "./dts/index.d.ts";
             fs.ensureDirSync(path.join("dist", "bundle"));
             fs.writeJSONSync(path.join("dist", "bundle", "package.json"), packageJSON, { spaces: 2, encoding: "UTF-8" });
 
