@@ -108,6 +108,6 @@ RUN npm install -g rimraf
 
 # install smallstack cli
 ADD . .
+RUN npm install -g --unsafe-perm
 ARG NPM_CONFIG_LOGLEVEL=error
 ENV NPM_CONFIG_LOGLEVEL=error
-RUN npm install -g --unsafe-perm
