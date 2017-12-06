@@ -13,7 +13,9 @@ export class BundleCommand {
 
     public static getParameters(): { [parameterKey: string]: string } {
         return {
-            skipBundle: "can be used to skip the whole process (e.g. in a CI environment)"
+            skipBundle: "can be used to skip the whole process (e.g. in a CI environment)",
+            meteorOnly: "only build the meteor app",
+            frontendOnly: "only build the frontend app"
         };
     }
 
