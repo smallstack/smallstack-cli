@@ -65,7 +65,7 @@
     "simple-git": "^1.77.0",
     "single-line-log": "1.1.2",
     "sort-package-json": "^1.6.0",
-    "typescript": "2.5.2",
+    "typescript": "^2.6.2",
     "typings-core": "2.2.0",
     "underscore": "1.8.3",
     "underscore.string": "3.3.4"
