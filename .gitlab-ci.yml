@@ -1,3 +1,5 @@
+image: node:8.9.3
+
 variables:
   DOCKER_DRIVER: overlay2
 
@@ -32,7 +34,6 @@ node7test:
    
 # node8test:
 #   stage: test
-#   image: node:8.9.1
 #   script:
 #    - npm install -g
 #    - smallstack help
@@ -48,7 +49,6 @@ osxtest:
    
 npm_publish:
   stage: npmDeploy
-  image: node:8.9.1
   only:
     - tags
   script:
