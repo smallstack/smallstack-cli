@@ -28,6 +28,16 @@ node7test:
     - npm run compile
     - npm install -g
     - smallstack help
+node8test:
+  stage: test
+  image: 'node:8.9.3'
+  script:
+    - node -v
+    - npm -v
+    - npm install
+    - npm run compile
+    - npm install -g
+    - smallstack help
 osxtest:
   stage: test
   tags:
