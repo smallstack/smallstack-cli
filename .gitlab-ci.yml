@@ -28,16 +28,15 @@ node7test:
    - npm install -g
    - smallstack help
    
-# node8test:
-#   stage: test
-#   image: node:8.9.1
-#   allow_failure: true
-#   script:
-#    - node -v
-#    - npm install -g
-#    - smallstack help
-   
-   
+node8test:
+  stage: test
+  image: node:8.9.1
+  script:
+   - node -v
+   - npm -v
+   - npm install -g
+   - smallstack help
+      
 osxtest:
   stage: test
   tags: 
@@ -52,11 +51,12 @@ osxtest:
    
 npm_publish:
   stage: npmDeploy
-  image: node:latest
+  image: node:8.9.1
   only:
     - tags
   script:
     - npm install
+    - npm run compile
     - npm run ci-publish
    
 docker_image:

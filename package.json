@@ -18,12 +18,12 @@
     "smallstack": "./bin/smallstack"
   },
   "engines": {
-    "node": ">=6.9.0"
+    "node": ">=8.9.x"
   },
   "engineStrict": true,
   "scripts": {
     "ci-publish": "ci-publish",
-    "install": "tsc"
+    "compile": "tsc"
   },
   "dependencies": {
     "@types/node": "^8.0.28",
@@ -72,6 +72,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^4.0.2",
-    "@types/glob": "^5.0.33"
+    "@types/glob": "^5.0.33",
+    "typescript": "^2.6.2"
   }
 }
