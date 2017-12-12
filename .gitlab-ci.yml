@@ -10,12 +10,16 @@ stages:
  - npmDeploy
  - dockerDeploy
 
+before_script:
+ - node -v
+ - npm -v
+ - npm install
+ - npm run compile
+
 node6test:
   stage: test
   image: node:6.11.3
   script:
-   - node -v
-   - npm -v
    - npm install -g
    - smallstack help
    
@@ -23,8 +27,6 @@ node7test:
   stage: test
   image: node:7.10.1
   script:
-   - node -v
-   - npm -v
    - npm install -g
    - smallstack help
    
@@ -32,8 +34,6 @@ node8test:
   stage: test
   image: node:8.9.1
   script:
-   - node -v
-   - npm -v
    - npm install -g
    - smallstack help
       
@@ -41,10 +41,7 @@ osxtest:
   stage: test
   tags: 
    - osx
-  retry: 2
   script:
-   - node -v
-   - npm -v
    - npm install -g
    - smallstack help
    
@@ -55,8 +52,6 @@ npm_publish:
   only:
     - tags
   script:
-    - npm install
-    - npm run compile
     - npm run ci-publish
    
 docker_image:
