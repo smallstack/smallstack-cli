@@ -58,6 +58,7 @@ docker_image:
   stage: dockerDeploy
   image: docker:1.11.2
   cache:
+  before_script:
   only:
     - tags
   script:
