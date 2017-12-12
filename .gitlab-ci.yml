@@ -1,71 +1,65 @@
-image: node:8.9.3
-
+image: 'node:8.9.3'
 variables:
   DOCKER_DRIVER: overlay2
-
 cache:
   paths:
-  - node_modules/
-
-stages: 
- - test
- - npmDeploy
- - dockerDeploy
-
-before_script:
- - node -v
- - npm -v
- - npm install
- - npm run compile
-
+    - node_modules/
+stages:
+  - test
+  - npmDeploy
+  - dockerDeploy
 node6test:
   stage: test
-  image: node:6.11.3
+  image: 'node:6.11.3'
   script:
-   - npm install -g
-   - smallstack help
-   
+    - node -v
+    - npm -v
+    - npm install
+    - npm run compile
+    - npm install -g
+    - smallstack help
 node7test:
   stage: test
-  image: node:7.10.1
+  image: 'node:7.10.1'
   script:
-   - npm install -g
-   - smallstack help
-   
-# node8test:
-#   stage: test
-#   script:
-#    - npm install -g
-#    - smallstack help
-      
+    - node -v
+    - npm -v
+    - npm install
+    - npm run compile
+    - npm install -g
+    - smallstack help
 osxtest:
   stage: test
-  tags: 
-   - osx
+  tags:
+    - osx
   script:
-   - npm install -g
-   - smallstack help
-   
-   
+    - node -v
+    - npm -v
+    - npm install
+    - npm run compile
+    - npm install -g
+    - smallstack help
 npm_publish:
   stage: npmDeploy
   only:
     - tags
   script:
+    - node -v
+    - npm -v
+    - npm install
+    - npm run compile
     - npm run ci-publish
-   
 docker_image:
   stage: dockerDeploy
-  image: docker:1.11.2
-  cache:
-  before_script:
+  image: 'docker:1.11.2'
+  cache: null
   only:
     - tags
   script:
-   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-   - docker build -t registry.gitlab.com/smallstack/smallstack-cli:$CI_COMMIT_TAG .
-   - docker push registry.gitlab.com/smallstack/smallstack-cli:$CI_COMMIT_TAG
-   - docker build -t registry.gitlab.com/smallstack/smallstack-cli:latest .
-   - docker push registry.gitlab.com/smallstack/smallstack-cli:latest
-
-
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - >-
+      docker build -t
+      registry.gitlab.com/smallstack/smallstack-cli:$CI_COMMIT_TAG .
+    - 'docker push registry.gitlab.com/smallstack/smallstack-cli:$CI_COMMIT_TAG'
+    - 'docker build -t registry.gitlab.com/smallstack/smallstack-cli:latest .'
+    - 'docker push registry.gitlab.com/smallstack/smallstack-cli:latest'
