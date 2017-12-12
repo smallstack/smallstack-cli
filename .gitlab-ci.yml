@@ -36,8 +36,6 @@ node8test:
     - npm -v
     - npm install
     - npm run compile
-    - npm install -g --unsafe-perm
-    - smallstack help
 osxtest:
   stage: test
   tags:
