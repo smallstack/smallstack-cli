@@ -5,6 +5,7 @@ import { CLICommandOption } from "./src/commands/CLICommand";
 import { cloud } from "./src/commands/cloud";
 import { CreateDockerImages } from "./src/commands/CreateDockerImages";
 import { CreatePluginPackageJSON } from "./src/commands/CreatePluginPackageJSON";
+import { GitflowCommand } from "./src/commands/GitflowCommand";
 import { HelpCommand } from "./src/commands/help";
 import { PublishCommand } from "./src/commands/Publish";
 import { Setup } from "./src/commands/Setup";
@@ -34,7 +35,7 @@ export async function CLI() {
     commands.bundle = BundleCommand;
     commands.deploy = require("./src/commands/deploy");
     commands.compileNpmModule = require("./src/commands/compileNpmModule");
-    commands.gitflow = require("./src/commands/gitflow");
+    commands.gitflow = GitflowCommand;
     commands.signAndroid = require("./src/commands/signAndroid");
     commands.upload = require("./src/commands/upload");
     commands.convert = require("./src/commands/convert");
@@ -60,6 +61,8 @@ export async function CLI() {
         console.log("Environment:     nativescript app");
     else if (Config.isNPMPackageEnvironment())
         console.log("Environment:     NPM package");
+    else if (Config.isMultiNPMPackageEnvironment())
+        console.log("Environment:     Multi NPM package");
     else if (Config.calledWithCreateProjectCommand())
         console.log("Environment:     project creation");
     console.log("Root Directory: ", Config.getRootDirectory());

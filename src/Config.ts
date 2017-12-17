@@ -195,6 +195,15 @@ export class Config {
         return packageContent.name !== undefined;
     }
 
+    public static multiNPMPackageFound(directory) {
+        const rootDirectories: string[] = fs.readdirSync(directory).map((name) => path.join(directory, name)).filter((source) => fs.lstatSync(source).isDirectory());
+        for (const d of rootDirectories) {
+            if (this.npmPackageFound(d))
+                return true;
+        }
+        return false;
+    }
+
     public static isSmallstackEnvironment() {
         return this.smallstackFound(this.getRootDirectory());
     }
@@ -213,6 +222,10 @@ export class Config {
 
     public static isNPMPackageEnvironment() {
         return this.npmPackageFound(this.getRootDirectory());
+    }
+
+    public static isMultiNPMPackageEnvironment() {
+        return this.multiNPMPackageFound(this.getRootDirectory());
     }
 
     public static calledWithCreateProjectCommand() {
@@ -265,6 +278,8 @@ export class Config {
                 if (this.smallstackFound(root))
                     return root;
                 if (this.npmPackageFound(root))
+                    return root;
+                if (this.multiNPMPackageFound(root))
                     return root;
                 if (this.nativescriptAppFound(root))
                     return root;
