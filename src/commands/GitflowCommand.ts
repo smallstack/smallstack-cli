@@ -33,7 +33,7 @@ export class GitflowCommand {
             const forceMode = current.parameters && current.parameters.force === true;
             let doneSomething = false;
             const releaseIsFirst = current.parameters && _.keys(current.parameters).indexOf("release") === 0;
-            const currentVersion = Config.project.version;
+            const currentVersion = this.getCurrentVersion();
             let tagName = currentVersion;
 
             console.log("starting gitflow operations...");
@@ -116,6 +116,26 @@ export class GitflowCommand {
                     });
             } else throw new Error("Your project must be under (git) version control for doing a release!");
         });
+    }
+
+    private static getCurrentVersion(): string {
+        if (Config.isNPMPackageEnvironment())
+            return Config.project.version;
+        // check if its a multi npm repository
+        const directories: string[] = this.getDirectories(Config.rootDirectory);
+        for (const directory of directories) {
+            const filePath: string = path.join(directory, "package.json");
+            if (fs.existsSync(filePath)) {
+                const packageJSON = require(filePath);
+                if (packageJSON.version)
+                    return packageJSON.version;
+            }
+        }
+        throw new Error("Could not find version via Config.project.version or in a direct subdirectory!");
+    }
+
+    private static getDirectories(root: string) {
+        return fs.readdirSync(root).map((name) => path.join(root, name)).filter((source) => fs.lstatSync(source).isDirectory());
     }
 
     private static toVersion(toVersion) {
@@ -204,6 +224,15 @@ export class GitflowCommand {
                 const subPackageJson = path.resolve(Config.rootDirectory, "src", "package.json");
                 if (fs.existsSync(subPackageJson))
                     this.replaceVersionInPackageJson(subPackageJson, toVersion);
+                exec("git commit -a -m \"changing version to " + toVersion + "\"");
+                resolve();
+            } else if (Config.isMultiNPMPackageEnvironment()) {
+                const rootDirectories: string[] = this.getDirectories(Config.rootDirectory);
+                for (const directory of rootDirectories) {
+                    const packageJSONFilePath: string = path.resolve(directory, "package.json");
+                    if (fs.existsSync(packageJSONFilePath))
+                        this.replaceVersionInPackageJson(packageJSONFilePath, toVersion);
+                }
                 exec("git commit -a -m \"changing version to " + toVersion + "\"");
                 resolve();
             } else throw new Error("Unsupported Environment!");

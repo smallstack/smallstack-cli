@@ -61,6 +61,8 @@ export async function CLI() {
         console.log("Environment:     nativescript app");
     else if (Config.isNPMPackageEnvironment())
         console.log("Environment:     NPM package");
+    else if (Config.isMultiNPMPackageEnvironment())
+        console.log("Environment:     Multi NPM package");
     else if (Config.calledWithCreateProjectCommand())
         console.log("Environment:     project creation");
     console.log("Root Directory: ", Config.getRootDirectory());
