@@ -18,3 +18,4 @@ src/functions/UpdateCheck.js
 src/commands/Publish.js
 src/commands/CreatePluginPackageJSON.js
 src/commands/Gitflow.js
+src/commands/GitflowCommand.js
