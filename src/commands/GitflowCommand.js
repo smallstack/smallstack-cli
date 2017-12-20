@@ -241,7 +241,7 @@ class GitflowCommand {
         const jsonContent = require(file);
         console.log("changing version of '" + jsonContent.name + "' from " + jsonContent.version + " to " + newVersion);
         jsonContent.version = newVersion;
-        fs.writeJSONSync(file, jsonContent);
+        fs.writeJSONSync(file, jsonContent, { encoding: "UTF-8", spaces: 2 });
     }
 }
 exports.GitflowCommand = GitflowCommand;
