@@ -4,6 +4,7 @@
     "module": "commonjs",
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
-    "sourceMap": false
+    "sourceMap": false,
+    "newLine": "LF"
   }
 }
