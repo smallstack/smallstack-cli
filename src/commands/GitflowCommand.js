@@ -115,7 +115,7 @@ class GitflowCommand {
         });
     }
     static getCurrentVersion() {
-        if (Config_1.Config.isNPMPackageEnvironment())
+        if (Config_1.Config.isNPMPackageEnvironment() || Config_1.Config.isSmallstackEnvironment())
             return Config_1.Config.project.version;
         // check if its a multi npm repository
         const directories = this.getDirectories(Config_1.Config.rootDirectory);
