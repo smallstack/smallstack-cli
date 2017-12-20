@@ -71,7 +71,7 @@ function cleanModuleFolder(parameters) {
         console.log("Performing complete cleanup! Please run 'smallstack setup' afterwards...");
     }
 
-    var packageNames = ["core-common", "core-client", "core-server", "meteor-client", "meteor-server", "meteor-common", "nativescript"];
+    var packageNames = ["core-common", "core-client", "core-server", "meteor-client", "meteor-server", "meteor-common"];
 
     removeDirOrFile(path.resolve(config.rootDirectory, "dist"));
 
