@@ -68,7 +68,6 @@ export class Config {
                         this.nativescriptDirectory = path.join(this.rootDirectory, "nativescript-app");
                         this.nativescriptSmallstackCoreClientDirectory = path.join(this.rootDirectory, "nativescript-app", "node_modules", "@smallstack/core-client");
                         this.nativescriptSmallstackCoreCommonDirectory = path.join(this.rootDirectory, "nativescript-app", "node_modules", "@smallstack/core-common");
-                        this.nativescriptSmallstackNativescriptDirectory = path.join(this.rootDirectory, "nativescript-app", "node_modules", "@smallstack/nativescript");
                         this.nativescriptDatalayerDirectory = path.join(this.rootDirectory, "nativescript-app", "node_modules", "@smallstack/datalayer");
                     }
                     if (this.projectHasFrontend()) {
@@ -145,8 +144,6 @@ export class Config {
             if (this.checkModule(path.join(directory, "package.json"), "@smallstack/meteor-client"))
                 return true;
             if (this.checkModule(path.join(directory, "package.json"), "@smallstack/meteor-server"))
-                return true;
-            if (this.checkModule(path.join(directory, "package.json"), "@smallstack/nativescript-client"))
                 return true;
         } catch (e) {
             return false;
@@ -265,7 +262,7 @@ export class Config {
             throw new Error("this is not a smallstack module environment!");
 
         // this is static and should be changed if new products have arrived
-        return ["core-common", "core-client", "core-server", "meteor-client", "meteor-server", "meteor-common", "nativescript"];
+        return ["core-common", "core-client", "core-server", "meteor-client", "meteor-server", "meteor-common"];
     }
 
     public static getRootDirectory() {

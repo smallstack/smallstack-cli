@@ -305,15 +305,12 @@ export class Setup {
         if (smallstackPath === undefined)
             throw Error("No smallstack.path is given!");
 
-        // const meteorPackageNames: string[] = ["core-client", "core-server", "core-common", "meteor-client", "meteor-server", "meteor-common", "nativescript"];
-
         const absoluteModuleCoreClientPath = path.resolve(Config.rootDirectory, smallstackPath, "modules", "core-client");
         const absoluteModuleCoreServerPath = path.resolve(Config.rootDirectory, smallstackPath, "modules", "core-server");
         const absoluteModuleCoreCommonPath = path.resolve(Config.rootDirectory, smallstackPath, "modules", "core-common");
         const absoluteModuleMeteorClientPath = path.resolve(Config.rootDirectory, smallstackPath, "modules", "meteor-client");
         const absoluteModuleMeteorServerPath = path.resolve(Config.rootDirectory, smallstackPath, "modules", "meteor-server");
         const absoluteModuleMeteorCommonPath = path.resolve(Config.rootDirectory, smallstackPath, "modules", "meteor-common");
-        const absoluteModuleNativescriptPath = path.resolve(Config.rootDirectory, smallstackPath, "modules", "nativescript");
         // const absoluteResourcesPath = path.resolve(Config.rootDirectory, smallstackPath, "resources");
         // const absoluteSmallstackDistPath = path.resolve(Config.rootDirectory, smallstackPath, "dist");
 
@@ -352,7 +349,6 @@ export class Setup {
         if (Config.nativescriptDirectory) {
             this.createSymlink(absoluteModuleCoreClientPath, Config.nativescriptSmallstackCoreClientDirectory);
             this.createSymlink(absoluteModuleCoreCommonPath, Config.nativescriptSmallstackCoreCommonDirectory);
-            this.createSymlink(absoluteModuleNativescriptPath, Config.nativescriptSmallstackNativescriptDirectory);
             this.createSymlink(absoluteDatalayerPath, Config.nativescriptDatalayerDirectory);
         }
 
