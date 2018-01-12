@@ -28,10 +28,6 @@ function cloud(parameters) {
             const services = yield (dockerCloudService.getStacks(_.omit(parameters, "listStacks")));
             console.log(services.objects);
         }
-        if (parameters.registerExternalRepository) {
-            const response = yield (dockerCloudService.registerExternalRepository(_.omit(parameters, "registerExternalRepository")));
-            console.log("Successfully added " + response[0].name + " to docker cloud registry!");
-        }
         if (parameters.createService) {
             currentService = yield (dockerCloudService.createService(_.omit(parameters, "createService")));
             console.log("Successfully created service!");

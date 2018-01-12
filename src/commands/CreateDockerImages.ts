@@ -19,9 +19,6 @@ export class CreateDockerImages {
     }
 
     public static execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any> {
-        if (current.parameters.dockerRegistry === undefined)
-            current.parameters.dockerRegistry = "registry.gitlab.com";
-
         if (Config.isProjectEnvironment()) {
             if (current.parameters.frontendOnly)
                 return this.createFrontendImage(current.parameters);
@@ -38,7 +35,7 @@ export class CreateDockerImages {
         return new Promise<boolean>((resolve, reject) => {
 
             if (parameters.meteorImageName === undefined)
-                parameters.meteorImageName = "meteor-" + Config.name;
+                parameters.meteorImageName = "meteor-" + Config.project.name;
 
             console.log("Creating docker image: " + parameters.meteorImageName);
 
