@@ -16,8 +16,6 @@ class CreateDockerImages {
         };
     }
     static execute(current, allCommands) {
-        if (current.parameters.dockerRegistry === undefined)
-            current.parameters.dockerRegistry = "registry.gitlab.com";
         if (Config_1.Config.isProjectEnvironment()) {
             if (current.parameters.frontendOnly)
                 return this.createFrontendImage(current.parameters);
@@ -32,7 +30,7 @@ class CreateDockerImages {
     static createMeteorImage(parameters) {
         return new Promise((resolve, reject) => {
             if (parameters.meteorImageName === undefined)
-                parameters.meteorImageName = "meteor-" + Config_1.Config.name;
+                parameters.meteorImageName = "meteor-" + Config_1.Config.project.name;
             console.log("Creating docker image: " + parameters.meteorImageName);
             fs_extra_1.copySync(path.join(Config_1.Config.meteorDirectory, "Dockerfile"), path.join(Config_1.Config.builtDirectory, "Dockerfile.meteor"));
             exec("docker info", { cwd: Config_1.Config.builtDirectory });

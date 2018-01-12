@@ -60,34 +60,6 @@ class DockerCloudService {
             return this.buildRequest("GET", "app", "service/" + uuid + "/");
         });
     }
-    registerExternalRepository(parameters) {
-        // we have to register external repositories twice, see https://forums.docker.com/t/tags-from-external-registry-not-loading-net-err-content-decoding-failed/25831/4
-        const namespacedUrl = this.getDockerCloudApiUrl("repo", "repository/");
-        const personalUrl = this.getDockerCloudApiUrl("repo", "repository/", true);
-        const personalRegistryCall = requestPromise.post(personalUrl, {
-            headers: {
-                "Authorization": this.getDockerCloudBasicAuth(),
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
-            json: true,
-            body: {
-                name: parameters.repository, username: parameters.username, password: parameters.password
-            }
-        });
-        const namespacedRegistryCall = requestPromise.post(namespacedUrl, {
-            headers: {
-                "Authorization": this.getDockerCloudBasicAuth(),
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
-            json: true,
-            body: {
-                name: parameters.repository, username: parameters.username, password: parameters.password
-            }
-        });
-        return Promise.all([personalRegistryCall, namespacedRegistryCall]);
-    }
     createService(parameters) {
         if (parameters.name === undefined)
             throw new Error("name must be set");

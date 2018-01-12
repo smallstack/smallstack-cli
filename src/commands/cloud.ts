@@ -24,11 +24,6 @@ export async function cloud(parameters) {
         console.log(services.objects);
     }
 
-    if (parameters.registerExternalRepository) {
-        const response = await (dockerCloudService.registerExternalRepository(_.omit(parameters, "registerExternalRepository")));
-        console.log("Successfully added " + response[0].name + " to docker cloud registry!");
-    }
-
     if (parameters.createService) {
         currentService = await (dockerCloudService.createService(_.omit(parameters, "createService")));
         console.log("Successfully created service!");
