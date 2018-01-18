@@ -142,8 +142,6 @@ class Config {
     static npmPackageFound(directory) {
         if (!directory)
             return false;
-        if (fs.existsSync(path.join(directory, ".meteor")) || this.smallstackFound(directory))
-            return false;
         const packageJSONPath = path.join(directory, "package.json");
         if (!fs.existsSync(packageJSONPath))
             return false;
