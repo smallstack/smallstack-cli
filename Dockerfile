@@ -25,7 +25,7 @@ RUN dpkg --add-architecture i386 && \
 						unzip \
 						usbutils
 
-# install node 8.9.1
+# install node 8.9.3
 RUN groupadd --gid 1004 node \
   && useradd --uid 1004 --gid node --shell /bin/bash --create-home node
 
@@ -68,6 +68,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# install android-sdk
 RUN mkdir -p /tns /opt/android-sdk
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
@@ -81,6 +82,7 @@ RUN echo y | ${ANDROID_HOME}/tools/android update sdk --all --no-ui --filter pla
 
 ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
 
+# install nativescript
 RUN npm install nativescript -g --unsafe-perm && \
     tns error-reporting disable && \
     tns usage-reporting disable
@@ -96,6 +98,10 @@ RUN apt-get --yes --force-yes update
 RUN apt-get --yes --force-yes install docker-ce
 RUN apt-get --yes --force-yes install python make g++
 
+# install AWS CLI
+RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+RUN python get-pip.py
+RUN pip install awscli --ignore-installed six
 
 # install meteor
 RUN curl -sL https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh
