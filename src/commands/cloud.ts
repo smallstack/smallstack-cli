@@ -1,6 +1,6 @@
 import * as moment from "moment";
 import * as _ from "underscore";
-import { DockerCloudService, IDockerCloudService, IDockerCloudContainer, IDockerCloudPageable } from "../services/DockerCloudService";
+import { DockerCloudService, IDockerCloudContainer, IDockerCloudPageable, IDockerCloudService } from "../services/DockerCloudService";
 
 export async function cloud(parameters) {
 

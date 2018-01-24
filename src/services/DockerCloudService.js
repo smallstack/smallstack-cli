@@ -64,6 +64,19 @@ class DockerCloudService {
         if (parameters.name === undefined)
             throw new Error("name must be set");
         parameters.name = this.truncateServiceName(parameters.name);
+        // changing ROOT_URL and VIRTUAL_HOST urls if they are too long
+        if (parameters && parameters.container_envvars) {
+            for (const envvar of parameters.container_envvars) {
+                if (envvar.key === "VIRTUAL_HOST" && typeof envvar.value === "string" && envvar.value.length > 45) {
+                    envvar.value = this.truncateDomainsSubdomain(envvar.value, 45);
+                    console.warn("Warning: Found VIRTUAL_HOST environment variable with more than 45 characters, truncating to " + envvar.value);
+                }
+                if (envvar.key === "ROOT_URL" && typeof envvar.value === "string" && envvar.value.length > 45) {
+                    envvar.value = this.truncateDomainsSubdomain(envvar.value, 45);
+                    console.warn("Warning: Found ROOT_URL environment variable with more than 45 characters, truncating to " + envvar.value);
+                }
+            }
+        }
         return this.buildRequest("POST", "app", "service/", undefined, parameters);
     }
     sendServiceCommand(uuid, command) {
@@ -210,6 +223,18 @@ class DockerCloudService {
     }
     truncateServiceName(serviceName, limit = 30) {
         return serviceName.substr(0, limit);
+    }
+    truncateDomainsSubdomain(url, maximumLength = 30) {
+        const split = url.split(".");
+        if (split.length < 2)
+            throw new Error("No subdomain Found!");
+        const subDomain = split[0];
+        const rest = url.substring(subDomain.length);
+        const subDomainLength = maximumLength - rest.length;
+        if (subDomainLength < 1)
+            throw new Error("Subdomain cannot be truncated since the rest is too long already. It would result in an empty subdomain!");
+        const truncatedSubdomain = subDomain.substring(0, subDomainLength);
+        return url.replace(subDomain, truncatedSubdomain);
     }
     waitForStateInternal(parameters, timeoutHandler, intervalHandler) {
         return new Promise((resolve) => {
