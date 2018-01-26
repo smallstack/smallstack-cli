@@ -14,6 +14,7 @@ import { Config } from "./src/Config";
 import { parseArguments } from "./src/functions/parseArguments";
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
 import { UpdateCheck } from "./src/functions/UpdateCheck";
+import { ChangelogCommand } from "./src/commands/ChangelogCommand";
 
 export async function CLI() {
     const startDate: Date = new Date();
@@ -46,6 +47,7 @@ export async function CLI() {
     commands.cloud = cloud as any;
     commands.publish = PublishCommand;
     commands.createPluginPackageJSON = CreatePluginPackageJSON;
+    commands.changelog = ChangelogCommand;
 
     // show a nice logo
     logo();

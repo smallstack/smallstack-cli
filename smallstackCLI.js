@@ -22,6 +22,7 @@ const Config_1 = require("./src/Config");
 const parseArguments_1 = require("./src/functions/parseArguments");
 const stringifyParametersWithoutPasswords_1 = require("./src/functions/stringifyParametersWithoutPasswords");
 const UpdateCheck_1 = require("./src/functions/UpdateCheck");
+const ChangelogCommand_1 = require("./src/commands/ChangelogCommand");
 function CLI() {
     return __awaiter(this, void 0, void 0, function* () {
         const startDate = new Date();
@@ -51,6 +52,7 @@ function CLI() {
         commands.cloud = cloud_1.cloud;
         commands.publish = Publish_1.PublishCommand;
         commands.createPluginPackageJSON = CreatePluginPackageJSON_1.CreatePluginPackageJSON;
+        commands.changelog = ChangelogCommand_1.ChangelogCommand;
         // show a nice logo
         logo();
         // display some information
