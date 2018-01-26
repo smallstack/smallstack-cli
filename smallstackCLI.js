@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("underscore");
 const bundle_1 = require("./src/commands/bundle");
+const ChangelogCommand_1 = require("./src/commands/ChangelogCommand");
 const cloud_1 = require("./src/commands/cloud");
 const CreateDockerImages_1 = require("./src/commands/CreateDockerImages");
 const CreatePluginPackageJSON_1 = require("./src/commands/CreatePluginPackageJSON");
@@ -22,7 +23,6 @@ const Config_1 = require("./src/Config");
 const parseArguments_1 = require("./src/functions/parseArguments");
 const stringifyParametersWithoutPasswords_1 = require("./src/functions/stringifyParametersWithoutPasswords");
 const UpdateCheck_1 = require("./src/functions/UpdateCheck");
-const ChangelogCommand_1 = require("./src/commands/ChangelogCommand");
 function CLI() {
     return __awaiter(this, void 0, void 0, function* () {
         const startDate = new Date();

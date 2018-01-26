@@ -1,6 +1,7 @@
 import * as _ from "underscore";
 import { CLICommandStatic } from "./index";
 import { BundleCommand } from "./src/commands/bundle";
+import { ChangelogCommand } from "./src/commands/ChangelogCommand";
 import { CLICommandOption } from "./src/commands/CLICommand";
 import { cloud } from "./src/commands/cloud";
 import { CreateDockerImages } from "./src/commands/CreateDockerImages";
@@ -14,7 +15,6 @@ import { Config } from "./src/Config";
 import { parseArguments } from "./src/functions/parseArguments";
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
 import { UpdateCheck } from "./src/functions/UpdateCheck";
-import { ChangelogCommand } from "./src/commands/ChangelogCommand";
 
 export async function CLI() {
     const startDate: Date = new Date();
