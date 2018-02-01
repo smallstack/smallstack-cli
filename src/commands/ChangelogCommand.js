@@ -108,7 +108,7 @@ class ChangelogCommand {
                 url += "?";
             else
                 url += "&";
-            url += "per_page=5&";
+            url += "per_page=100&";
             let currentPage = 1;
             let response;
             do {
@@ -117,7 +117,7 @@ class ChangelogCommand {
                 response = yield this.getResultFromUrl(urlWithPage);
                 resultObjects = resultObjects.concat(response.body);
                 currentPage++;
-            } while (false && response.headers["x-next-page"] !== undefined && response.headers["x-next-page"] !== "");
+            } while (response.headers["x-next-page"] !== undefined && response.headers["x-next-page"] !== "");
             resolve(resultObjects);
         }));
     }
