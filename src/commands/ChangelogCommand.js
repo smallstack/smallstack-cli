@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// tslint:disable:member-ordering
 const fs = require("fs-extra");
 const inquirer = require("inquirer");
 const moment = require("moment");
@@ -19,122 +20,105 @@ class ChangelogCommand {
         return "Creates a changelog based on gitlab issues and tags!";
     }
     static getParameters() {
-        return {};
+        return {
+            "--auto-create-milestones": "Automatically creates Gitlab Milestones for all Git Tags",
+            "--fix-missing-milestones": "Adds missing milestones to issues based on when their MR was merged"
+        };
     }
     static execute(current, allCommands) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            let gitlabToken = process.env.GITLAB_TOKEN;
-            if (!gitlabToken) {
+            this.gitlabToken = process.env.GITLAB_TOKEN;
+            if (!this.gitlabToken) {
                 const answers = yield inquirer.prompt([{
                         name: "gitlabToken",
                         type: "password",
                         message: "Gitlab Token"
                     }]);
-                gitlabToken = answers.gitlabToken;
+                this.gitlabToken = answers.gitlabToken;
             }
-            if (!gitlabToken)
+            if (!this.gitlabToken)
                 throw new Error("No gitlab token defined!");
             const projectPath = yield this.getProjectPath();
-            // const mergeRequestBaseUrl: string = `https://gitlab.com/${projectPath}/merge_requests/`;
+            const issueBaseUrl = `https://gitlab.com/${projectPath}/issues/`;
             // get project
-            console.log("Getting project " + projectPath);
+            console.log("Getting Project " + projectPath);
             const project = yield request.get(`https://gitlab.com/api/v4/projects/${projectPath.replace(/\//g, "%2F")}`, {
                 headers: {
-                    "PRIVATE-TOKEN": gitlabToken
+                    "PRIVATE-TOKEN": this.gitlabToken
                 },
                 json: true
             });
             if (!project)
                 throw new Error("Could not find project!");
             const projectId = project.id;
-            // get all tags with dates
-            console.log("Getting repository & all tags...");
-            // TODO: add proper paging
-            const tags = yield request.get(`https://gitlab.com/api/v4/projects/${projectId}/repository/tags?sort=asc&per_page=100`, {
-                headers: {
-                    "PRIVATE-TOKEN": gitlabToken
-                },
-                json: true
-            });
+            console.log("  -> Project ID " + projectId);
             // get all milestones
-            console.log("Getting & checking milestones...");
-            // TODO: add proper paging
-            const milestones = yield request.get(`https://gitlab.com/api/v4/projects/${projectId}/milestones?per_page=100`, {
-                headers: {
-                    "PRIVATE-TOKEN": gitlabToken
-                },
-                json: true
-            });
-            // check milestones against tags
-            for (const tag of tags) {
-                let tagFoundAsMilestone = false;
-                for (const milestone of milestones) {
-                    if (milestone.title === tag.name) {
-                        tagFoundAsMilestone = true;
-                        break;
-                    }
-                }
-                if (!tagFoundAsMilestone) {
-                    if (current.parameters["auto-create-milestones"]) {
-                        console.log("Creating milestone: " + tag.name);
-                        const response = yield request.post(`https://gitlab.com/api/v4/projects/${projectId}/milestones?title=${tag.name}&due_date=${tag.commit.created_at}`, {
-                            headers: {
-                                "PRIVATE-TOKEN": gitlabToken
-                            },
-                            json: true
-                        });
-                        yield request.put(`https://gitlab.com/api/v4/projects/${projectId}/milestones/${response.id}?state_event=close`, {
-                            headers: {
-                                "PRIVATE-TOKEN": gitlabToken
-                            },
-                            json: true
-                        });
-                    }
-                    else {
-                        reject("Tag not found as milestone : " + tag.name + ", pass --auto-create-milestones to automatically created missing milestones!");
-                        return;
-                    }
-                }
-            }
-            // get all merge requests with closing dates
-            console.log("Getting Merge Requests...");
-            // TODO: add proper paging
-            const mergeRequests = yield request.get(`https://gitlab.com/api/v4/projects/${projectId}/merge_requests?state=merged&sort=asc&per_page=100`, {
-                headers: {
-                    "PRIVATE-TOKEN": gitlabToken
-                },
-                json: true
-            });
+            console.log("Getting Milestones...");
+            const milestones = yield this.getAll(`https://gitlab.com/api/v4/projects/${projectId}/milestones`);
+            console.log("  -> " + milestones.length + " Milestones found!");
             // write changelog.md
+            console.log("Computing Changelog...");
             let out = "";
-            let lastTagsDate = 0;
-            for (const tag of tags) {
-                const currentTagDate = new Date(tag.commit.created_at).getTime();
-                const dateString = moment(currentTagDate).format("YYYY-MM-DD");
-                out += "# " + tag.name;
+            for (const milestone of milestones) {
+                const dateString = moment(milestone.due_date).format("YYYY-MM-DD");
+                out += "\n";
+                out += "# " + milestone.title;
                 out += "\n";
                 out += "Release Date: " + dateString;
                 out += "\n";
-                out += "### Issues\n";
-                for (const mergeRequest of mergeRequests) {
-                    if (!mergeRequest.merge_commit_sha) {
-                        // console.log("No merge commit found, skipping MR...");
-                    }
-                    else {
-                        // TODO: Use the commit date of the merge_commit_sha, not the
-                        const mergeRequestDate = new Date(mergeRequest.updated_at).getTime();
-                        if (mergeRequestDate >= lastTagsDate && mergeRequestDate <= currentTagDate) {
-                            // const closingDateString: string = moment(mergeRequest.updated_at).format("YYYY-MM-DD");
-                            out += "* " + mergeRequest.iid + " - " + mergeRequest.title + " (" + moment(mergeRequest.updated_at).format("YYYY-MM-DD") + ")";
-                            out += "\n";
-                        }
-                    }
+                out += "\n";
+                const milestoneIssues = yield this.getAll(`https://gitlab.com/api/v4/projects/${projectId}/milestones/${milestone.id}/issues`);
+                const bugs = [];
+                const issues = [];
+                for (const issue of milestoneIssues) {
+                    if (issue.labels instanceof Array && issue.labels.indexOf("Bug") !== -1)
+                        bugs.push(issue);
+                    else
+                        issues.push(issue);
                 }
-                out += "\n\n";
-                lastTagsDate = currentTagDate;
+                if (issues.length > 0) {
+                    out += "## Issues";
+                    out += "\n";
+                    for (const issue of issues) {
+                        out += `* [${issue.iid}](${issueBaseUrl}${issue.iid}) - ${issue.title} (${moment(issue.updated_at).format("YYYY-MM-DD")})`;
+                        out += "\n";
+                    }
+                    out += "\n";
+                }
+                if (bugs.length > 0) {
+                    out += "## Bugs";
+                    out += "\n";
+                    for (const bug of bugs) {
+                        out += `* [${bug.iid}](${issueBaseUrl}${bug.iid}) - ${bug.title} (${moment(bug.updated_at).format("YYYY-MM-DD")})`;
+                        out += "\n";
+                    }
+                    out += "\n";
+                }
+                out += "\n";
             }
+            console.log("Writing Changelog to ./CHANGELOG.md ...");
             fs.writeFileSync("./CHANGELOG.md", out, { encoding: "UTF-8" });
             resolve();
+        }));
+    }
+    static getAll(url) {
+        return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+            let resultObjects = [];
+            if (url.indexOf("?") === -1)
+                url += "?";
+            else
+                url += "&";
+            url += "per_page=5&";
+            let currentPage = 1;
+            let response;
+            do {
+                const urlWithPage = url + "page=" + currentPage;
+                console.log("  -> querying " + urlWithPage);
+                response = yield this.getResultFromUrl(urlWithPage);
+                resultObjects = resultObjects.concat(response.body);
+                currentPage++;
+            } while (false && response.headers["x-next-page"] !== undefined && response.headers["x-next-page"] !== "");
+            resolve(resultObjects);
         }));
     }
     static getProjectPath() {
@@ -147,6 +131,19 @@ class ChangelogCommand {
                 }
                 else
                     reject("Could not find remote 'origin'!");
+            });
+        }));
+    }
+    static getResultFromUrl(url) {
+        return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+            request.get(url, {
+                headers: {
+                    "PRIVATE-TOKEN": this.gitlabToken
+                },
+                json: true,
+                resolveWithFullResponse: true
+            }).then((response) => {
+                resolve(response);
             });
         }));
     }
