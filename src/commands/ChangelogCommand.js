@@ -8,8 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs = require("fs-extra");
+const inquirer = require("inquirer");
 const moment = require("moment");
 const request = require("request-promise");
+const GIT = require("simple-git");
+const _ = require("underscore");
 class ChangelogCommand {
     static getHelpSummary() {
         return "Creates a changelog based on gitlab issues and tags!";
@@ -19,11 +23,19 @@ class ChangelogCommand {
     }
     static execute(current, allCommands) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            // TODO: use env variables for this
-            const gitlabToken = "";
-            const projectPath = "smallstack/project-sata-loyalty";
-            // variables
-            const mergeRequestBaseUrl = "https://gitlab.com/smallstack/project-sata-loyalty/merge_requests/";
+            let gitlabToken = process.env.GITLAB_TOKEN;
+            if (!gitlabToken) {
+                const answers = yield inquirer.prompt([{
+                        name: "gitlabToken",
+                        type: "password",
+                        message: "Gitlab Token"
+                    }]);
+                gitlabToken = answers.gitlabToken;
+            }
+            if (!gitlabToken)
+                throw new Error("No gitlab token defined!");
+            const projectPath = yield this.getProjectPath();
+            // const mergeRequestBaseUrl: string = `https://gitlab.com/${projectPath}/merge_requests/`;
             // get project
             console.log("Getting project " + projectPath);
             const project = yield request.get(`https://gitlab.com/api/v4/projects/${projectPath.replace(/\//g, "%2F")}`, {
@@ -99,11 +111,11 @@ class ChangelogCommand {
             for (const tag of tags) {
                 const currentTagDate = new Date(tag.commit.created_at).getTime();
                 const dateString = moment(currentTagDate).format("YYYY-MM-DD");
-                out += "#" + tag.name;
+                out += "# " + tag.name;
                 out += "\n";
                 out += "Release Date: " + dateString;
                 out += "\n";
-                out += "Merge Requests";
+                out += "### Issues\n";
                 for (const mergeRequest of mergeRequests) {
                     if (!mergeRequest.merge_commit_sha) {
                         // console.log("No merge commit found, skipping MR...");
@@ -118,12 +130,26 @@ class ChangelogCommand {
                         }
                     }
                 }
-                out += "\n";
+                out += "\n\n";
                 lastTagsDate = currentTagDate;
             }
-            console.log(out);
+            fs.writeFileSync("./CHANGELOG.md", out, { encoding: "UTF-8" });
             resolve();
         }));
     }
+    static getProjectPath() {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            this.git.getRemotes(true, (error, result) => {
+                const origin = _.find(result, (remote) => remote.name === "origin");
+                if (origin) {
+                    const url = origin.refs.fetch.replace(".git", "").replace("git@gitlab.com:", "");
+                    resolve(url);
+                }
+                else
+                    reject("Could not find remote 'origin'!");
+            });
+        }));
+    }
 }
+ChangelogCommand.git = GIT();
 exports.ChangelogCommand = ChangelogCommand;

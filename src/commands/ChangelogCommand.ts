@@ -1,8 +1,14 @@
+import * as fs from "fs-extra";
+import * as inquirer from "inquirer";
 import * as moment from "moment";
 import * as request from "request-promise";
+import * as GIT from "simple-git";
+import * as _ from "underscore";
 import { CLICommandOption } from "./CLICommand";
 
 export class ChangelogCommand {
+
+    public static git = GIT();
 
     public static getHelpSummary(): string {
         return "Creates a changelog based on gitlab issues and tags!";
@@ -15,12 +21,21 @@ export class ChangelogCommand {
     public static execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any> {
         return new Promise<void>(async (resolve, reject) => {
 
-            // TODO: use env variables for this
-            const gitlabToken: string = "";
-            const projectPath: string = "smallstack/project-sata-loyalty";
+            let gitlabToken: string = process.env.GITLAB_TOKEN;
+            if (!gitlabToken) {
+                const answers = await inquirer.prompt([{
+                    name: "gitlabToken",
+                    type: "password",
+                    message: "Gitlab Token"
+                }]);
+                gitlabToken = answers.gitlabToken;
+            }
+            if (!gitlabToken)
+                throw new Error("No gitlab token defined!");
 
-            // variables
-            const mergeRequestBaseUrl: string = "https://gitlab.com/smallstack/project-sata-loyalty/merge_requests/";
+            const projectPath: string = await this.getProjectPath();
+
+            // const mergeRequestBaseUrl: string = `https://gitlab.com/${projectPath}/merge_requests/`;
 
             // get project
             console.log("Getting project " + projectPath);
@@ -102,12 +117,12 @@ export class ChangelogCommand {
             for (const tag of tags) {
                 const currentTagDate: number = new Date(tag.commit.created_at).getTime();
                 const dateString: string = moment(currentTagDate).format("YYYY-MM-DD");
-                out += "#" + tag.name;
+                out += "# " + tag.name;
                 out += "\n";
 
                 out += "Release Date: " + dateString;
                 out += "\n";
-                out += "Merge Requests";
+                out += "### Issues\n";
 
                 for (const mergeRequest of mergeRequests) {
                     if (!mergeRequest.merge_commit_sha) {
@@ -123,18 +138,27 @@ export class ChangelogCommand {
                     }
                 }
 
-                out += "\n";
+                out += "\n\n";
 
                 lastTagsDate = currentTagDate;
             }
-            console.log(out);
-
-
-
-
-
+            fs.writeFileSync("./CHANGELOG.md", out, { encoding: "UTF-8" });
             resolve();
         });
 
+
+    }
+    public static getProjectPath(): Promise<string> {
+        return new Promise<string>(async (resolve, reject) => {
+            this.git.getRemotes(true, (error: Error, result: any) => {
+                const origin = _.find(result, (remote: any) => remote.name === "origin");
+                if (origin) {
+                    const url: string = origin.refs.fetch.replace(".git", "").replace("git@gitlab.com:", "");
+                    resolve(url);
+                }
+                else
+                    reject("Could not find remote 'origin'!");
+            });
+        });
     }
 }
