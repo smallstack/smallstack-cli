@@ -3,6 +3,7 @@ import * as fs from "fs-extra";
 import * as inquirer from "inquirer";
 import * as moment from "moment";
 import * as request from "request-promise";
+import * as semver from "semver";
 import * as GIT from "simple-git";
 import * as _ from "underscore";
 import { CLICommandOption } from "./CLICommand";
@@ -59,6 +60,13 @@ export class ChangelogCommand {
             const milestones: any[] = await this.getAll(`https://gitlab.com/api/v4/projects/${projectId}/milestones`);
             console.log("  -> " + milestones.length + " Milestones found!");
 
+            milestones.sort((milestoneA, milestoneB) => {
+                if (semver.gt(milestoneA.title, milestoneB.title))
+                    return -1;
+                else
+                    return 1;
+            });
+
             // write changelog.md
             console.log("Computing Changelog...");
             let out: string = "";
@@ -86,7 +94,7 @@ export class ChangelogCommand {
                     out += "## Issues";
                     out += "\n";
                     for (const issue of issues) {
-                        out += `* [${issue.iid}](${issueBaseUrl}${issue.iid}) - ${issue.title} (${moment(issue.updated_at).format("YYYY-MM-DD")})`;
+                        out += `* [${issue.iid}](${issueBaseUrl}${issue.iid}) - ${issue.title} (${moment(issue.closed_at).format("YYYY-MM-DD")})`;
                         out += "\n";
                     }
                     out += "\n";
@@ -96,7 +104,7 @@ export class ChangelogCommand {
                     out += "## Bugs";
                     out += "\n";
                     for (const bug of bugs) {
-                        out += `* [${bug.iid}](${issueBaseUrl}${bug.iid}) - ${bug.title} (${moment(bug.updated_at).format("YYYY-MM-DD")})`;
+                        out += `* [${bug.iid}](${issueBaseUrl}${bug.iid}) - ${bug.title} (${moment(bug.closed_at).format("YYYY-MM-DD")})`;
                         out += "\n";
                     }
                     out += "\n";
