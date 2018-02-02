@@ -1,6 +1,7 @@
 import * as _ from "underscore";
 import { CLICommandStatic } from "./index";
 import { BundleCommand } from "./src/commands/bundle";
+import { ChangelogCommand } from "./src/commands/ChangelogCommand";
 import { CLICommandOption } from "./src/commands/CLICommand";
 import { cloud } from "./src/commands/cloud";
 import { CreateDockerImages } from "./src/commands/CreateDockerImages";
@@ -46,6 +47,7 @@ export async function CLI() {
     commands.cloud = cloud as any;
     commands.publish = PublishCommand;
     commands.createPluginPackageJSON = CreatePluginPackageJSON;
+    commands.changelog = ChangelogCommand;
 
     // show a nice logo
     logo();

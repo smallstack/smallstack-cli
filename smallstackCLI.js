@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("underscore");
 const bundle_1 = require("./src/commands/bundle");
+const ChangelogCommand_1 = require("./src/commands/ChangelogCommand");
 const cloud_1 = require("./src/commands/cloud");
 const CreateDockerImages_1 = require("./src/commands/CreateDockerImages");
 const CreatePluginPackageJSON_1 = require("./src/commands/CreatePluginPackageJSON");
@@ -51,6 +52,7 @@ function CLI() {
         commands.cloud = cloud_1.cloud;
         commands.publish = Publish_1.PublishCommand;
         commands.createPluginPackageJSON = CreatePluginPackageJSON_1.CreatePluginPackageJSON;
+        commands.changelog = ChangelogCommand_1.ChangelogCommand;
         // show a nice logo
         logo();
         // display some information

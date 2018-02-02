@@ -36,17 +36,17 @@ node8test:
     - npm -v
     - npm install
     - npm run compile
-osxtest:
-  stage: test
-  tags:
-    - osx
-  script:
-    - node -v
-    - npm -v
-    - npm install
-    - npm run compile
-    - npm install -g
-    - smallstack help
+# osxtest:
+#   stage: test
+#   tags:
+#     - osx
+#   script:
+#     - node -v
+#     - npm -v
+#     - npm install
+#     - npm run compile
+#     - npm install -g
+#     - smallstack help
 npm_publish:
   stage: npmDeploy
   only:
