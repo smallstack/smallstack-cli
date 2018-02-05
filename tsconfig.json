@@ -8,5 +8,9 @@
     "noUnusedLocals": true,
     "sourceMap": false,
     "newLine": "LF"
-  }
+  },
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
 }
