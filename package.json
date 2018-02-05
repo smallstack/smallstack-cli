@@ -1,19 +1,20 @@
 {
   "name": "@smallstack/cli",
-  "version": "0.10.38",
+  "version": "0.10.39",
   "description": "Command Line Interface for smallstack projects",
   "author": {
     "email": "max@smallstack.io",
     "name": "Maximilian Friedmann",
     "url": "https://smallstack.io"
   },
+  "main": "./index.js",
+  "typings": "./dist/dts/index",
   "homepage": "https://smallstack.io",
   "bugs": "https://gitlab.com/smallstack/smallstack-cli/issues",
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/smallstack/smallstack-cli.git"
   },
-  "main": "./index.js",
   "bin": {
     "smallstack": "./bin/smallstack"
   },
