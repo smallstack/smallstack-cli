@@ -5,7 +5,7 @@ import * as request from "request-promise";
 import * as _ from "underscore";
 import { CLICommandOption } from "./CLICommand";
 
-export class ChangelogCommand {
+export class GitlabBoardFixCommand {
 
     private static gitlabToken: string;
 

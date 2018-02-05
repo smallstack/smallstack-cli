@@ -13,7 +13,7 @@ const inquirer = require("inquirer");
 const moment = require("moment");
 const request = require("request-promise");
 const _ = require("underscore");
-class ChangelogCommand {
+class GitlabBoardFixCommand {
     static getHelpSummary() {
         return "Creates a changelog based on gitlab issues and tags!";
     }
@@ -245,4 +245,4 @@ class ChangelogCommand {
         }));
     }
 }
-exports.ChangelogCommand = ChangelogCommand;
+exports.GitlabBoardFixCommand = GitlabBoardFixCommand;

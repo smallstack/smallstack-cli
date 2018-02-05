@@ -23,6 +23,7 @@ const Config_1 = require("./src/Config");
 const parseArguments_1 = require("./src/functions/parseArguments");
 const stringifyParametersWithoutPasswords_1 = require("./src/functions/stringifyParametersWithoutPasswords");
 const UpdateCheck_1 = require("./src/functions/UpdateCheck");
+const GitlabBoardFixCommand_1 = require("./src/commands/GitlabBoardFixCommand");
 function CLI() {
     return __awaiter(this, void 0, void 0, function* () {
         const startDate = new Date();
@@ -53,6 +54,7 @@ function CLI() {
         commands.publish = Publish_1.PublishCommand;
         commands.createPluginPackageJSON = CreatePluginPackageJSON_1.CreatePluginPackageJSON;
         commands.changelog = ChangelogCommand_1.ChangelogCommand;
+        commands.gitlabBoardFix = GitlabBoardFixCommand_1.GitlabBoardFixCommand;
         // show a nice logo
         logo();
         // display some information

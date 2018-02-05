@@ -6,3 +6,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./src/functions/createMeteorVersionFile"));
 __export(require("./src/Config"));
 __export(require("./src/functions/parseArguments"));
+__export(require("./src/services/DockerCloudService"));
+__export(require("./src/services/GitlabService"));
