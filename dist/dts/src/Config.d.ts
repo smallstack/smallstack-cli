@@ -1,0 +1,61 @@
+export declare class Config {
+    static frontendSmallstackDatalayerDirectory: string;
+    static frontendSmallstackFrontendDirectory: string;
+    static frontendSmallstackCoreCommonDirectory: string;
+    static frontendSmallstackCoreClientDirectory: string;
+    static frontendDirectory: string;
+    static nativescriptDatalayerDirectory: string;
+    static nativescriptSmallstackNativescriptDirectory: string;
+    static nativescriptSmallstackCoreCommonDirectory: string;
+    static nativescriptSmallstackCoreClientDirectory: string;
+    static nativescriptDirectory: string;
+    static datalayerTemplatesPath: string;
+    static cliTemplatesPath: string;
+    static cliResourcesPath: string;
+    static datalayerSmallstackCoreCommonDirectory: string;
+    static datalayerPath: string;
+    static meteorDatalayerPath: string;
+    static meteorSmallstackMeteorCommonDirectory: string;
+    static meteorSmallstackMeteorServerDirectory: string;
+    static meteorSmallstackMeteorClientDirectory: string;
+    static meteorSmallstackCoreCommonDirectory: string;
+    static meteorSmallstackCoreServerDirectory: string;
+    static meteorSmallstackCoreClientDirectory: string;
+    static meteorSmallstackDependenciesDirectory: string;
+    static smallstackDirectory: string;
+    static meteorTestsDirectory: string;
+    static meteorDirectory: string;
+    static builtDirectory: string;
+    static rootDirectory: string;
+    static tmpDirectory: string;
+    static cli: any;
+    static project: any;
+    static init(): void;
+    /**
+     * Determines how a project can be found
+     */
+    static projectFound(directory: any): boolean;
+    static checkModule(modulePath: any, name: any): boolean;
+    static smallstackFound(directory: any): boolean;
+    static smallstackModuleFound(directory: any): boolean;
+    static smallstackComponentFound(directory: any): boolean;
+    static nativescriptAppFound(directory: any): boolean;
+    static npmPackageFound(directory: any): boolean;
+    static multiNPMPackageFound(directory: any): boolean;
+    static isSmallstackEnvironment(): boolean;
+    static isProjectEnvironment(): boolean;
+    static isComponentEnvironment(): boolean;
+    static isNativescriptEnvironment(): boolean;
+    static isNPMPackageEnvironment(): boolean;
+    static isMultiNPMPackageEnvironment(): boolean;
+    static calledWithCreateProjectCommand(): boolean;
+    static calledWithNonProjectCommand(): boolean;
+    static meteorProjectAvailable(): boolean;
+    static smallstackDirectoryAvailable(): boolean;
+    static projectHasNativescriptApp(): boolean;
+    static projectHasFrontend(): boolean;
+    static projectHasDatalayerNG(): boolean;
+    static getModuleNames(): string[];
+    static getRootDirectory(): string;
+    static isCIMode(): boolean;
+}

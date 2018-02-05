@@ -2,6 +2,8 @@
   "compilerOptions": {
     "target": "ES2015",
     "module": "commonjs",
+    "declaration": true,
+    "declarationDir": "dist/dts",
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
     "sourceMap": false,
