@@ -1,6 +1,7 @@
 import * as _ from "underscore";
 import { CLICommandStatic } from "./index";
 import { BundleCommand } from "./src/commands/bundle";
+import { ChangelogCommand } from "./src/commands/ChangelogCommand";
 import { CLICommandOption } from "./src/commands/CLICommand";
 import { cloud } from "./src/commands/cloud";
 import { CreateDockerImages } from "./src/commands/CreateDockerImages";
@@ -14,6 +15,7 @@ import { Config } from "./src/Config";
 import { parseArguments } from "./src/functions/parseArguments";
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
 import { UpdateCheck } from "./src/functions/UpdateCheck";
+import { GitlabBoardFixCommand } from "./src/commands/GitlabBoardFixCommand";
 
 export async function CLI() {
     const startDate: Date = new Date();
@@ -46,6 +48,8 @@ export async function CLI() {
     commands.cloud = cloud as any;
     commands.publish = PublishCommand;
     commands.createPluginPackageJSON = CreatePluginPackageJSON;
+    commands.changelog = ChangelogCommand;
+    commands.gitlabBoardFix = GitlabBoardFixCommand;
 
     // show a nice logo
     logo();

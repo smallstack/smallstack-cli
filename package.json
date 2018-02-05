@@ -1,6 +1,6 @@
 {
   "name": "@smallstack/cli",
-  "version": "0.10.36",
+  "version": "0.10.38",
   "description": "Command Line Interface for smallstack projects",
   "author": {
     "email": "max@smallstack.io",
@@ -23,9 +23,7 @@
   "engineStrict": true,
   "scripts": {
     "ci-publish": "ci-publish",
-    "compile": "tsc",
-    "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "compile": "tsc"
   },
   "dependencies": {
     "@types/node": "^8.5.1",
@@ -67,14 +65,12 @@
     "sort-package-json": "^1.7.1",
     "typings-core": "^2.3.3",
     "underscore": "1.8.3",
-    "underscore.string": "3.3.4",
-    "snyk": "^1.65.2"
+    "underscore.string": "3.3.4"
   },
   "devDependencies": {
     "nodemon": "^1.13.3",
     "@types/fs-extra": "^4.0.2",
     "@types/glob": "^5.0.33",
     "typescript": "^2.6.2"
-  },
-  "snyk": true
+  }
 }
