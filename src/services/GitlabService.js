@@ -10,15 +10,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const request = require("request-promise");
 class GitlabService {
-    constructor(gitlabToken) {
-        this.gitlabToken = gitlabToken;
+    constructor(options) {
+        this.options = options;
+        this.cachedProjects = [];
+        if (options.gitlabUrl === undefined)
+            options.gitlabUrl = "https://gitlab.com";
     }
     getProjectByPath(projectPath) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             console.log("Getting project " + projectPath);
-            const project = yield request.get(`https://gitlab.com/api/v4/projects/${projectPath.replace(/\//g, "%2F")}`, {
+            const project = yield request.get(`${this.options.gitlabUrl}/api/v4/projects/${projectPath.replace(/\//g, "%2F")}`, {
                 headers: {
-                    "PRIVATE-TOKEN": this.gitlabToken
+                    "PRIVATE-TOKEN": this.options.gitlabToken
                 },
                 json: true
             });
@@ -30,30 +33,37 @@ class GitlabService {
     }
     getAllProjectsForGroup(groupName) {
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-            let groups = yield this.getAll("https://gitlab.com/api/v4/groups?search=" + groupName);
+            let groups = yield this.getAll(`${this.options.gitlabUrl}/api/v4/groups?search=${groupName}`);
             if (!groups || groups.length === 0)
                 throw new Error("Group not found!");
             if (groups.length > 1)
                 throw new Error("More than one group found!");
-            const subGroups = yield this.getAll(`https://gitlab.com/api/v4/groups/${groups[0].id}/subgroups`);
+            const subGroups = yield this.getAll(`${this.options.gitlabUrl}/api/v4/groups/${groups[0].id}/subgroups`);
             if (subGroups && subGroups.length > 0)
                 groups = groups.concat(subGroups);
             let projects = [];
             for (let group of groups) {
                 const groupId = group.id;
-                projects = projects.concat(yield this.getAll("https://gitlab.com/api/v4/groups/" + groupId + "/projects?simple=true&per_page=100"));
+                projects = projects.concat(yield this.getAll(`${this.options.gitlabUrl}/api/v4/groups/${groupId}/projects?simple=true`));
             }
+            this.cachedProjects = this.cachedProjects.concat(projects);
             resolve(projects);
         }));
     }
     getAllTags(projectId) {
-        return this.getAll(`https://gitlab.com/api/v4/projects/${projectId}/repository/tags?sort=asc`);
+        return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/repository/tags?sort=asc`);
     }
     getAllMilestones(projectId) {
-        return this.getAll(`https://gitlab.com/api/v4/projects/${projectId}/milestones`);
+        return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/milestones`);
     }
     getAllMilestoneIssues(projectId, milestoneId) {
-        return this.getAll(`https://gitlab.com/api/v4/projects/${projectId}/milestones/${milestoneId}/issue`);
+        return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/milestones/${milestoneId}/issue`);
+    }
+    getMergeRequests(projectId, state) {
+        let additional = "";
+        if (state)
+            additional = "?state=" + state;
+        return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/merge_requests${additional}`);
     }
     getAll(url) {
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
@@ -79,7 +89,7 @@ class GitlabService {
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
             request.get(url, {
                 headers: {
-                    "PRIVATE-TOKEN": this.gitlabToken
+                    "PRIVATE-TOKEN": this.options.gitlabToken
                 },
                 json: true,
                 resolveWithFullResponse: true

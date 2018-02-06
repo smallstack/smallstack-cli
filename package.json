@@ -27,7 +27,6 @@
     "compile": "tsc"
   },
   "dependencies": {
-    "@types/node": "^8.5.1",
     "@types/underscore": "^1.8.3",
     "archiver": "^2.1.0",
     "async": "^2.6.0",
@@ -69,9 +68,10 @@
     "underscore.string": "3.3.4"
   },
   "devDependencies": {
-    "nodemon": "^1.13.3",
     "@types/fs-extra": "^4.0.2",
     "@types/glob": "^5.0.33",
+    "@types/node": "^8.5.9",
+    "nodemon": "^1.13.3",
     "typescript": "^2.6.2"
   }
 }
