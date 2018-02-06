@@ -5,6 +5,8 @@ export interface GitlabServiceOptions {
     gitlabUrl?: string;
 }
 
+export type GitlabFilters = { [key: string]: string };
+
 export class GitlabService {
 
     protected cachedProjects: any[] = [];
@@ -18,7 +20,7 @@ export class GitlabService {
     public getProjectByPath(projectPath: string): Promise<any> {
         return new Promise<any>(async (resolve, reject) => {
             console.log("Getting project " + projectPath);
-            const project: any = await request.get(`${this.options.gitlabUrl}/api/v4/projects/${projectPath.replace(/\//g, "%2F")}`, {
+            const project: any = await request.get(`${this.options.gitlabUrl}/api/v4/projects/${this.encodeProjectPath(projectPath).replace(/\//g, "%2F")}`, {
                 headers: {
                     "PRIVATE-TOKEN": this.options.gitlabToken
                 },
@@ -29,6 +31,10 @@ export class GitlabService {
             else
                 reject(project);
         })
+    }
+
+    public encodeProjectPath(projectPath: string): string {
+        return projectPath.replace(/\//g, "%2F");
     }
 
     public getAllProjectsForGroup(groupName: string): Promise<any[]> {
@@ -53,26 +59,47 @@ export class GitlabService {
     }
 
     public getAllTags(projectId: string): Promise<any[]> {
+        projectId = this.encodeProjectPath(projectId);
         return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/repository/tags?sort=asc`);
     }
 
     public getAllMilestones(projectId: string): Promise<any[]> {
+        projectId = this.encodeProjectPath(projectId);
         return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/milestones`);
 
     }
 
     public getAllMilestoneIssues(projectId: string, milestoneId: string): Promise<any[]> {
+        projectId = this.encodeProjectPath(projectId);
         return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/milestones/${milestoneId}/issue`);
     }
 
+    public getAllIssues(projectId: string): Promise<any[]> {
+        projectId = this.encodeProjectPath(projectId);
+        return this.getAll(`${this.options.gitlabUrl}/api/v4/issues`);
+    }
+
+    public getAllProjectIssues(projectId: string, filters?: GitlabFilters): Promise<any[]> {
+        let additional: string = "?";
+        if (filters)
+            additional += this.filtersToParameters(filters);
+        projectId = this.encodeProjectPath(projectId);
+        return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/issues${additional}`);
+    }
+
+    public getAllGroupIssues(groupId: string): Promise<any[]> {
+        return this.getAll(`${this.options.gitlabUrl}/api/v4/groups/${groupId}/issues`);
+    }
+
     public getMergeRequests(projectId: string, state?: string): Promise<any[]> {
+        projectId = this.encodeProjectPath(projectId);
         let additional: string = "";
         if (state)
             additional = "?state=" + state;
         return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/merge_requests${additional}`);
     }
 
-    private getAll(url: string): Promise<any[]> {
+    public getAll(url: string): Promise<any[]> {
         return new Promise<any[]>(async (resolve) => {
             let resultObjects: any[] = [];
             if (url.indexOf("?") === -1)
@@ -92,6 +119,16 @@ export class GitlabService {
             } while (response.headers["x-next-page"] !== undefined && response.headers["x-next-page"] !== "");
             resolve(resultObjects);
         });
+    }
+
+    private filtersToParameters(filters: GitlabFilters): string {
+        let params: string;
+        for (const filter in filters) {
+            if (params !== undefined)
+                params += "&";
+            params += filter + "=" + filters[filter];
+        }
+        return params;
     }
 
     private getResultFromUrl(url: string): Promise<any[]> {
