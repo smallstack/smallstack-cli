@@ -19,7 +19,7 @@ class GitlabService {
     getProjectByPath(projectPath) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             console.log("Getting project " + projectPath);
-            const project = yield request.get(`${this.options.gitlabUrl}/api/v4/projects/${projectPath.replace(/\//g, "%2F")}`, {
+            const project = yield request.get(`${this.options.gitlabUrl}/api/v4/projects/${this.encodeProjectPath(projectPath).replace(/\//g, "%2F")}`, {
                 headers: {
                     "PRIVATE-TOKEN": this.options.gitlabToken
                 },
@@ -30,6 +30,9 @@ class GitlabService {
             else
                 reject(project);
         }));
+    }
+    encodeProjectPath(projectPath) {
+        return projectPath.replace(/\//g, "%2F");
     }
     getAllProjectsForGroup(groupName) {
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
@@ -51,15 +54,33 @@ class GitlabService {
         }));
     }
     getAllTags(projectId) {
+        projectId = this.encodeProjectPath(projectId);
         return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/repository/tags?sort=asc`);
     }
     getAllMilestones(projectId) {
+        projectId = this.encodeProjectPath(projectId);
         return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/milestones`);
     }
     getAllMilestoneIssues(projectId, milestoneId) {
+        projectId = this.encodeProjectPath(projectId);
         return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/milestones/${milestoneId}/issue`);
     }
+    getAllIssues(projectId) {
+        projectId = this.encodeProjectPath(projectId);
+        return this.getAll(`${this.options.gitlabUrl}/api/v4/issues`);
+    }
+    getAllProjectIssues(projectId, filters) {
+        let additional = "?";
+        if (filters)
+            additional += this.filtersToParameters(filters);
+        projectId = this.encodeProjectPath(projectId);
+        return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/issues${additional}`);
+    }
+    getAllGroupIssues(groupId) {
+        return this.getAll(`${this.options.gitlabUrl}/api/v4/groups/${groupId}/issues`);
+    }
     getMergeRequests(projectId, state) {
+        projectId = this.encodeProjectPath(projectId);
         let additional = "";
         if (state)
             additional = "?state=" + state;
@@ -84,6 +105,15 @@ class GitlabService {
             } while (response.headers["x-next-page"] !== undefined && response.headers["x-next-page"] !== "");
             resolve(resultObjects);
         }));
+    }
+    filtersToParameters(filters) {
+        let params;
+        for (const filter in filters) {
+            if (params !== undefined)
+                params += "&";
+            params += filter + "=" + filters[filter];
+        }
+        return params;
     }
     getResultFromUrl(url) {
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
