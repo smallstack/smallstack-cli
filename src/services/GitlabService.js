@@ -87,23 +87,28 @@ class GitlabService {
         return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/merge_requests${additional}`);
     }
     getAll(url) {
-        return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-            let resultObjects = [];
-            if (url.indexOf("?") === -1)
-                url += "?";
-            else
-                url += "&";
-            url += "per_page=100&";
-            let currentPage = 1;
-            let response;
-            do {
-                const urlWithPage = url + "page=" + currentPage;
-                console.log("  -> querying " + urlWithPage);
-                response = yield this.getResultFromUrl(urlWithPage);
-                resultObjects = resultObjects.concat(response.body);
-                currentPage++;
-            } while (response.headers["x-next-page"] !== undefined && response.headers["x-next-page"] !== "");
-            resolve(resultObjects);
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let resultObjects = [];
+                if (url.indexOf("?") === -1)
+                    url += "?";
+                else
+                    url += "&";
+                url += "per_page=100&";
+                let currentPage = 1;
+                let response;
+                do {
+                    const urlWithPage = url + "page=" + currentPage;
+                    console.log("  -> querying " + urlWithPage);
+                    response = yield this.getResultFromUrl(urlWithPage);
+                    resultObjects = resultObjects.concat(response.body);
+                    currentPage++;
+                } while (response.headers["x-next-page"] !== undefined && response.headers["x-next-page"] !== "");
+                resolve(resultObjects);
+            }
+            catch (e) {
+                reject(e);
+            }
         }));
     }
     filtersToParameters(filters) {
@@ -116,17 +121,13 @@ class GitlabService {
         return params;
     }
     getResultFromUrl(url) {
-        return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-            request.get(url, {
-                headers: {
-                    "PRIVATE-TOKEN": this.options.gitlabToken
-                },
-                json: true,
-                resolveWithFullResponse: true
-            }).then((response) => {
-                resolve(response);
-            });
-        }));
+        return request.get(url, {
+            headers: {
+                "PRIVATE-TOKEN": this.options.gitlabToken
+            },
+            json: true,
+            resolveWithFullResponse: true
+        });
     }
 }
 exports.GitlabService = GitlabService;
