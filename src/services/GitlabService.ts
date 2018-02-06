@@ -100,24 +100,28 @@ export class GitlabService {
     }
 
     public getAll(url: string): Promise<any[]> {
-        return new Promise<any[]>(async (resolve) => {
-            let resultObjects: any[] = [];
-            if (url.indexOf("?") === -1)
-                url += "?";
-            else
-                url += "&";
-            url += "per_page=100&";
+        return new Promise<any[]>(async (resolve, reject) => {
+            try {
+                let resultObjects: any[] = [];
+                if (url.indexOf("?") === -1)
+                    url += "?";
+                else
+                    url += "&";
+                url += "per_page=100&";
 
-            let currentPage: number = 1;
-            let response: any;
-            do {
-                const urlWithPage: string = url + "page=" + currentPage;
-                console.log("  -> querying " + urlWithPage);
-                response = await this.getResultFromUrl(urlWithPage);
-                resultObjects = resultObjects.concat(response.body);
-                currentPage++;
-            } while (response.headers["x-next-page"] !== undefined && response.headers["x-next-page"] !== "");
-            resolve(resultObjects);
+                let currentPage: number = 1;
+                let response: any;
+                do {
+                    const urlWithPage: string = url + "page=" + currentPage;
+                    console.log("  -> querying " + urlWithPage);
+                    response = await this.getResultFromUrl(urlWithPage);
+                    resultObjects = resultObjects.concat(response.body);
+                    currentPage++;
+                } while (response.headers["x-next-page"] !== undefined && response.headers["x-next-page"] !== "");
+                resolve(resultObjects);
+            } catch (e) {
+                reject(e);
+            }
         });
     }
 
@@ -132,16 +136,12 @@ export class GitlabService {
     }
 
     private getResultFromUrl(url: string): Promise<any[]> {
-        return new Promise<any[]>(async (resolve) => {
-            request.get(url, {
-                headers: {
-                    "PRIVATE-TOKEN": this.options.gitlabToken
-                },
-                json: true,
-                resolveWithFullResponse: true
-            }).then((response) => {
-                resolve(response);
-            });
+        return request.get(url, {
+            headers: {
+                "PRIVATE-TOKEN": this.options.gitlabToken
+            },
+            json: true,
+            resolveWithFullResponse: true
         });
     }
 }
