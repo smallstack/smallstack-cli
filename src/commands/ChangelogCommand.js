@@ -14,38 +14,35 @@ const inquirer = require("inquirer");
 const moment = require("moment");
 const request = require("request-promise");
 const semver = require("semver");
-const GIT = require("simple-git");
-const _ = require("underscore");
+const GitlabService_1 = require("../services/GitlabService");
 class ChangelogCommand {
     static getHelpSummary() {
-        return "Creates a changelog based on gitlab issues and tags!";
+        return "Creates a changelog based on gitlab milestones!";
     }
     static getParameters() {
-        return {
-            "--auto-create-milestones": "Automatically creates Gitlab Milestones for all Git Tags",
-            "--fix-missing-milestones": "Adds missing milestones to issues based on when their MR was merged"
-        };
+        return {};
     }
     static execute(current, allCommands) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            this.gitlabToken = process.env.GITLAB_TOKEN;
-            if (!this.gitlabToken) {
+            let gitlabToken = process.env.GITLAB_TOKEN;
+            if (!gitlabToken) {
                 const answers = yield inquirer.prompt([{
                         name: "gitlabToken",
                         type: "password",
                         message: "Gitlab Token"
                     }]);
-                this.gitlabToken = answers.gitlabToken;
+                gitlabToken = answers.gitlabToken;
             }
-            if (!this.gitlabToken)
+            if (!gitlabToken)
                 throw new Error("No gitlab token defined!");
-            const projectPath = yield this.getProjectPath();
+            const gitlabService = new GitlabService_1.GitlabService({ gitlabToken, gitlabUrl: "https://gitlab.com" });
+            const projectPath = yield gitlabService.getProjectPathFromLocalGitRepo();
             const issueBaseUrl = `https://gitlab.com/${projectPath}/issues/`;
             // get project
             console.log("Getting Project " + projectPath);
             const project = yield request.get(`https://gitlab.com/api/v4/projects/${projectPath.replace(/\//g, "%2F")}`, {
                 headers: {
-                    "PRIVATE-TOKEN": this.gitlabToken
+                    "PRIVATE-TOKEN": gitlabToken
                 },
                 json: true
             });
@@ -55,9 +52,9 @@ class ChangelogCommand {
             console.log("  -> Project ID " + projectId);
             // get all milestones
             console.log("Getting Milestones...");
-            const milestones = yield this.getAll(`https://gitlab.com/api/v4/projects/${projectId}/milestones`);
+            let milestones = yield gitlabService.getAll(`https://gitlab.com/api/v4/projects/${projectId}/milestones?state=closed`);
             console.log("  -> " + milestones.length + " Milestones found!");
-            milestones.sort((milestoneA, milestoneB) => {
+            milestones = milestones.sort((milestoneA, milestoneB) => {
                 if (semver.gt(milestoneA.title, milestoneB.title))
                     return -1;
                 else
@@ -67,93 +64,48 @@ class ChangelogCommand {
             console.log("Computing Changelog...");
             let out = "";
             for (const milestone of milestones) {
-                const dateString = moment(milestone.due_date).format("YYYY-MM-DD");
-                out += "\n";
-                out += "# " + milestone.title;
-                out += "\n";
-                out += "Release Date: " + dateString;
-                out += "\n";
-                out += "\n";
-                const milestoneIssues = yield this.getAll(`https://gitlab.com/api/v4/projects/${projectId}/milestones/${milestone.id}/issues`);
-                const bugs = [];
-                const issues = [];
-                for (const issue of milestoneIssues) {
-                    if (issue.labels instanceof Array && issue.labels.indexOf("Bug") !== -1)
-                        bugs.push(issue);
-                    else
-                        issues.push(issue);
-                }
-                if (issues.length > 0) {
-                    out += "## Issues";
+                const milestoneIssues = yield gitlabService.getAll(`https://gitlab.com/api/v4/projects/${projectId}/milestones/${milestone.id}/issues`);
+                if (milestoneIssues.length > 0) {
+                    const bugs = [];
+                    const issues = [];
+                    for (const issue of milestoneIssues) {
+                        if (issue.labels instanceof Array && issue.labels.indexOf("Bug") !== -1)
+                            bugs.push(issue);
+                        else
+                            issues.push(issue);
+                    }
+                    const dateString = moment(milestone.due_date).format("YYYY-MM-DD");
                     out += "\n";
-                    for (const issue of issues) {
-                        out += `* [${issue.iid}](${issueBaseUrl}${issue.iid}) - ${issue.title} (${moment(issue.closed_at).format("YYYY-MM-DD")})`;
+                    out += "# " + milestone.title;
+                    out += "\n";
+                    out += "Release Date: " + dateString;
+                    out += "\n";
+                    out += "\n";
+                    if (issues.length > 0) {
+                        out += "## Issues";
+                        out += "\n";
+                        for (const issue of issues) {
+                            out += `* [${issue.iid}](${issueBaseUrl}${issue.iid}) - ${issue.title} (${moment(issue.closed_at).format("YYYY-MM-DD")})`;
+                            out += "\n";
+                        }
+                        out += "\n";
+                    }
+                    if (bugs.length > 0) {
+                        out += "## Bugs";
+                        out += "\n";
+                        for (const bug of bugs) {
+                            out += `* [${bug.iid}](${issueBaseUrl}${bug.iid}) - ${bug.title} (${moment(bug.closed_at).format("YYYY-MM-DD")})`;
+                            out += "\n";
+                        }
                         out += "\n";
                     }
                     out += "\n";
                 }
-                if (bugs.length > 0) {
-                    out += "## Bugs";
-                    out += "\n";
-                    for (const bug of bugs) {
-                        out += `* [${bug.iid}](${issueBaseUrl}${bug.iid}) - ${bug.title} (${moment(bug.closed_at).format("YYYY-MM-DD")})`;
-                        out += "\n";
-                    }
-                    out += "\n";
-                }
-                out += "\n";
             }
             console.log("Writing Changelog to ./CHANGELOG.md ...");
             fs.writeFileSync("./CHANGELOG.md", out, { encoding: "UTF-8" });
             resolve();
         }));
     }
-    static getAll(url) {
-        return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-            let resultObjects = [];
-            if (url.indexOf("?") === -1)
-                url += "?";
-            else
-                url += "&";
-            url += "per_page=100&";
-            let currentPage = 1;
-            let response;
-            do {
-                const urlWithPage = url + "page=" + currentPage;
-                console.log("  -> querying " + urlWithPage);
-                response = yield this.getResultFromUrl(urlWithPage);
-                resultObjects = resultObjects.concat(response.body);
-                currentPage++;
-            } while (response.headers["x-next-page"] !== undefined && response.headers["x-next-page"] !== "");
-            resolve(resultObjects);
-        }));
-    }
-    static getProjectPath() {
-        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            this.git.getRemotes(true, (error, result) => {
-                const origin = _.find(result, (remote) => remote.name === "origin");
-                if (origin) {
-                    const url = origin.refs.fetch.replace(".git", "").replace("git@gitlab.com:", "");
-                    resolve(url);
-                }
-                else
-                    reject("Could not find remote 'origin'!");
-            });
-        }));
-    }
-    static getResultFromUrl(url) {
-        return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-            request.get(url, {
-                headers: {
-                    "PRIVATE-TOKEN": this.gitlabToken
-                },
-                json: true,
-                resolveWithFullResponse: true
-            }).then((response) => {
-                resolve(response);
-            });
-        }));
-    }
 }
-ChangelogCommand.git = GIT();
 exports.ChangelogCommand = ChangelogCommand;
