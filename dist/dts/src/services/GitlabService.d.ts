@@ -2,12 +2,13 @@ export interface GitlabServiceOptions {
     gitlabToken: string;
     gitlabUrl?: string;
 }
-export declare type GitlabFilters = {
+export interface GitlabFilters {
     [key: string]: string;
-};
+}
 export declare class GitlabService {
     protected options: GitlabServiceOptions;
     protected cachedProjects: any[];
+    protected git: any;
     constructor(options: GitlabServiceOptions);
     getProjectByPath(projectPath: string): Promise<any>;
     encodeProjectPath(projectPath: string): string;
@@ -19,6 +20,7 @@ export declare class GitlabService {
     getAllProjectIssues(projectId: string, filters?: GitlabFilters): Promise<any[]>;
     getAllGroupIssues(groupId: string): Promise<any[]>;
     getMergeRequests(projectId: string, state?: string): Promise<any[]>;
+    getProjectPathFromLocalGitRepo(): Promise<string>;
     getAll(url: string): Promise<any[]>;
     private filtersToParameters(filters);
     private getResultFromUrl(url);

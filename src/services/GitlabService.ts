@@ -1,40 +1,40 @@
 import * as request from "request-promise";
+import * as GIT from "simple-git";
+import * as _ from "underscore";
 
 export interface GitlabServiceOptions {
     gitlabToken: string;
     gitlabUrl?: string;
 }
 
-export type GitlabFilters = { [key: string]: string };
+export interface GitlabFilters {
+    [key: string]: string;
+}
 
 export class GitlabService {
 
     protected cachedProjects: any[] = [];
+
+    protected git = GIT();
 
     constructor(protected options: GitlabServiceOptions) {
         if (options.gitlabUrl === undefined)
             options.gitlabUrl = "https://gitlab.com";
     }
 
-
     public getProjectByPath(projectPath: string): Promise<any> {
-        return new Promise<any>(async (resolve, reject) => {
-            console.log("Getting project " + projectPath);
-            const project: any = await request.get(`${this.options.gitlabUrl}/api/v4/projects/${this.encodeProjectPath(projectPath).replace(/\//g, "%2F")}`, {
-                headers: {
-                    "PRIVATE-TOKEN": this.options.gitlabToken
-                },
-                json: true
-            });
-            if (!project)
-                reject("Could not find project!");
-            else
-                reject(project);
-        })
+        return new Promise<any>(async (resolve) => {
+            resolve((await this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${this.encodeProjectPath(projectPath)}`))[0]);
+        });
     }
 
     public encodeProjectPath(projectPath: string): string {
-        return projectPath.replace(/\//g, "%2F");
+        if (projectPath === undefined)
+            throw new Error("projectPath cannot be undefined!");
+        if (typeof projectPath === "string")
+            return projectPath.replace(/\//g, "%2F");
+        else
+            return projectPath;
     }
 
     public getAllProjectsForGroup(groupName: string): Promise<any[]> {
@@ -49,7 +49,7 @@ export class GitlabService {
                 groups = groups.concat(subGroups);
 
             let projects: any[] = [];
-            for (let group of groups) {
+            for (const group of groups) {
                 const groupId: number = group.id;
                 projects = projects.concat(await this.getAll(`${this.options.gitlabUrl}/api/v4/groups/${groupId}/projects?simple=true`));
             }
@@ -99,6 +99,20 @@ export class GitlabService {
         return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/merge_requests${additional}`);
     }
 
+    public getProjectPathFromLocalGitRepo(): Promise<string> {
+        return new Promise<string>(async (resolve, reject) => {
+            this.git.getRemotes(true, (error: Error, result: any) => {
+                const origin = _.find(result, (remote: any) => remote.name === "origin");
+                if (origin) {
+                    const url: string = origin.refs.fetch.replace(".git", "").replace("git@gitlab.com:", "");
+                    resolve(url);
+                }
+                else
+                    reject("Could not find remote 'origin'!");
+            });
+        });
+    }
+
     public getAll(url: string): Promise<any[]> {
         return new Promise<any[]>(async (resolve, reject) => {
             try {
@@ -128,9 +142,11 @@ export class GitlabService {
     private filtersToParameters(filters: GitlabFilters): string {
         let params: string;
         for (const filter in filters) {
-            if (params !== undefined)
-                params += "&";
-            params += filter + "=" + filters[filter];
+            if (filters[filter]) {
+                if (params !== undefined)
+                    params += "&";
+                params += filter + "=" + filters[filter];
+            }
         }
         return params;
     }
