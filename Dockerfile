@@ -53,7 +53,7 @@ RUN groupadd --gid 1004 node && \
     && grep " node-v$NODE_VERSION-linux-$ARCH.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
     && tar -xJf "node-v$NODE_VERSION-linux-$ARCH.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
     && rm "node-v$NODE_VERSION-linux-$ARCH.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
-    && ln -s /usr/local/bin/node /usr/local/bin/nodejs					
+    && ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
 # install android-sdk
 RUN mkdir -p /tns /opt/android-sdk && \
@@ -75,8 +75,9 @@ RUN apt-get --yes --force-yes --no-install-recommends update && \
     curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | apt-key add -  && \
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable" && \
     apt-get --yes --force-yes --no-install-recommends update && \
-    rm -rf /var/lib/apt/lists/* && \
-    apt-get --yes --force-yes --no-install-recommends install docker-ce python make g++
+    apt-get --yes --force-yes --no-install-recommends install docker-ce python make g++ && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # install AWS CLI
 RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"  && \
@@ -91,7 +92,3 @@ RUN curl -sL https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh &
 ADD . .
 
 RUN npm install -g --unsafe-perm
-
-# clear apt cache
-RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
