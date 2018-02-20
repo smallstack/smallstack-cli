@@ -199,15 +199,20 @@ class GitflowCommand {
                     ignore: ["**/node_modules/**", "**/dist/**", "resources/projectfiles/meteor/**"]
                 }, (err, files) => {
                     _.each(files, (file) => {
-                        const absolutePath = path.resolve(Config_1.Config.rootDirectory, file);
-                        this.replaceVersionInPackageJson(absolutePath, toVersion);
+                        const packageFile = path.resolve(Config_1.Config.rootDirectory, file);
+                        const absolutePath = path.dirname(packageFile);
+                        const packageLockFile = path.resolve(absolutePath, "package-lock.json");
+                        this.replaceVersionInPackageJson(packageFile, toVersion);
+                        if (fs.existsSync(packageLockFile))
+                            this.replaceVersionInPackageJson(packageLockFile, toVersion);
+                        this.replaceSmallstackVersionsInPackageFile("0.9.x", packageFile);
                     });
                     exec("git commit -a -m \"changing version to " + toVersion + "\"");
                     resolve();
                 });
             }
             else if (Config_1.Config.isNPMPackageEnvironment()) {
-                exec("npm version patch --git-tag-version=false");
+                exec("npm version " + toVersion + " --git-tag-version=false");
                 exec("git commit -a -m \"changing version to " + toVersion + "\"");
                 resolve();
             }
@@ -236,9 +241,18 @@ class GitflowCommand {
     }
     static replaceVersionInPackageJson(file, newVersion) {
         const jsonContent = require(file);
-        console.log("changing version of '" + jsonContent.name + "' from " + jsonContent.version + " to " + newVersion);
+        console.log("changing version in " + file + " to " + newVersion);
         jsonContent.version = newVersion;
         fs.writeJSONSync(file, jsonContent, { encoding: "UTF-8", spaces: 2 });
+    }
+    static replaceSmallstackVersionsInPackageFile(newVersion, packageFilePath) {
+        const jsonContent = require(packageFilePath);
+        if (jsonContent.dependencies) {
+            for (const moduleName of Config_1.Config.getModuleNames())
+                if (jsonContent.dependencies["@smallstack/" + moduleName])
+                    jsonContent.dependencies["@smallstack/" + moduleName] = newVersion;
+        }
+        fs.writeJSONSync(packageFilePath, jsonContent, { encoding: "UTF-8", spaces: 2 });
     }
 }
 exports.GitflowCommand = GitflowCommand;
