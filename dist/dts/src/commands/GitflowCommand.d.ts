@@ -12,4 +12,5 @@ export declare class GitflowCommand {
     private static replaceString(file, regex, replacement);
     private static getRegex(file, regex);
     private static replaceVersionInPackageJson(file, newVersion);
+    private static replaceSmallstackVersionsInPackageFile(newVersion, packageFilePath);
 }
