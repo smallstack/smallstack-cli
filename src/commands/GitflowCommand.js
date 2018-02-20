@@ -207,10 +207,7 @@ class GitflowCommand {
                 });
             }
             else if (Config_1.Config.isNPMPackageEnvironment()) {
-                this.replaceVersionInPackageJson(path.resolve(Config_1.Config.rootDirectory, "package.json"), toVersion);
-                const subPackageJson = path.resolve(Config_1.Config.rootDirectory, "src", "package.json");
-                if (fs.existsSync(subPackageJson))
-                    this.replaceVersionInPackageJson(subPackageJson, toVersion);
+                exec("npm version patch --git-tag-version=false");
                 exec("git commit -a -m \"changing version to " + toVersion + "\"");
                 resolve();
             }
