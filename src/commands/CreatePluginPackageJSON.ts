@@ -20,10 +20,8 @@ export class CreatePluginPackageJSON {
             if (!fs.existsSync(packageJSONPath))
                 throw new Error("No package.json file found in current directory!");
             const packageJSON: any = require(packageJSONPath);
-            packageJSON.peerDependencies = packageJSON.dependencies;
             delete packageJSON.devDependencies;
             delete packageJSON.scripts;
-            delete packageJSON.dependencies;
             if (packageJSON.main)
                 packageJSON.main = "./index.umd.js";
             if (packageJSON.types)
