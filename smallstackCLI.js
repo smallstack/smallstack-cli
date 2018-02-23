@@ -24,6 +24,7 @@ const parseArguments_1 = require("./src/functions/parseArguments");
 const stringifyParametersWithoutPasswords_1 = require("./src/functions/stringifyParametersWithoutPasswords");
 const UpdateCheck_1 = require("./src/functions/UpdateCheck");
 const GitlabBoardFixCommand_1 = require("./src/commands/GitlabBoardFixCommand");
+const GitlabProjectFixCommand_1 = require("./src/commands/GitlabProjectFixCommand");
 function CLI() {
     return __awaiter(this, void 0, void 0, function* () {
         const startDate = new Date();
@@ -55,6 +56,7 @@ function CLI() {
         commands.createPluginPackageJSON = CreatePluginPackageJSON_1.CreatePluginPackageJSON;
         commands.changelog = ChangelogCommand_1.ChangelogCommand;
         commands.gitlabBoardFix = GitlabBoardFixCommand_1.GitlabBoardFixCommand;
+        commands.gitlabProjectFix = GitlabProjectFixCommand_1.GitlabProjectFixCommand;
         // show a nice logo
         logo();
         // display some information
