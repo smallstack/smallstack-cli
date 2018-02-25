@@ -94,9 +94,9 @@ class GitflowCommand {
                 const git = SimpleGit(Config_1.Config.rootDirectory);
                 git.branchLocal((error, summary) => {
                     if (summary.branches.master === undefined)
-                        reject("No local master branch found!");
+                        throw new Error("No local master branch found!");
                     else if (summary.branches.develop === undefined)
-                        reject("No local develop branch found!");
+                        throw new Error("No local develop branch found!");
                 })
                     .tags((error, tags) => {
                     if (tags.all.indexOf(tagName) !== -1)
