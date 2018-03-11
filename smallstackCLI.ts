@@ -16,6 +16,7 @@ import { parseArguments } from "./src/functions/parseArguments";
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
 import { UpdateCheck } from "./src/functions/UpdateCheck";
 import { GitlabBoardFixCommand } from "./src/commands/GitlabBoardFixCommand";
+import { GitlabProjectFixCommand } from "./src/commands/GitlabProjectFixCommand";
 
 export async function CLI() {
     const startDate: Date = new Date();
@@ -50,6 +51,7 @@ export async function CLI() {
     commands.createPluginPackageJSON = CreatePluginPackageJSON;
     commands.changelog = ChangelogCommand;
     commands.gitlabBoardFix = GitlabBoardFixCommand;
+    commands.gitlabProjectFix = GitlabProjectFixCommand;
 
     // show a nice logo
     logo();
