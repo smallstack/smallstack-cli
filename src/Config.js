@@ -5,6 +5,34 @@ const path = require("path");
 const _ = require("underscore");
 // tslint:disable-next-line:no-var-requires
 const cliPackageJson = require(__dirname + "/../package.json");
+exports.packageNames = [
+    "smallstack-api-server",
+    "smallstack-apps",
+    "smallstack-backoffice-client",
+    "smallstack-backoffice-server",
+    "smallstack-cloud-cms",
+    "smallstack-cms-client",
+    "smallstack-cms-common",
+    "smallstack-cms-server",
+    "smallstack-common",
+    "smallstack-components",
+    "smallstack-components-angular",
+    "smallstack-email",
+    "smallstack-files",
+    "smallstack-frontend-common",
+    "smallstack-frontend-meteor",
+    "smallstack-frontend-nativescript",
+    "smallstack-frontend-web",
+    "smallstack-i18n",
+    "smallstack-oms-common",
+    "smallstack-oms-server",
+    "smallstack-push-notifications",
+    "smallstack-server-meteor",
+    "smallstack-testing",
+    "smallstack-typesystem-generator",
+    "smallstack-user",
+    "smallstack-workflow"
+];
 class Config {
     static init() {
         try {

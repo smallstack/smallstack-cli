@@ -15,15 +15,16 @@ const cloud_1 = require("./src/commands/cloud");
 const CreateDockerImages_1 = require("./src/commands/CreateDockerImages");
 const CreatePluginPackageJSON_1 = require("./src/commands/CreatePluginPackageJSON");
 const GitflowCommand_1 = require("./src/commands/GitflowCommand");
+const GitlabBoardFixCommand_1 = require("./src/commands/GitlabBoardFixCommand");
 const help_1 = require("./src/commands/help");
 const Publish_1 = require("./src/commands/Publish");
 const Setup_1 = require("./src/commands/Setup");
 const SyncProject_1 = require("./src/commands/SyncProject");
+const workspace_1 = require("./src/commands/workspace");
 const Config_1 = require("./src/Config");
 const parseArguments_1 = require("./src/functions/parseArguments");
 const stringifyParametersWithoutPasswords_1 = require("./src/functions/stringifyParametersWithoutPasswords");
 const UpdateCheck_1 = require("./src/functions/UpdateCheck");
-const GitlabBoardFixCommand_1 = require("./src/commands/GitlabBoardFixCommand");
 function CLI() {
     return __awaiter(this, void 0, void 0, function* () {
         const startDate = new Date();
@@ -55,6 +56,7 @@ function CLI() {
         commands.createPluginPackageJSON = CreatePluginPackageJSON_1.CreatePluginPackageJSON;
         commands.changelog = ChangelogCommand_1.ChangelogCommand;
         commands.gitlabBoardFix = GitlabBoardFixCommand_1.GitlabBoardFixCommand;
+        commands.workspace = workspace_1.Workspace;
         // show a nice logo
         logo();
         // display some information
