@@ -7,4 +7,5 @@ export declare class Workspace {
     static execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any>;
     private static updateWorkspace();
     private static npmWorkspace(npmCommand);
+    private static updateWorkspaceFile();
 }

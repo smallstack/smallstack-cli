@@ -103,6 +103,15 @@ class Config {
             return false;
         }
     }
+    static emptyDirectory(directory) {
+        try {
+            if (fs.readdirSync(directory).length === 0)
+                return directory;
+        }
+        catch (e) {
+            return false;
+        }
+    }
     static checkModule(modulePath, name) {
         if (!fs.existsSync(modulePath))
             return false;
@@ -190,6 +199,9 @@ class Config {
         }
         return false;
     }
+    static isEmptyDirectoryEnvironment() {
+        return this.emptyDirectory(this.getRootDirectory());
+    }
     static isWorkspaceEnvironment() {
         return this.workspaceFound(this.getRootDirectory());
     }
@@ -245,6 +257,8 @@ class Config {
         let root = path.resolve("./");
         try {
             for (let tryIt = 0; tryIt < 15; tryIt++) {
+                if (this.emptyDirectory(root))
+                    return root;
                 if (this.projectFound(root))
                     return root;
                 if (this.smallstackFound(root))

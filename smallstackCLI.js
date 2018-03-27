@@ -64,6 +64,8 @@ function CLI() {
         // display some information
         if (Config_1.Config.isSmallstackEnvironment())
             console.log("Environment:     smallstack framework");
+        else if (Config_1.Config.isEmptyDirectoryEnvironment())
+            console.log("Environment:     empty directory");
         else if (Config_1.Config.isProjectEnvironment())
             console.log("Environment:     smallstack project");
         else if (Config_1.Config.isWorkspaceEnvironment())
