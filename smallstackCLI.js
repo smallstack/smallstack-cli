@@ -66,6 +66,8 @@ function CLI() {
             console.log("Environment:     smallstack framework");
         else if (Config_1.Config.isProjectEnvironment())
             console.log("Environment:     smallstack project");
+        else if (Config_1.Config.isWorkspaceEnvironment())
+            console.log("Environment:     smallstack workspace");
         else if (Config_1.Config.isComponentEnvironment())
             console.log("Environment:     smallstack component");
         else if (Config_1.Config.isNativescriptEnvironment())
