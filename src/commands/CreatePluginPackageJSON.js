@@ -19,7 +19,7 @@ class CreatePluginPackageJSON {
             delete packageJSON.devDependencies;
             delete packageJSON.scripts;
             if (packageJSON.main)
-                packageJSON.main = "./index.umd.js";
+                packageJSON.main = packageJSON.main.replace("dist/bundle/", "");
             if (packageJSON.types)
                 packageJSON.types = "./dts/index.d.ts";
             fs.ensureDirSync(path.join("dist", "bundle"));

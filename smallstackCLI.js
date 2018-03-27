@@ -16,6 +16,7 @@ const CreateDockerImages_1 = require("./src/commands/CreateDockerImages");
 const CreatePluginPackageJSON_1 = require("./src/commands/CreatePluginPackageJSON");
 const GitflowCommand_1 = require("./src/commands/GitflowCommand");
 const GitlabBoardFixCommand_1 = require("./src/commands/GitlabBoardFixCommand");
+const GitlabProjectFixCommand_1 = require("./src/commands/GitlabProjectFixCommand");
 const help_1 = require("./src/commands/help");
 const Publish_1 = require("./src/commands/Publish");
 const Setup_1 = require("./src/commands/Setup");
@@ -57,6 +58,7 @@ function CLI() {
         commands.changelog = ChangelogCommand_1.ChangelogCommand;
         commands.gitlabBoardFix = GitlabBoardFixCommand_1.GitlabBoardFixCommand;
         commands.workspace = workspace_1.Workspace;
+        commands.gitlabProjectFix = GitlabProjectFixCommand_1.GitlabProjectFixCommand;
         // show a nice logo
         logo();
         // display some information

@@ -8,6 +8,7 @@ import { CreateDockerImages } from "./src/commands/CreateDockerImages";
 import { CreatePluginPackageJSON } from "./src/commands/CreatePluginPackageJSON";
 import { GitflowCommand } from "./src/commands/GitflowCommand";
 import { GitlabBoardFixCommand } from "./src/commands/GitlabBoardFixCommand";
+import { GitlabProjectFixCommand } from "./src/commands/GitlabProjectFixCommand";
 import { HelpCommand } from "./src/commands/help";
 import { PublishCommand } from "./src/commands/Publish";
 import { Setup } from "./src/commands/Setup";
@@ -52,6 +53,7 @@ export async function CLI() {
     commands.changelog = ChangelogCommand;
     commands.gitlabBoardFix = GitlabBoardFixCommand;
     commands.workspace = Workspace;
+    commands.gitlabProjectFix = GitlabProjectFixCommand;
 
     // show a nice logo
     logo();
