@@ -61,6 +61,8 @@ export async function CLI() {
     // display some information
     if (Config.isSmallstackEnvironment())
         console.log("Environment:     smallstack framework");
+    else if (Config.isEmptyDirectoryEnvironment())
+        console.log("Environment:     empty directory");
     else if (Config.isProjectEnvironment())
         console.log("Environment:     smallstack project");
     else if (Config.isWorkspaceEnvironment())

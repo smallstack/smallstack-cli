@@ -1,6 +1,7 @@
 import { execSync } from "child_process";
 import * as fs from "fs-extra";
 import * as path from "path";
+import * as request from "request-promise";
 import * as SimpleGit from "simple-git/promise";
 import { Config, packageNames } from "../Config";
 import { CLICommandOption } from "./CLICommand";
@@ -15,6 +16,7 @@ export class Workspace {
 
     public static getParameters(): { [parameterKey: string]: string } {
         return {
+            create: "creates a fresh workspace",
             update: "git pull for all repositories",
             install: "npm install for all repositories",
             bundle: "npm run bundlefor all repositories",
@@ -23,12 +25,21 @@ export class Workspace {
     }
 
     public static execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any> {
-        if (!Config.isWorkspaceEnvironment())
+        if (!Config.isWorkspaceEnvironment() && current.parameters.create !== true)
             return Promise.reject("Not a workspace directory!");
 
         return new Promise<any>(async (resolve, reject) => {
 
+
             let explizitCommandFound: boolean = false;
+
+            if (current.parameters.create) {
+                explizitCommandFound = true;
+                if (!Config.isEmptyDirectoryEnvironment())
+                    return reject("Workspaces can only be created in empty directories, but directory is not empty!");
+            }
+            // call this function all the time
+            await this.updateWorkspaceFile();
 
             if (current.parameters.update) {
                 explizitCommandFound = true;
@@ -90,6 +101,16 @@ export class Workspace {
                     });
                 }
             }
+            resolve();
+        });
+    }
+
+    private static updateWorkspaceFile() {
+        return new Promise<any>(async (resolve) => {
+            const fileContent: string = await request.get("https://gitlab.com/smallstack/products/workspace/raw/master/smallstack-products.code-workspace");
+            const filePath = path.join(Config.rootDirectory, "smallstack-products.code-workspace");
+            console.log("Updating workspace file: " + filePath);
+            fs.writeJSONSync(filePath, JSON.parse(fileContent));
             resolve();
         });
     }

@@ -36,6 +36,7 @@ export declare class Config {
      * Determines how a project can be found
      */
     static projectFound(directory: any): boolean;
+    static emptyDirectory(directory: any): any;
     static checkModule(modulePath: any, name: any): boolean;
     static smallstackFound(directory: any): boolean;
     static smallstackModuleFound(directory: any): boolean;
@@ -44,6 +45,7 @@ export declare class Config {
     static npmPackageFound(directory: any): boolean;
     static workspaceFound(directory: any): boolean;
     static multiNPMPackageFound(directory: any): boolean;
+    static isEmptyDirectoryEnvironment(): any;
     static isWorkspaceEnvironment(): boolean;
     static isSmallstackEnvironment(): boolean;
     static isProjectEnvironment(): boolean;
