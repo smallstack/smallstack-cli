@@ -1,8 +1,8 @@
 // tslint:disable:member-ordering
 import * as inquirer from "inquirer";
+import * as request from "request";
 import { GitlabService } from "../../index";
 import { CLICommandOption } from "./CLICommand";
-import * as request from "request";
 
 export class GitlabProjectFixCommand {
 
@@ -53,7 +53,7 @@ export class GitlabProjectFixCommand {
             const protectedBranches: string[] = ["develop", "master"];
             for (const project of allProjects) {
                 for (const protectedBranch of protectedBranches) {
-                    console.log(`  --> protecting branch ${protectedBranch} for project ${project.name} (${project.id})`)
+                    console.log(`  --> protecting branch ${protectedBranch} for project ${project.name} (${project.id})`);
                     await request.put(`https://gitlab.com/api/v4/projects/${project.id}/repository/branches/${protectedBranch}/protect?developers_can_merge=true&developers_can_push=false`, {
                         headers: {
                             "PRIVATE-TOKEN": gitlabToken

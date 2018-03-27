@@ -1,3 +1,4 @@
+export declare const packageNames: string[];
 export declare class Config {
     static frontendSmallstackDatalayerDirectory: string;
     static frontendSmallstackFrontendDirectory: string;

@@ -1,6 +1,6 @@
 {
   "name": "@smallstack/cli",
-  "version": "0.10.50",
+  "version": "0.10.51",
   "description": "Command Line Interface for smallstack projects",
   "author": {
     "email": "max@smallstack.io",
@@ -60,7 +60,7 @@
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "semver": "^5.4.1",
-    "simple-git": "^1.85.0",
+    "simple-git": "^1.92.0",
     "single-line-log": "1.1.2",
     "sort-package-json": "^1.7.1",
     "typings-core": "^2.3.3",

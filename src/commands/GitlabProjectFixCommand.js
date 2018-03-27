@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable:member-ordering
 const inquirer = require("inquirer");
-const index_1 = require("../../index");
 const request = require("request");
+const index_1 = require("../../index");
 class GitlabProjectFixCommand {
     static getHelpSummary() {
         return "Adds protected branches and other configured stuff to all projects of a gitlab group!";

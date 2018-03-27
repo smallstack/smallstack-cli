@@ -7,16 +7,17 @@ import { cloud } from "./src/commands/cloud";
 import { CreateDockerImages } from "./src/commands/CreateDockerImages";
 import { CreatePluginPackageJSON } from "./src/commands/CreatePluginPackageJSON";
 import { GitflowCommand } from "./src/commands/GitflowCommand";
+import { GitlabBoardFixCommand } from "./src/commands/GitlabBoardFixCommand";
+import { GitlabProjectFixCommand } from "./src/commands/GitlabProjectFixCommand";
 import { HelpCommand } from "./src/commands/help";
 import { PublishCommand } from "./src/commands/Publish";
 import { Setup } from "./src/commands/Setup";
 import { SyncProject } from "./src/commands/SyncProject";
+import { Workspace } from "./src/commands/workspace";
 import { Config } from "./src/Config";
 import { parseArguments } from "./src/functions/parseArguments";
 import { stringifyParametersWithoutPasswords } from "./src/functions/stringifyParametersWithoutPasswords";
 import { UpdateCheck } from "./src/functions/UpdateCheck";
-import { GitlabBoardFixCommand } from "./src/commands/GitlabBoardFixCommand";
-import { GitlabProjectFixCommand } from "./src/commands/GitlabProjectFixCommand";
 
 export async function CLI() {
     const startDate: Date = new Date();
@@ -51,6 +52,7 @@ export async function CLI() {
     commands.createPluginPackageJSON = CreatePluginPackageJSON;
     commands.changelog = ChangelogCommand;
     commands.gitlabBoardFix = GitlabBoardFixCommand;
+    commands.workspace = Workspace;
     commands.gitlabProjectFix = GitlabProjectFixCommand;
 
     // show a nice logo
