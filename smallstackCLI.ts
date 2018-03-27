@@ -63,6 +63,8 @@ export async function CLI() {
         console.log("Environment:     smallstack framework");
     else if (Config.isProjectEnvironment())
         console.log("Environment:     smallstack project");
+    else if (Config.isWorkspaceEnvironment())
+        console.log("Environment:     smallstack workspace");
     else if (Config.isComponentEnvironment())
         console.log("Environment:     smallstack component");
     else if (Config.isNativescriptEnvironment())

@@ -42,7 +42,9 @@ export declare class Config {
     static smallstackComponentFound(directory: any): boolean;
     static nativescriptAppFound(directory: any): boolean;
     static npmPackageFound(directory: any): boolean;
+    static workspaceFound(directory: any): boolean;
     static multiNPMPackageFound(directory: any): boolean;
+    static isWorkspaceEnvironment(): boolean;
     static isSmallstackEnvironment(): boolean;
     static isProjectEnvironment(): boolean;
     static isComponentEnvironment(): boolean;

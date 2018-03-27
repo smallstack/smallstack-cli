@@ -5,6 +5,6 @@ export declare class Workspace {
         [parameterKey: string]: string;
     };
     static execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any>;
-    private static initWorkspace();
     private static updateWorkspace();
+    private static npmWorkspace(npmCommand);
 }

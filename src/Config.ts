@@ -219,6 +219,13 @@ export class Config {
         return packageContent.name !== undefined;
     }
 
+    public static workspaceFound(directory) {
+        if (!directory)
+            return false;
+        const workspacePath = path.join(directory, "smallstack-products.code-workspace");
+        return fs.existsSync(workspacePath);
+    }
+
     public static multiNPMPackageFound(directory) {
         const rootDirectories: string[] = fs.readdirSync(directory).map((name) => path.join(directory, name)).filter((source) => fs.lstatSync(source).isDirectory());
         for (const d of rootDirectories) {
@@ -226,6 +233,10 @@ export class Config {
                 return true;
         }
         return false;
+    }
+
+    public static isWorkspaceEnvironment() {
+        return this.workspaceFound(this.getRootDirectory());
     }
 
     public static isSmallstackEnvironment() {
@@ -300,6 +311,8 @@ export class Config {
                 if (this.projectFound(root))
                     return root;
                 if (this.smallstackFound(root))
+                    return root;
+                if (this.workspaceFound(root))
                     return root;
                 if (this.npmPackageFound(root))
                     return root;
