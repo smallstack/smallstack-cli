@@ -9,6 +9,7 @@ exports.packageNames = [
     "smallstack-api-server",
     "smallstack-apps",
     "smallstack-backoffice-client",
+    "smallstack-backoffice-common",
     "smallstack-backoffice-server",
     "smallstack-cloud-cms",
     "smallstack-cms-client",

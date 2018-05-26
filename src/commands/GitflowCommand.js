@@ -212,7 +212,14 @@ class GitflowCommand {
                 });
             }
             else if (Config_1.Config.isNPMPackageEnvironment()) {
-                exec("npm version " + toVersion + " --git-tag-version=false");
+                exec("npm version " + toVersion + " --git-tag-version=false --allow-same-version");
+                // check if its an angular workspace with libraries
+                const libPackageJSONPath = path.join(Config_1.Config.rootDirectory, "projects", "library");
+                if (fs.existsSync(path.join(libPackageJSONPath, "package.json"))) {
+                    exec("npm version " + toVersion + " --git-tag-version=false --allow-same-version", {
+                        cwd: libPackageJSONPath
+                    });
+                }
                 exec("git commit -a -m \"changing version to " + toVersion + "\"");
                 resolve();
             }

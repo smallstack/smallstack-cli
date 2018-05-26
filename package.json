@@ -68,7 +68,7 @@
     "underscore.string": "3.3.4"
   },
   "devDependencies": {
-    "@types/fs-extra": "^4.0.2",
+    "@types/fs-extra": "^4.0.8",
     "@types/glob": "^5.0.33",
     "@types/node": "^8.5.9",
     "nodemon": "^1.13.3",
