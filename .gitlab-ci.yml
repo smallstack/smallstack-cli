@@ -33,16 +33,16 @@ node9test:
     - npm install -g
     - smallstack help    
 
-node10test:
-  stage: test
-  image: 'node:10'
-  script:
-    - node -v
-    - npm -v
-    - npm install
-    - npm run compile
-    - npm install -g
-    - smallstack help    
+# node10test:
+#   stage: test
+#   image: 'node:10'
+#   script:
+#     - node -v
+#     - npm -v
+#     - npm install
+#     - npm run compile
+#     - npm install -g
+#     - smallstack help    
 
 
 npm_publish:
