@@ -1,52 +1,50 @@
-image: 'node:8.9.3'
+image: 'node:8'
 variables:
   DOCKER_DRIVER: overlay2
 cache:
   paths:
     - node_modules/
+
 stages:
   - test
   - npmDeploy
   - dockerDeploy
-node6test:
-  stage: test
-  image: 'node:6.11.3'
-  script:
-    - node -v
-    - npm -v
-    - npm install
-    - npm run compile
-    - npm install -g
-    - smallstack help
-node7test:
-  stage: test
-  image: 'node:7.10.1'
-  script:
-    - node -v
-    - npm -v
-    - npm install
-    - npm run compile
-    - npm install -g
-    - smallstack help
+
 node8test:
   stage: test
-  image: 'node:8.9.3'
+  image: 'node:8'
   script:
     - node -v
     - npm -v
     - npm install
     - npm run compile
-# osxtest:
-#   stage: test
-#   tags:
-#     - osx
-#   script:
-#     - node -v
-#     - npm -v
-#     - npm install
-#     - npm run compile
-#     - npm install -g
-#     - smallstack help
+    - npm install -g
+    - smallstack help
+
+
+node9test:
+  stage: test
+  image: 'node:9'
+  script:
+    - node -v
+    - npm -v
+    - npm install
+    - npm run compile
+    - npm install -g
+    - smallstack help    
+
+node10test:
+  stage: test
+  image: 'node:10'
+  script:
+    - node -v
+    - npm -v
+    - npm install
+    - npm run compile
+    - npm install -g
+    - smallstack help    
+
+
 npm_publish:
   stage: npmDeploy
   only:
