@@ -69,13 +69,22 @@ class GitlabService {
     }
     getAllProjectIssues(projectId, filters) {
         let additional = "?";
-        if (filters)
-            additional += this.filtersToParameters(filters);
+        if (filters) {
+            const params = this.filtersToParameters(filters);
+            if (params !== undefined)
+                additional += params;
+        }
         projectId = this.encodeProjectPath(projectId);
         return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/issues${additional}`);
     }
-    getAllGroupIssues(groupId) {
-        return this.getAll(`${this.options.gitlabUrl}/api/v4/groups/${groupId}/issues`);
+    getAllGroupIssues(groupId, filters) {
+        let additional = "?";
+        if (filters) {
+            const params = this.filtersToParameters(filters);
+            if (params !== undefined)
+                additional += params;
+        }
+        return this.getAll(`${this.options.gitlabUrl}/api/v4/groups/${groupId}/issues${additional}`);
     }
     getMergeRequests(projectId, state) {
         projectId = this.encodeProjectPath(projectId);
@@ -128,6 +137,8 @@ class GitlabService {
             if (filters[filter]) {
                 if (params !== undefined)
                     params += "&";
+                else
+                    params = "";
                 params += filter + "=" + filters[filter];
             }
         }

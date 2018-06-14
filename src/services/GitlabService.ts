@@ -81,14 +81,23 @@ export class GitlabService {
 
     public getAllProjectIssues(projectId: string, filters?: GitlabFilters): Promise<any[]> {
         let additional: string = "?";
-        if (filters)
-            additional += this.filtersToParameters(filters);
+        if (filters) {
+            const params = this.filtersToParameters(filters);
+            if (params !== undefined)
+                additional += params;
+        }
         projectId = this.encodeProjectPath(projectId);
         return this.getAll(`${this.options.gitlabUrl}/api/v4/projects/${projectId}/issues${additional}`);
     }
 
-    public getAllGroupIssues(groupId: string): Promise<any[]> {
-        return this.getAll(`${this.options.gitlabUrl}/api/v4/groups/${groupId}/issues`);
+    public getAllGroupIssues(groupId: string, filters?: GitlabFilters): Promise<any[]> {
+        let additional: string = "?";
+        if (filters) {
+            const params = this.filtersToParameters(filters);
+            if (params !== undefined)
+                additional += params;
+        }
+        return this.getAll(`${this.options.gitlabUrl}/api/v4/groups/${groupId}/issues${additional}`);
     }
 
     public getMergeRequests(projectId: string, state?: string): Promise<any[]> {
@@ -145,6 +154,8 @@ export class GitlabService {
             if (filters[filter]) {
                 if (params !== undefined)
                     params += "&";
+                else
+                    params = "";
                 params += filter + "=" + filters[filter];
             }
         }
