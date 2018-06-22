@@ -29,7 +29,8 @@ class GitflowCommand {
             patch: "increments to next patch version",
             minor: "increments to next minor version",
             major: "increments to next major version",
-            toVersion: "specify the version directly"
+            toVersion: "specify the version directly",
+            release: "merges develop into master, can be combined with others, e.g.: 'smallstack gitflow --release --patch'"
         };
     }
     static execute(current, allCommands) {
