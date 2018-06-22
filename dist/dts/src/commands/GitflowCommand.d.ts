@@ -8,6 +8,7 @@ export declare class GitflowCommand {
     private static doRelease(tagName);
     private static getCurrentVersion();
     private static getDirectories(root);
+    private static getFlutterVersion();
     private static toVersion(toVersion);
     private static replaceString(file, regex, replacement);
     private static getRegex(file, regex);

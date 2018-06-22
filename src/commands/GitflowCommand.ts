@@ -121,6 +121,8 @@ export class GitflowCommand {
     private static getCurrentVersion(): string {
         if (Config.isNPMPackageEnvironment() || Config.isSmallstackEnvironment())
             return Config.project.version;
+        if (Config.isFlutterEnvironment())
+            return this.getFlutterVersion();
         // check if its a multi npm repository
         const directories: string[] = this.getDirectories(Config.rootDirectory);
         for (const directory of directories) {
@@ -136,6 +138,14 @@ export class GitflowCommand {
 
     private static getDirectories(root: string) {
         return fs.readdirSync(root).map((name) => path.join(root, name)).filter((source) => fs.lstatSync(source).isDirectory());
+    }
+
+    private static getFlutterVersion(): string {
+        const gradlePath: string = path.resolve(Config.getRootDirectory(), "app", "android", "app", "build.gradle");
+        const versionNameRegex = /versionName \"([a-zA-Z\.0-9].*)\"/;
+        const data = fs.readFileSync(gradlePath, "utf8");
+        const result = versionNameRegex.exec(data);
+        return result[1];
     }
 
     private static toVersion(toVersion) {
@@ -244,6 +254,39 @@ export class GitflowCommand {
                     if (fs.existsSync(packageJSONFilePath))
                         this.replaceVersionInPackageJson(packageJSONFilePath, toVersion);
                 }
+                exec("git commit -a -m \"changing version to " + toVersion + "\"");
+                resolve();
+            } else if (Config.isFlutterEnvironment()) {
+
+                const iosPath = path.join("app", "ios", "Runner", "Info.plist");
+                const androidPath = path.join("app", "android", "app", "build.gradle");
+
+                if (!fs.existsSync(iosPath))
+                    throw new Error("IOS File " + iosPath + " doesn't exist!");
+                if (!fs.existsSync(androidPath))
+                    throw new Error("Android File " + androidPath + " doesn't exist!");
+
+                // iOS
+                console.log("changing version of " + iosPath);
+                const parsedPlist = plist.parse(fs.readFileSync(iosPath, "utf8"));
+                parsedPlist.CFBundleShortVersionString = toVersion;
+                parsedPlist.CFBundleVersion = toVersion;
+                fs.writeFileSync(iosPath, plist.build(parsedPlist), {
+                    encoding: "utf8"
+                });
+
+                // Android gradle
+                console.log("changing version of " + androidPath);
+                const versionCodeRegexGradlig = /versionCode ([0-9].*)/;
+                const versionNameRegexGradlig = /versionName \"([a-zA-Z\.0-9].*)\"/;
+                const currentVersionCode = parseInt(this.getRegex(androidPath, versionCodeRegexGradlig));
+                console.log("currentVersionCode " + currentVersionCode);
+                const nextAndroidVersionCode = currentVersionCode + 1;
+                console.log("nextAndroidVersionCode " + nextAndroidVersionCode);
+                this.replaceString(androidPath, versionCodeRegexGradlig, "versionCode " + nextAndroidVersionCode);
+                this.replaceString(androidPath, versionNameRegexGradlig, "versionName \"" + toVersion + "\"");
+
+                // do the commit
                 exec("git commit -a -m \"changing version to " + toVersion + "\"");
                 resolve();
             } else throw new Error("Unsupported Environment!");
