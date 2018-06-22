@@ -117,6 +117,8 @@ class GitflowCommand {
     static getCurrentVersion() {
         if (Config_1.Config.isNPMPackageEnvironment() || Config_1.Config.isSmallstackEnvironment())
             return Config_1.Config.project.version;
+        if (Config_1.Config.isFlutterEnvironment())
+            return this.getFlutterVersion();
         // check if its a multi npm repository
         const directories = this.getDirectories(Config_1.Config.rootDirectory);
         for (const directory of directories) {
@@ -131,6 +133,13 @@ class GitflowCommand {
     }
     static getDirectories(root) {
         return fs.readdirSync(root).map((name) => path.join(root, name)).filter((source) => fs.lstatSync(source).isDirectory());
+    }
+    static getFlutterVersion() {
+        const gradlePath = path.resolve(Config_1.Config.getRootDirectory(), "app", "android", "app", "build.gradle");
+        const versionNameRegex = /versionName \"([a-zA-Z\.0-9].*)\"/;
+        const data = fs.readFileSync(gradlePath, "utf8");
+        const result = versionNameRegex.exec(data);
+        return result[1];
     }
     static toVersion(toVersion) {
         return new Promise((resolve, reject) => {
@@ -230,6 +239,35 @@ class GitflowCommand {
                     if (fs.existsSync(packageJSONFilePath))
                         this.replaceVersionInPackageJson(packageJSONFilePath, toVersion);
                 }
+                exec("git commit -a -m \"changing version to " + toVersion + "\"");
+                resolve();
+            }
+            else if (Config_1.Config.isFlutterEnvironment()) {
+                const iosPath = path.join("app", "ios", "Runner", "Info.plist");
+                const androidPath = path.join("app", "android", "app", "build.gradle");
+                if (!fs.existsSync(iosPath))
+                    throw new Error("IOS File " + iosPath + " doesn't exist!");
+                if (!fs.existsSync(androidPath))
+                    throw new Error("Android File " + androidPath + " doesn't exist!");
+                // iOS
+                console.log("changing version of " + iosPath);
+                const parsedPlist = plist.parse(fs.readFileSync(iosPath, "utf8"));
+                parsedPlist.CFBundleShortVersionString = toVersion;
+                parsedPlist.CFBundleVersion = toVersion;
+                fs.writeFileSync(iosPath, plist.build(parsedPlist), {
+                    encoding: "utf8"
+                });
+                // Android gradle
+                console.log("changing version of " + androidPath);
+                const versionCodeRegexGradlig = /versionCode ([0-9].*)/;
+                const versionNameRegexGradlig = /versionName \"([a-zA-Z\.0-9].*)\"/;
+                const currentVersionCode = parseInt(this.getRegex(androidPath, versionCodeRegexGradlig));
+                console.log("currentVersionCode " + currentVersionCode);
+                const nextAndroidVersionCode = currentVersionCode + 1;
+                console.log("nextAndroidVersionCode " + nextAndroidVersionCode);
+                this.replaceString(androidPath, versionCodeRegexGradlig, "versionCode " + nextAndroidVersionCode);
+                this.replaceString(androidPath, versionNameRegexGradlig, "versionName \"" + toVersion + "\"");
+                // do the commit
                 exec("git commit -a -m \"changing version to " + toVersion + "\"");
                 resolve();
             }

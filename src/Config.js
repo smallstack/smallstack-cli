@@ -203,6 +203,10 @@ class Config {
         }
         return false;
     }
+    static flutterAppFound(directory) {
+        if (fs.existsSync(path.join("app", "pubspec.yaml")))
+            return true;
+    }
     static isEmptyDirectoryEnvironment() {
         return this.emptyDirectory(this.getRootDirectory());
     }
@@ -220,6 +224,9 @@ class Config {
     }
     static isNativescriptEnvironment() {
         return this.nativescriptAppFound(this.getRootDirectory());
+    }
+    static isFlutterEnvironment() {
+        return this.flutterAppFound(this.getRootDirectory());
     }
     static isNPMPackageEnvironment() {
         return this.npmPackageFound(this.getRootDirectory());
@@ -270,6 +277,8 @@ class Config {
                 if (this.workspaceFound(root))
                     return root;
                 if (this.npmPackageFound(root))
+                    return root;
+                if (this.flutterAppFound(root))
                     return root;
                 if (this.multiNPMPackageFound(root))
                     return root;

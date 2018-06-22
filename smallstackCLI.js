@@ -76,6 +76,8 @@ function CLI() {
             console.log("Environment:     nativescript app");
         else if (Config_1.Config.isNPMPackageEnvironment())
             console.log("Environment:     NPM package");
+        else if (Config_1.Config.isFlutterEnvironment())
+            console.log("Environment:     Flutter App");
         else if (Config_1.Config.isMultiNPMPackageEnvironment())
             console.log("Environment:     Multi NPM package");
         else if (Config_1.Config.calledWithCreateProjectCommand())

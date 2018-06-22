@@ -45,12 +45,14 @@ export declare class Config {
     static npmPackageFound(directory: any): boolean;
     static workspaceFound(directory: any): boolean;
     static multiNPMPackageFound(directory: any): boolean;
+    static flutterAppFound(directory: any): boolean;
     static isEmptyDirectoryEnvironment(): any;
     static isWorkspaceEnvironment(): boolean;
     static isSmallstackEnvironment(): boolean;
     static isProjectEnvironment(): boolean;
     static isComponentEnvironment(): boolean;
     static isNativescriptEnvironment(): boolean;
+    static isFlutterEnvironment(): boolean;
     static isNPMPackageEnvironment(): boolean;
     static isMultiNPMPackageEnvironment(): boolean;
     static calledWithCreateProjectCommand(): boolean;
