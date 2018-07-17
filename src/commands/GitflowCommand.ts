@@ -184,7 +184,7 @@ export class GitflowCommand {
 
                     // iOS
                     const nativescriptIOSPlistPath = path.resolve(Config.nativescriptDirectory, "app", "App_Resources", "iOS", "Info.plist");
-                    console.log("changing version of " + nativescriptIOSPlistPath);
+                    console.log("Change version of " + nativescriptIOSPlistPath);
                     if (!fs.existsSync(nativescriptIOSPlistPath))
                         throw new Error("No ios Info.plist file found!");
                     const parsedPlist = plist.parse(fs.readFileSync(nativescriptIOSPlistPath, "utf8"));
@@ -196,7 +196,7 @@ export class GitflowCommand {
 
                     // Android Manifest
                     const androidManifest = path.resolve(Config.nativescriptDirectory, "app", "App_Resources", "Android", "AndroidManifest.xml");
-                    console.log("changing version of " + androidManifest);
+                    console.log("Change version of " + androidManifest);
                     const versionCodeRegexMani = /android:versionCode=\"([0-9].*)\"/;
                     const versionNameRegexMani = /android:versionName=\"([a-zA-Z\.0-9].*)\"/;
                     const currentVersionCode = parseInt(this.getRegex(androidManifest, versionCodeRegexMani));
@@ -209,7 +209,7 @@ export class GitflowCommand {
 
                     // Android gradle
                     const androidGradlig = path.resolve(Config.nativescriptDirectory, "app", "App_Resources", "Android", "app.gradle");
-                    console.log("changing version of " + androidGradlig);
+                    console.log("Change version of " + androidGradlig);
                     const versionCodeRegexGradlig = /versionCode ([0-9].*)/;
                     const versionNameRegexGradlig = /versionName \"([a-zA-Z\.0-9].*)\"/;
                     this.replaceString(androidGradlig, versionCodeRegexGradlig, "versionCode " + nextAndroidVersionCode);
@@ -217,7 +217,7 @@ export class GitflowCommand {
                 }
 
                 // do the commit
-                exec("git commit -a -m \"changing version to " + toVersion + "\"");
+                exec("git commit -a -m \"Change version to " + toVersion + "\"");
                 resolve();
             } else if (Config.isSmallstackEnvironment()) {
                 glob("**/package.json", {
@@ -232,7 +232,7 @@ export class GitflowCommand {
                             this.replaceVersionInPackageJson(packageLockFile, toVersion);
                         this.replaceSmallstackVersionsInPackageFile("0.9.x", packageFile);
                     });
-                    exec("git commit -a -m \"changing version to " + toVersion + "\"");
+                    exec("git commit -a -m \"Change version to " + toVersion + "\"");
                     resolve();
                 });
             } else if (Config.isNPMPackageEnvironment()) {
@@ -246,7 +246,7 @@ export class GitflowCommand {
                     });
                 }
 
-                exec("git commit -a -m \"changing version to " + toVersion + "\"");
+                exec("git commit -a -m \"Change version to " + toVersion + "\"");
                 resolve();
             } else if (Config.isMultiNPMPackageEnvironment()) {
                 const rootDirectories: string[] = this.getDirectories(Config.rootDirectory);
@@ -255,7 +255,7 @@ export class GitflowCommand {
                     if (fs.existsSync(packageJSONFilePath))
                         this.replaceVersionInPackageJson(packageJSONFilePath, toVersion);
                 }
-                exec("git commit -a -m \"changing version to " + toVersion + "\"");
+                exec("git commit -a -m \"Change version to " + toVersion + "\"");
                 resolve();
             } else if (Config.isFlutterEnvironment()) {
 
@@ -268,7 +268,7 @@ export class GitflowCommand {
                     throw new Error("Android File " + androidPath + " doesn't exist!");
 
                 // iOS
-                console.log("changing version of " + iosPath);
+                console.log("Change version of " + iosPath);
                 const parsedPlist = plist.parse(fs.readFileSync(iosPath, "utf8"));
                 parsedPlist.CFBundleShortVersionString = toVersion;
                 parsedPlist.CFBundleVersion = toVersion;
@@ -277,7 +277,7 @@ export class GitflowCommand {
                 });
 
                 // Android gradle
-                console.log("changing version of " + androidPath);
+                console.log("Change version of " + androidPath);
                 const versionCodeRegexGradlig = /versionCode ([0-9].*)/;
                 const versionNameRegexGradlig = /versionName \"([a-zA-Z\.0-9].*)\"/;
                 const currentVersionCode = parseInt(this.getRegex(androidPath, versionCodeRegexGradlig));
@@ -288,7 +288,7 @@ export class GitflowCommand {
                 this.replaceString(androidPath, versionNameRegexGradlig, "versionName \"" + toVersion + "\"");
 
                 // do the commit
-                exec("git commit -a -m \"changing version to " + toVersion + "\"");
+                exec("git commit -a -m \"Change version to " + toVersion + "\"");
                 resolve();
             } else throw new Error("Unsupported Environment!");
         });
@@ -307,7 +307,7 @@ export class GitflowCommand {
 
     private static replaceVersionInPackageJson(file, newVersion) {
         const jsonContent = require(file);
-        console.log("changing version in " + file + " to " + newVersion);
+        console.log("Change version in " + file + " to " + newVersion);
         jsonContent.version = newVersion;
         fs.writeJSONSync(file, jsonContent, { encoding: "UTF-8", spaces: 2 });
     }
