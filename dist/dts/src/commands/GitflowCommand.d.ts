@@ -14,4 +14,5 @@ export declare class GitflowCommand {
     private static getRegex(file, regex);
     private static replaceVersionInPackageJson(file, newVersion);
     private static replaceSmallstackVersionsInPackageFile(newVersion, packageFilePath);
+    private static getFlutterAppDirectory();
 }
