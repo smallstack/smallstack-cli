@@ -251,6 +251,8 @@ export class Config {
     public static flutterAppFound(directory) {
         if (fs.existsSync(path.join("app", "pubspec.yaml")))
             return true;
+        if (fs.existsSync(path.join("flutter_app", "pubspec.yaml")))
+            return true;
     }
 
     public static isEmptyDirectoryEnvironment() {
