@@ -136,7 +136,7 @@ class GitflowCommand {
         return fs.readdirSync(root).map((name) => path.join(root, name)).filter((source) => fs.lstatSync(source).isDirectory());
     }
     static getFlutterVersion() {
-        const gradlePath = path.resolve(Config_1.Config.getRootDirectory(), "app", "android", "app", "build.gradle");
+        const gradlePath = path.resolve(this.getFlutterAppDirectory(), "android", "app", "build.gradle");
         const versionNameRegex = /versionName \"([a-zA-Z\.0-9].*)\"/;
         const data = fs.readFileSync(gradlePath, "utf8");
         const result = versionNameRegex.exec(data);
@@ -244,8 +244,8 @@ class GitflowCommand {
                 resolve();
             }
             else if (Config_1.Config.isFlutterEnvironment()) {
-                const iosPath = path.join("app", "ios", "Runner", "Info.plist");
-                const androidPath = path.join("app", "android", "app", "build.gradle");
+                const iosPath = path.join(this.getFlutterAppDirectory(), "ios", "Runner", "Info.plist");
+                const androidPath = path.join(this.getFlutterAppDirectory(), "android", "app", "build.gradle");
                 if (!fs.existsSync(iosPath))
                     throw new Error("IOS File " + iosPath + " doesn't exist!");
                 if (!fs.existsSync(androidPath))
@@ -299,6 +299,15 @@ class GitflowCommand {
                     jsonContent.dependencies["@smallstack/" + moduleName] = newVersion;
         }
         fs.writeJSONSync(packageFilePath, jsonContent, { encoding: "UTF-8", spaces: 2 });
+    }
+    static getFlutterAppDirectory() {
+        let flutterPath = path.join(Config_1.Config.getRootDirectory(), "flutter_app");
+        if (fs.existsSync(flutterPath))
+            return flutterPath;
+        flutterPath = path.join(Config_1.Config.getRootDirectory(), "app");
+        if (fs.existsSync(flutterPath))
+            return flutterPath;
+        throw new Error("Neither /app nor /flutter_app directory was found!");
     }
 }
 exports.GitflowCommand = GitflowCommand;
