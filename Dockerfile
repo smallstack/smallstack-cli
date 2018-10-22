@@ -23,7 +23,8 @@ RUN dpkg --add-architecture i386 && \
 						openjdk-8-jdk \
 						software-properties-common \
 						unzip \
-						usbutils
+						usbutils \
+						dirmngr
 
 # install node 8.9.3
 RUN groupadd --gid 1004 node \
