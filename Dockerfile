@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:16.10
 
 ARG ANDROID_SDK_URL="https://dl.google.com/android/repository/tools_r25.2.3-linux.zip"
 ARG ANDROID_BUILD_TOOLS="build-tools-25.0.2"
