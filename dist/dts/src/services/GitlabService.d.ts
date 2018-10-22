@@ -22,6 +22,6 @@ export declare class GitlabService {
     getMergeRequests(projectId: string, state?: string): Promise<any[]>;
     getProjectPathFromLocalGitRepo(): Promise<string>;
     getAll(url: string): Promise<any[]>;
-    private filtersToParameters(filters);
-    private getResultFromUrl(url);
+    private filtersToParameters;
+    private getResultFromUrl;
 }

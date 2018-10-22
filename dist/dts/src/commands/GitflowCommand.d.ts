@@ -5,14 +5,14 @@ export declare class GitflowCommand {
         [parameterKey: string]: string;
     };
     static execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any>;
-    private static doRelease(tagName);
-    private static getCurrentVersion();
-    private static getDirectories(root);
-    private static getFlutterVersion();
-    private static toVersion(toVersion);
-    private static replaceString(file, regex, replacement);
-    private static getRegex(file, regex);
-    private static replaceVersionInPackageJson(file, newVersion);
-    private static replaceSmallstackVersionsInPackageFile(newVersion, packageFilePath);
-    private static getFlutterAppDirectory();
+    private static doRelease;
+    private static getCurrentVersion;
+    private static getDirectories;
+    private static getFlutterVersion;
+    private static toVersion;
+    private static replaceString;
+    private static getRegex;
+    private static replaceVersionInPackageJson;
+    private static getFlutterAppDirectory;
+    private static showVersionBanner;
 }

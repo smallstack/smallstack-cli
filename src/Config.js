@@ -204,10 +204,11 @@ class Config {
         return false;
     }
     static flutterAppFound(directory) {
-        if (fs.existsSync(path.join("app", "pubspec.yaml")))
+        if (fs.existsSync(path.join(directory, "app", "pubspec.yaml")))
             return true;
-        if (fs.existsSync(path.join("flutter_app", "pubspec.yaml")))
+        if (fs.existsSync(path.join(directory, "flutter_app", "pubspec.yaml")))
             return true;
+        return false;
     }
     static isEmptyDirectoryEnvironment() {
         return this.emptyDirectory(this.getRootDirectory());
