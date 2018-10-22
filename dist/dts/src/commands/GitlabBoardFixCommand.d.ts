@@ -5,5 +5,5 @@ export declare class GitlabBoardFixCommand {
         [parameterKey: string]: string;
     };
     static execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any>;
-    private static getTagForDate(tags, date);
+    private static getTagForDate;
 }

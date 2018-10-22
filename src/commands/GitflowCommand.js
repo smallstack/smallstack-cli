@@ -11,7 +11,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const colors = require("colors");
 const fs = require("fs-extra");
 const gitState = require("git-state");
-const glob = require("glob");
 const path = require("path");
 const plist = require("plist");
 const semver = require("semver");
@@ -151,19 +150,24 @@ class GitflowCommand {
                     throw new Error("No package.json found in project root!");
                 this.replaceVersionInPackageJson(rootPackageJsonPath, toVersion);
                 // meteor app
+                GitflowCommand.showVersionBanner("Meteor");
                 const meteorPJP = path.resolve(Config_1.Config.meteorDirectory, "package.json");
                 if (!fs.existsSync(meteorPJP))
                     throw new Error("No meteor package.json found!");
                 this.replaceVersionInPackageJson(meteorPJP, toVersion);
                 // frontend app
                 if (Config_1.Config.projectHasFrontend()) {
+                    GitflowCommand.showVersionBanner("Frontend");
                     const frontendPJP = path.resolve(Config_1.Config.frontendDirectory, "package.json");
                     if (!fs.existsSync(frontendPJP))
                         throw new Error("No frontend package.json found!");
                     this.replaceVersionInPackageJson(frontendPJP, toVersion);
                 }
                 // nativescript app
+                let currentAndroidVersionCode;
+                let nextAndroidVersionCode;
                 if (Config_1.Config.projectHasNativescriptApp()) {
+                    GitflowCommand.showVersionBanner("Nativescript");
                     // root package.json
                     const nativescriptRootPJP = path.resolve(Config_1.Config.nativescriptDirectory, "package.json");
                     if (!fs.existsSync(nativescriptRootPJP))
@@ -185,10 +189,10 @@ class GitflowCommand {
                     console.log("Change version of " + androidManifest);
                     const versionCodeRegexMani = /android:versionCode=\"([0-9].*)\"/;
                     const versionNameRegexMani = /android:versionName=\"([a-zA-Z\.0-9].*)\"/;
-                    const currentVersionCode = parseInt(this.getRegex(androidManifest, versionCodeRegexMani));
-                    const nextAndroidVersionCode = currentVersionCode + 1;
-                    console.log("Current Android Version Code : ", currentVersionCode);
-                    console.log("Next Android Version Code    : ", nextAndroidVersionCode);
+                    currentAndroidVersionCode = parseInt(this.getRegex(androidManifest, versionCodeRegexMani));
+                    nextAndroidVersionCode = currentAndroidVersionCode + 1;
+                    console.log("  |-- Current Android Version Code : ", currentAndroidVersionCode);
+                    console.log("  |-- Next Android Version Code    : ", nextAndroidVersionCode);
                     console.warn(colors.cyan("Hint: Please double-check the unique android version code, this tool just increments the current one!"));
                     this.replaceString(androidManifest, versionCodeRegexMani, "android:versionCode=\"" + nextAndroidVersionCode + "\"");
                     this.replaceString(androidManifest, versionNameRegexMani, "android:versionName=\"" + toVersion + "\"");
@@ -200,26 +204,41 @@ class GitflowCommand {
                     this.replaceString(androidGradlig, versionCodeRegexGradlig, "versionCode " + nextAndroidVersionCode);
                     this.replaceString(androidGradlig, versionNameRegexGradlig, "versionName \"" + toVersion + "\"");
                 }
+                if (Config_1.Config.isFlutterEnvironment()) {
+                    GitflowCommand.showVersionBanner("Flutter");
+                    const iosPath = path.join(this.getFlutterAppDirectory(), "ios", "Runner", "Info.plist");
+                    const androidPath = path.join(this.getFlutterAppDirectory(), "android", "app", "build.gradle");
+                    if (!fs.existsSync(iosPath))
+                        throw new Error("IOS File " + iosPath + " doesn't exist!");
+                    if (!fs.existsSync(androidPath))
+                        throw new Error("Android File " + androidPath + " doesn't exist!");
+                    // iOS
+                    console.log("Change version of " + iosPath);
+                    const parsedPlist = plist.parse(fs.readFileSync(iosPath, "utf8"));
+                    parsedPlist.CFBundleShortVersionString = toVersion;
+                    parsedPlist.CFBundleVersion = toVersion;
+                    fs.writeFileSync(iosPath, plist.build(parsedPlist), {
+                        encoding: "utf8"
+                    });
+                    // Android gradle
+                    console.log("Change version of " + androidPath);
+                    const versionCodeRegexGradlig = /versionCode ([0-9].*)/;
+                    const versionNameRegexGradlig = /versionName \"([a-zA-Z\.0-9].*)\"/;
+                    if (currentAndroidVersionCode === undefined)
+                        currentAndroidVersionCode = parseInt(this.getRegex(androidPath, versionCodeRegexGradlig));
+                    if (nextAndroidVersionCode === undefined)
+                        nextAndroidVersionCode = currentAndroidVersionCode + 1;
+                    console.log("  |-- Current Android Version Code : ", currentAndroidVersionCode);
+                    console.log("  |-- Next Android Version Code    : ", nextAndroidVersionCode);
+                    this.replaceString(androidPath, versionCodeRegexGradlig, "versionCode " + nextAndroidVersionCode);
+                    this.replaceString(androidPath, versionNameRegexGradlig, "versionName \"" + toVersion + "\"");
+                    // do the commit
+                    exec("git commit -a -m \"Change version to " + toVersion + "\"");
+                    resolve();
+                }
                 // do the commit
                 exec("git commit -a -m \"Change version to " + toVersion + "\"");
                 resolve();
-            }
-            else if (Config_1.Config.isSmallstackEnvironment()) {
-                glob("**/package.json", {
-                    ignore: ["**/node_modules/**", "**/dist/**", "resources/projectfiles/meteor/**"]
-                }, (err, files) => {
-                    _.each(files, (file) => {
-                        const packageFile = path.resolve(Config_1.Config.rootDirectory, file);
-                        const absolutePath = path.dirname(packageFile);
-                        const packageLockFile = path.resolve(absolutePath, "package-lock.json");
-                        this.replaceVersionInPackageJson(packageFile, toVersion);
-                        if (fs.existsSync(packageLockFile))
-                            this.replaceVersionInPackageJson(packageLockFile, toVersion);
-                        this.replaceSmallstackVersionsInPackageFile("0.9.x", packageFile);
-                    });
-                    exec("git commit -a -m \"Change version to " + toVersion + "\"");
-                    resolve();
-                });
             }
             else if (Config_1.Config.isNPMPackageEnvironment()) {
                 exec("npm version " + toVersion + " --git-tag-version=false --allow-same-version");
@@ -243,35 +262,6 @@ class GitflowCommand {
                 exec("git commit -a -m \"Change version to " + toVersion + "\"");
                 resolve();
             }
-            else if (Config_1.Config.isFlutterEnvironment()) {
-                const iosPath = path.join(this.getFlutterAppDirectory(), "ios", "Runner", "Info.plist");
-                const androidPath = path.join(this.getFlutterAppDirectory(), "android", "app", "build.gradle");
-                if (!fs.existsSync(iosPath))
-                    throw new Error("IOS File " + iosPath + " doesn't exist!");
-                if (!fs.existsSync(androidPath))
-                    throw new Error("Android File " + androidPath + " doesn't exist!");
-                // iOS
-                console.log("Change version of " + iosPath);
-                const parsedPlist = plist.parse(fs.readFileSync(iosPath, "utf8"));
-                parsedPlist.CFBundleShortVersionString = toVersion;
-                parsedPlist.CFBundleVersion = toVersion;
-                fs.writeFileSync(iosPath, plist.build(parsedPlist), {
-                    encoding: "utf8"
-                });
-                // Android gradle
-                console.log("Change version of " + androidPath);
-                const versionCodeRegexGradlig = /versionCode ([0-9].*)/;
-                const versionNameRegexGradlig = /versionName \"([a-zA-Z\.0-9].*)\"/;
-                const currentVersionCode = parseInt(this.getRegex(androidPath, versionCodeRegexGradlig));
-                console.log("currentVersionCode " + currentVersionCode);
-                const nextAndroidVersionCode = currentVersionCode + 1;
-                console.log("nextAndroidVersionCode " + nextAndroidVersionCode);
-                this.replaceString(androidPath, versionCodeRegexGradlig, "versionCode " + nextAndroidVersionCode);
-                this.replaceString(androidPath, versionNameRegexGradlig, "versionName \"" + toVersion + "\"");
-                // do the commit
-                exec("git commit -a -m \"Change version to " + toVersion + "\"");
-                resolve();
-            }
             else
                 throw new Error("Unsupported Environment!");
         });
@@ -291,15 +281,15 @@ class GitflowCommand {
         jsonContent.version = newVersion;
         fs.writeJSONSync(file, jsonContent, { encoding: "UTF-8", spaces: 2 });
     }
-    static replaceSmallstackVersionsInPackageFile(newVersion, packageFilePath) {
-        const jsonContent = require(packageFilePath);
-        if (jsonContent.dependencies) {
-            for (const moduleName of Config_1.Config.getModuleNames())
-                if (jsonContent.dependencies["@smallstack/" + moduleName])
-                    jsonContent.dependencies["@smallstack/" + moduleName] = newVersion;
-        }
-        fs.writeJSONSync(packageFilePath, jsonContent, { encoding: "UTF-8", spaces: 2 });
-    }
+    // private static replaceSmallstackVersionsInPackageFile(newVersion: string, packageFilePath: string): any {
+    //     const jsonContent = require(packageFilePath);
+    //     if (jsonContent.dependencies) {
+    //         for (const moduleName of Config.getModuleNames())
+    //             if (jsonContent.dependencies["@smallstack/" + moduleName])
+    //                 jsonContent.dependencies["@smallstack/" + moduleName] = newVersion;
+    //     }
+    //     fs.writeJSONSync(packageFilePath, jsonContent, { encoding: "UTF-8", spaces: 2 });
+    // }
     static getFlutterAppDirectory() {
         let flutterPath = path.join(Config_1.Config.getRootDirectory(), "flutter_app");
         if (fs.existsSync(flutterPath))
@@ -308,6 +298,9 @@ class GitflowCommand {
         if (fs.existsSync(flutterPath))
             return flutterPath;
         throw new Error("Neither /app nor /flutter_app directory was found!");
+    }
+    static showVersionBanner(title) {
+        console.log("#### " + title);
     }
 }
 exports.GitflowCommand = GitflowCommand;

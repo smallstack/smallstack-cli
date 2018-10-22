@@ -125,9 +125,9 @@ export declare class DockerCloudService {
      * POST /api/repo/v1/[optional_namespace/]repository/
      */
     getDockerCloudApiUrl(endpoint: "app" | "repo", additionalPath?: string, withoutNamespace?: boolean): string;
-    private buildRequest(method, endpoint, path, urlParams?, body?);
-    private truncateServiceName(serviceName, limit?);
-    private truncateDomainsSubdomain(url, maximumLength?);
-    private waitForStateInternal(parameters, timeoutHandler?, intervalHandler?);
-    private getHTTPStatusCode(url);
+    private buildRequest;
+    private truncateServiceName;
+    private truncateDomainsSubdomain;
+    private waitForStateInternal;
+    private getHTTPStatusCode;
 }

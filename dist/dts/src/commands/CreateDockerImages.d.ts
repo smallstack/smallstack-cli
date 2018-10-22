@@ -5,6 +5,6 @@ export declare class CreateDockerImages {
         [parameterKey: string]: string;
     };
     static execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any>;
-    private static createMeteorImage(parameters);
-    private static createFrontendImage(parameters);
+    private static createMeteorImage;
+    private static createFrontendImage;
 }
