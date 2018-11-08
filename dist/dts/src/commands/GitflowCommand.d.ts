@@ -5,6 +5,7 @@ export declare class GitflowCommand {
         [parameterKey: string]: string;
     };
     static execute(current: CLICommandOption, allCommands: CLICommandOption[]): Promise<any>;
+    private static commandOption;
     private static doRelease;
     private static getCurrentVersion;
     private static getDirectories;
@@ -12,7 +13,7 @@ export declare class GitflowCommand {
     private static toVersion;
     private static replaceString;
     private static getRegex;
-    private static replaceVersionInPackageJson;
+    private static replaceVersionInPackageJsonPath;
     private static getFlutterAppDirectory;
     private static showVersionBanner;
 }

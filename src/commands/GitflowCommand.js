@@ -14,7 +14,7 @@ const gitState = require("git-state");
 const path = require("path");
 const plist = require("plist");
 const semver = require("semver");
-const SimpleGit = require("simple-git");
+const SimpleGit = require("simple-git/promise");
 const _ = require("underscore");
 const Config_1 = require("../Config");
 // tslint:disable-next-line:no-var-requires
@@ -33,6 +33,7 @@ class GitflowCommand {
         };
     }
     static execute(current, allCommands) {
+        this.commandOption = current;
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             const forceMode = current.parameters && current.parameters.force === true;
             let doneSomething = false;
@@ -85,30 +86,31 @@ class GitflowCommand {
         }));
     }
     static doRelease(tagName) {
-        return new Promise((resolve, reject) => {
+        return __awaiter(this, void 0, void 0, function* () {
             if (gitState.isGitSync(Config_1.Config.rootDirectory)) {
                 const state = gitState.checkSync(Config_1.Config.rootDirectory);
                 if (state.dirty !== 0 || state.untracked !== 0)
                     throw new Error("Uncommitted changes are not allowed when doing a release!");
                 const currentUserBranch = state.branch;
                 const git = SimpleGit(Config_1.Config.rootDirectory);
-                git.branchLocal((error, summary) => {
-                    if (summary.branches.master === undefined)
-                        throw new Error("No local master branch found!");
-                    else if (summary.branches.develop === undefined)
-                        throw new Error("No local develop branch found!");
-                })
-                    .tags((error, tags) => {
-                    if (tags.all.indexOf(tagName) !== -1)
-                        throw new Error("Tag '" + tagName + "' already exists!");
-                })
-                    .checkout("master", () => { console.log("checked out master..."); })
-                    .mergeFromTo("develop", "master", ["-m Merge branch 'develop' into 'master'", "--log"], () => { console.log("merged develop into master..."); })
-                    .addTag(tagName, () => { console.log("created tag " + tagName); })
-                    .checkout(currentUserBranch, () => {
-                    console.log("checked out user branch " + currentUserBranch);
-                    resolve();
-                });
+                const summary = yield git.branchLocal();
+                if (summary.branches.master === undefined)
+                    throw new Error("No local master branch found!");
+                if (summary.branches.develop === undefined && this.commandOption.parameters["no-gitflow"] === undefined)
+                    throw new Error("No local develop branch found! If you're not using the Gitflow Flow, please pass --no-gitflow");
+                const tagsResult = yield git.tags();
+                if (tagsResult.all.indexOf(tagName) !== -1)
+                    throw new Error("Tag '" + tagName + "' already exists!");
+                yield git.checkout("master");
+                console.log("checked out master...");
+                if (this.commandOption.parameters["no-gitflow"] === undefined) {
+                    yield git.mergeFromTo("develop", "master", ["-m Merge branch 'develop' into 'master'", "--log"]);
+                    console.log("merged develop into master...");
+                }
+                yield git.addTag(tagName);
+                console.log("created tag " + tagName);
+                yield git.checkout(currentUserBranch);
+                console.log("checked out user branch " + currentUserBranch);
             }
             else
                 throw new Error("Your project must be under (git) version control for doing a release!");
@@ -148,20 +150,20 @@ class GitflowCommand {
                 const rootPackageJsonPath = path.resolve(Config_1.Config.rootDirectory, "package.json");
                 if (!fs.existsSync(rootPackageJsonPath))
                     throw new Error("No package.json found in project root!");
-                this.replaceVersionInPackageJson(rootPackageJsonPath, toVersion);
+                this.replaceVersionInPackageJsonPath(Config_1.Config.rootDirectory, toVersion);
                 // meteor app
                 GitflowCommand.showVersionBanner("Meteor");
                 const meteorPJP = path.resolve(Config_1.Config.meteorDirectory, "package.json");
                 if (!fs.existsSync(meteorPJP))
                     throw new Error("No meteor package.json found!");
-                this.replaceVersionInPackageJson(meteorPJP, toVersion);
+                this.replaceVersionInPackageJsonPath(Config_1.Config.meteorDirectory, toVersion);
                 // frontend app
                 if (Config_1.Config.projectHasFrontend()) {
                     GitflowCommand.showVersionBanner("Frontend");
                     const frontendPJP = path.resolve(Config_1.Config.frontendDirectory, "package.json");
                     if (!fs.existsSync(frontendPJP))
                         throw new Error("No frontend package.json found!");
-                    this.replaceVersionInPackageJson(frontendPJP, toVersion);
+                    this.replaceVersionInPackageJsonPath(Config_1.Config.meteorDirectory, toVersion);
                 }
                 // nativescript app
                 let currentAndroidVersionCode;
@@ -172,7 +174,7 @@ class GitflowCommand {
                     const nativescriptRootPJP = path.resolve(Config_1.Config.nativescriptDirectory, "package.json");
                     if (!fs.existsSync(nativescriptRootPJP))
                         throw new Error("No nativescript root package.json found!");
-                    this.replaceVersionInPackageJson(nativescriptRootPJP, toVersion);
+                    this.replaceVersionInPackageJsonPath(Config_1.Config.nativescriptDirectory, toVersion);
                     // iOS
                     const nativescriptIOSPlistPath = path.resolve(Config_1.Config.nativescriptDirectory, "app", "App_Resources", "iOS", "Info.plist");
                     console.log("Change version of " + nativescriptIOSPlistPath);
@@ -245,9 +247,7 @@ class GitflowCommand {
                 // check if its an angular workspace with libraries
                 const libPackageJSONPath = path.join(Config_1.Config.rootDirectory, "projects", "library");
                 if (fs.existsSync(path.join(libPackageJSONPath, "package.json"))) {
-                    exec("npm version " + toVersion + " --git-tag-version=false --allow-same-version", {
-                        cwd: libPackageJSONPath
-                    });
+                    this.replaceVersionInPackageJsonPath(libPackageJSONPath, toVersion);
                 }
                 exec("git commit -a -m \"Change version to " + toVersion + "\"");
                 resolve();
@@ -257,7 +257,7 @@ class GitflowCommand {
                 for (const directory of rootDirectories) {
                     const packageJSONFilePath = path.resolve(directory, "package.json");
                     if (fs.existsSync(packageJSONFilePath))
-                        this.replaceVersionInPackageJson(packageJSONFilePath, toVersion);
+                        this.replaceVersionInPackageJsonPath(directory, toVersion);
                 }
                 exec("git commit -a -m \"Change version to " + toVersion + "\"");
                 resolve();
@@ -275,21 +275,12 @@ class GitflowCommand {
         const data = fs.readFileSync(file, "utf8");
         return regex.exec(data)[1];
     }
-    static replaceVersionInPackageJson(file, newVersion) {
-        const jsonContent = require(file);
-        console.log("Change version in " + file + " to " + newVersion);
-        jsonContent.version = newVersion;
-        fs.writeJSONSync(file, jsonContent, { encoding: "UTF-8", spaces: 2 });
+    static replaceVersionInPackageJsonPath(packageJsonDirectory, newVersion) {
+        console.log("Change version in " + packageJsonDirectory + "/package.json to " + newVersion);
+        exec("npm version " + newVersion + " --git-tag-version=false --allow-same-version", {
+            cwd: packageJsonDirectory
+        });
     }
-    // private static replaceSmallstackVersionsInPackageFile(newVersion: string, packageFilePath: string): any {
-    //     const jsonContent = require(packageFilePath);
-    //     if (jsonContent.dependencies) {
-    //         for (const moduleName of Config.getModuleNames())
-    //             if (jsonContent.dependencies["@smallstack/" + moduleName])
-    //                 jsonContent.dependencies["@smallstack/" + moduleName] = newVersion;
-    //     }
-    //     fs.writeJSONSync(packageFilePath, jsonContent, { encoding: "UTF-8", spaces: 2 });
-    // }
     static getFlutterAppDirectory() {
         let flutterPath = path.join(Config_1.Config.getRootDirectory(), "flutter_app");
         if (fs.existsSync(flutterPath))
