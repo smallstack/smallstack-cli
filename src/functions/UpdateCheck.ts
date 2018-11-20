@@ -35,6 +35,8 @@ export class UpdateCheck {
                                 console.log(colors.green("*                   New Version available :"), colors.green.bold(this.newVersion), colors.green("                    *"));
                                 console.log(colors.green("* Call 'npm install -g @smallstack/cli' to install the latest version! *"));
                                 console.log(colors.green("***********************************************************************"));
+                                if (!Config.isCIMode())
+                                    throw new Error("Aborting execution...");
                                 resolve(true);
                             }
                             else
