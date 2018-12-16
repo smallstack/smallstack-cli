@@ -80,6 +80,7 @@ RUN pip install awscli --ignore-installed six
 # install rancher CLI
 RUN wget https://releases.rancher.com/cli2/v2.0.6/rancher-linux-amd64-v2.0.6.tar.gz
 RUN tar -xvzf rancher-linux-amd64-v2.0.6.tar.gz -C /usr/local --strip-components=1
+RUN rancher -v
 
 # install meteor
 RUN curl -sL https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh
