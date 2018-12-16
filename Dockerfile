@@ -7,13 +7,10 @@ RUN dpkg --add-architecture i386 && \
 						curl \
 						g++ \
 						git \
-						gradle \
 						lib32z1 \
 						libc6 \
 						lib32ncurses5 \
 						lib32stdc++6 \
-						maven \
-						openjdk-8-jdk \
 						software-properties-common \
 						unzip \
 						usbutils \
