@@ -14,7 +14,8 @@ RUN dpkg --add-architecture i386 && \
 						software-properties-common \
 						unzip \
 						usbutils \
-						dirmngr
+						dirmngr \
+            wget
 
 # install node 8.9.3
 RUN groupadd --gid 1004 node \
